@@ -1,0 +1,40 @@
+{
+  "name": "tacowasa",
+  "version": "1.0.0",
+  "description": "Web based digital Kanban tool",
+  "main": "index.js",
+  "scripts": {
+    "migrate": "sequelize db:migrate",
+    "test": "mocha --reporter spec --timeout 10000",
+    "test:all": "mocha --reporter spec --timeout 10000 --recursive spec/",
+    "test:cover": "istanbul cover _mocha -- -u exports --timeout 10000 --recursive spec/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kait-tt/tacowasa.git"
+  },
+  "keywords": [
+    "web",
+    "kanban"
+  ],
+  "author": "snakazawa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Kait-tt/tacowasa/issues"
+  },
+  "homepage": "https://github.com/Kait-tt/tacowasa#readme",
+  "engines": {
+    "node": "~6.3.1"
+  },
+  "dependencies": {
+    "lodash": "^4.14.2",
+    "mysql": "^2.11.1",
+    "sequelize": "^3.23.6",
+    "sequelize-cli": "^2.4.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "istanbul": "^0.4.4",
+    "mocha": "^3.0.2"
+  }
+}
