@@ -20,19 +20,15 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER
         },
         defaultStageId: {
-            allowNull: false,
             type: DataTypes.INTEGER
         },
         defaultAccessLevelId: {
-            allowNull: false,
             type: DataTypes.INTEGER
         },
         defaultCostId: {
-            allowNull: false,
             type: DataTypes.INTEGER
         },
         defaultWipLimit: {
-            allowNull: false,
             defaultValue: 12,
             type: DataTypes.INTEGER
         },

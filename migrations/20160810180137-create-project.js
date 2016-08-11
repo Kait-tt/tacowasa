@@ -16,19 +16,15 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       defaultStageId: {
-        allowNull: false,
         type: Sequelize.INTEGER
       },
       defaultAccessLevelId: {
-        allowNull: false,
         type: Sequelize.INTEGER
       },
       defaultCostId: {
-        allowNull: false,
         type: Sequelize.INTEGER
       },
       defaultWipLimit: {
-        allowNull: false,
         defaultValue: 12,
         type: Sequelize.INTEGER
       },
