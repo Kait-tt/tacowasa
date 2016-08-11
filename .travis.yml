@@ -4,6 +4,10 @@ node_js:
 env:
     global:
         - NODE_ENV=test
+after_install:
+    - mysql -uroot -e "create database tacowasa_test"
+before_script:
+    - npm run migrate:test
 script: "npm run test:cover"
 after_success:
     - npm run coveralls
