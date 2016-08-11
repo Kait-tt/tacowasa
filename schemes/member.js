@@ -1,6 +1,6 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
-    var member = sequelize.define('member', {
+    var Member = sequelize.define('member', {
         projectId: {
             allowNull: false,
             type: DataTypes.INTEGER
@@ -32,5 +32,5 @@ module.exports = function(sequelize, DataTypes) {
             }
         }
     });
-    return member;
+    return Member;
 };

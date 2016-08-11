@@ -1,6 +1,6 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
-    var user = sequelize.define('user', {
+    var User = sequelize.define('user', {
         username: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -9,9 +9,9 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         classMethods: {
             associate: function(models) {
-                // associations can be defined here
+                User.belongsToMany(models.Project, {through: models.Member});
             }
         }
     });
-    return user;
+    return User;
 };

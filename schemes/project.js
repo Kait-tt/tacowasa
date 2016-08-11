@@ -4,7 +4,7 @@ var _ = require('lodash');
 const chars = 'abcdefghijklmnopqrstufwxyzABCDEFGHIJKLMNOPQRSTUFWXYZ1234567890';
 
 module.exports = function(sequelize, DataTypes) {
-    var project = sequelize.define('project', {
+    var Project = sequelize.define('project', {
         id: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -39,9 +39,9 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         classMethods: {
             associate: function(models) {
-                // associations can be defined here
+                Project.belongsToMany(models.User, {through: models.Member});
             }
         }
     });
-    return project;
+    return Project;
 };
