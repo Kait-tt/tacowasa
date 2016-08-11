@@ -1,4 +1,5 @@
 'use strict';
+var _ = require('lodash');
 
 const chars = 'abcdefghijklmnopqrstufwxyzABCDEFGHIJKLMNOPQRSTUFWXYZ1234567890';
 
@@ -44,9 +45,3 @@ module.exports = function(sequelize, DataTypes) {
     });
     return project;
 };
-var chars = [].concat(
-    this.lowerList(),
-    this.upperList(),
-    this.numList());
-
-return _.sample(chars, length).join('');

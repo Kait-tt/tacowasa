@@ -1,4 +1,6 @@
+'use strict';
 var expect = require('chai').expect;
+var db = require('../../schemes');
 
 describe('schemes', () => {
     describe('user', () => {

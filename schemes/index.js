@@ -16,12 +16,12 @@ fs
     })
     .forEach(file => {
         const model = sequelize.import(path.join(__dirname, file));
-        db[model.name] = model;
+        db[_.upperFirst(model.name)] = model;
     });
 
 Object.keys(db).forEach(modelName => {
     if ("associate" in db[modelName]) {
-        db[_.upperFirst(modelName)].associate(db);
+        db[modelName].associate(db);
     }
 });
 
