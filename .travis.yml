@@ -7,7 +7,8 @@ env:
 install:
     - mysql -uroot -e "create database tacowasa_test"
 before_script:
+script:
     - npm run migrate:test
-script: "npm run test:cover"
+    - npm run test:cover
 after_success:
     - npm run coveralls
