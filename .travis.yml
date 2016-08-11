@@ -4,7 +4,7 @@ node_js:
 env:
     global:
         - NODE_ENV=test
-after_install:
+install:
     - mysql -uroot -e "create database tacowasa_test"
 before_script:
     - npm run migrate:test
