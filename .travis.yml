@@ -6,7 +6,6 @@ env:
         - NODE_ENV=test
 install:
     - mysql -uroot -e "create database tacowasa_test"
-before_script:
 script:
     - npm run migrate:test
     - npm run test:cover
