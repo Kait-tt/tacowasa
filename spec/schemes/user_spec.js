@@ -1,6 +1,9 @@
 'use strict';
 var expect = require('chai').expect;
+var helper = require('../helper');
 var db = require('../../schemes');
+
+afterEach(() => helper.db.clean());
 
 describe('schemes', () => {
     describe('user', () => {
