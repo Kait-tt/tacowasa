@@ -4,6 +4,6 @@ node_js:
 install:
     - mysql -uroot -e "create database tacowasa_test"
 before_script:
-    - $(npm bin)/sequelize db:migrate
 script:
+    - $(npm bin)/sequelize db:migrate
     - npm run coveralls
