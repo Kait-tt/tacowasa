@@ -20,7 +20,11 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         classMethods: {
             associate: function(models) {
-                Stage.belongsTo(models.Project);
+                Stage.belongsTo(models.Project, {
+                    foreignKey: {
+                        allowNull: false
+                    }
+                });
             }
         }
     });

@@ -9,8 +9,13 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         classMethods: {
             associate: function(models) {
-                User.belongsToMany(models.Project, {through: models.Member});
-                User.hasMany(models.Project, {as: 'createUser', foreignKey: 'createUserId'});
+                User.belongsToMany(models.Project, {
+                    through: models.Member
+                });
+                User.hasMany(models.Project, {
+                    as: 'createUser',
+                    foreignKey: 'createUserId'
+                });
             }
         }
     });

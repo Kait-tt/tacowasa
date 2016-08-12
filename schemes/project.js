@@ -35,8 +35,15 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         classMethods: {
             associate: function(models) {
-                Project.belongsToMany(models.User, {through: models.Member});
-                Project.belongsTo(models.User, {as: 'createUser', foreignKey: 'createUserId'});
+                Project.belongsToMany(models.User, {
+                    through: models.Member
+                });
+                Project.belongsTo(models.User, {
+                    as: 'createUser',
+                    foreignKey: {
+                        name: 'createUserId', allowNull: false
+                    }
+                });
                 Project.hasMany(models.Stage);
             }
         }
