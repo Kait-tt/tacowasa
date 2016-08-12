@@ -3,7 +3,7 @@ module.exports = function(sequelize, DataTypes) {
     var Member = sequelize.define('member', {
         projectId: {
             allowNull: false,
-            type: DataTypes.INTEGER
+            type: DataTypes.STRING
         },
         userId: {
             allowNull: false,

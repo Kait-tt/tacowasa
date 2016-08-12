@@ -3,7 +3,7 @@ module.exports = function(sequelize, DataTypes) {
   var task = sequelize.define('task', {
     projectId: {
       allowNull: false,
-      type: DataTypes.INTEGER
+      type: DataTypes.STRING
     },
     stageId: {
       allowNull: false,

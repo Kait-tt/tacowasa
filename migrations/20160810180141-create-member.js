@@ -10,7 +10,7 @@ module.exports = {
       },
       projectId: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       userId: {
         allowNull: false,
