@@ -1,14 +1,6 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
     var Member = sequelize.define('member', {
-        projectId: {
-            allowNull: false,
-            type: DataTypes.STRING
-        },
-        userId: {
-            allowNull: false,
-            type: DataTypes.INTEGER
-        },
         nextMemberId: {
             type: DataTypes.INTEGER
         },
@@ -28,7 +20,6 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         classMethods: {
             associate: function(models) {
-                // associations can be defined here
             }
         }
     });
