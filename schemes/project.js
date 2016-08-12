@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: false,
             primaryKey: true,
-            defaultValue: () => _.sample(chars, 12)
+            defaultValue: () => _.sampleSize(chars, 12).join('')
         },
         name: {
             allowNull: false,
@@ -36,6 +36,7 @@ module.exports = function(sequelize, DataTypes) {
         classMethods: {
             associate: function(models) {
                 Project.belongsToMany(models.User, {through: models.Member});
+                Project.belongsTo(models.User, {as: 'createUser', foreignKey: 'createUserId'});
             }
         }
     });
