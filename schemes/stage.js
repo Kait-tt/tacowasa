@@ -1,10 +1,6 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
-    var Stage = sequelize.define('stage', {
-        projectId: {
-            allowNull: false,
-            type: DataTypes.STRING
-        },
+    const Stage = sequelize.define('stage', {
         name: {
             allowNull: false,
             type: DataTypes.STRING

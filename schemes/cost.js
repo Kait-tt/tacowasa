@@ -1,24 +1,25 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
-    var cost = sequelize.define('cost', {
-        projectId: {
-            allowNull: false,
-            type: DataTypes.INTEGER
-        },
+    const Cost = sequelize.define('cost', {
         name: {
             allowNull: false,
             type: DataTypes.STRING
         },
-        number: {
+        value: {
             allowNull: false,
             type: DataTypes.INTEGER
         },
     }, {
         classMethods: {
             associate: function(models) {
-                // associations can be defined here
+                Cost.belongsTo(models.Project, {
+                    foreignKey: {
+                        allowNull: false
+                    }
+                });
+                Cost.hasMany(models.Task);
             }
         }
     });
-    return cost;
+    return Cost;
 };

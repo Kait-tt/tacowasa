@@ -1,10 +1,10 @@
 'use strict';
-var _ = require('lodash');
+const _ = require('lodash');
 
 const chars = 'abcdefghijklmnopqrstufwxyzABCDEFGHIJKLMNOPQRSTUFWXYZ1234567890';
 
 module.exports = function(sequelize, DataTypes) {
-    var Project = sequelize.define('project', {
+    const Project = sequelize.define('project', {
         id: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -45,6 +45,8 @@ module.exports = function(sequelize, DataTypes) {
                     }
                 });
                 Project.hasMany(models.Stage);
+                Project.hasMany(models.Cost);
+                Project.hasMany(models.Task);
             }
         }
     });

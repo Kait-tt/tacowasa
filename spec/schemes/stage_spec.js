@@ -12,9 +12,9 @@ describe('schemes', () => {
 
             beforeEach(() => {
                 return db.User.create({username: 'user1'})
-                    .then(user => db.Project.create({name: 'project1', createUserId: user.id }).then(x => project = x))
-                    .then(() => db.Stage.create({name: 'todo', displayName: 'ToDo', assigned: true, projectId: project.id}))
-                    .then(x => stage = x);
+                    .then(user => db.Project.create({name: 'project1', createUserId: user.id}).then(x => project = x))
+                    .then(() => db.Stage.create({name: 'todo', displayName: 'ToDo', assigned: true, projectId: project.id}).then(x => stage = x))
+                    .then(() => project.addStage(stage));
             });
 
             it('should create a new stage', () => {

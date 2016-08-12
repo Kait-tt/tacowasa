@@ -1,6 +1,6 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
-    var Member = sequelize.define('member', {
+    const Member = sequelize.define('member', {
         nextMemberId: {
             type: DataTypes.INTEGER
         },

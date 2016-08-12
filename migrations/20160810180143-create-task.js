@@ -32,7 +32,7 @@ module.exports = {
         defaultValue: '',
         type: Sequelize.TEXT
       },
-      cost: {
+      costId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },

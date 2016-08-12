@@ -13,10 +13,6 @@ module.exports = function(sequelize, DataTypes) {
             defaultValue: '',
             type: DataTypes.TEXT
         },
-        cost: {
-            allowNull: false,
-            type: DataTypes.INTEGER
-        },
         isWorking: {
             allowNull: false,
             defaultValue: false,
@@ -27,19 +23,24 @@ module.exports = function(sequelize, DataTypes) {
             associate: function(models) {
                 Task.belongsTo(models.Project, {
                     foreignKey: {
-                        allowNull: true
+                        allowNull: false
                     }
                 });
                 Task.belongsTo(models.Stage, {
                     foreignKey: {
-                        allowNull: true
+                        allowNull: false
                     }
                 });
                 Task.belongsTo(models.User, {
                     foreignKey: {
-                        allowNull: true
+                        allowNull: false
                     }
                 });
+                Task.belongsTo(models.Cost, {
+                    foreignKey: {
+                        allowNull: false
+                    }
+                })
             }
         }
     });
