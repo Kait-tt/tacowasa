@@ -1,33 +1,35 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
-  var work = sequelize.define('work', {
-    userId: {
-      allowNull: false,
-      type: DataTypes.INTEGER
-    },
-    taskId: {
-      allowNull: false,
-      type: DataTypes.INTEGER
-    },
-    isEnded: {
-      allowNull: false,
-      defaultValue: false,
-      type: DataTypes.BOOLEAN
-    },
-    startTime: {
-      allowNull: false,
-      type: DataTypes.DATE
-    },
-    endTime: {
-      allowNull: false,
-      type: DataTypes.DATE
-    },
-  }, {
-    classMethods: {
-      associate: function(models) {
-        // associations can be defined here
-      }
-    }
-  });
-  return work;
+    var Work = sequelize.define('work', {
+        isEnded: {
+            allowNull: false,
+            defaultValue: false,
+            type: DataTypes.BOOLEAN
+        },
+        startTime: {
+            allowNull: false,
+            defaultValue: Date.now,
+            type: DataTypes.DATE
+        },
+        endTime: {
+            defaultValue: null,
+            type: DataTypes.DATE
+        },
+    }, {
+        classMethods: {
+            associate: function(models) {
+                Work.belongsTo(models.User, {
+                    foreignKey: {
+                        allowNull: false
+                    }
+                });
+                Work.belongsTo(models.Task, {
+                    foreignKey: {
+                        allowNull: false
+                    }
+                });
+            }
+        }
+    });
+    return Work;
 };

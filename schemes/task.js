@@ -43,7 +43,8 @@ module.exports = function(sequelize, DataTypes) {
                 });
                 Task.belongsToMany(models.Label, {
                     through: models.TaskLabel
-                })
+                });
+                Task.hasMany(models.Work);
             }
         }
     });

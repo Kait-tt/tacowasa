@@ -26,7 +26,6 @@ module.exports = {
         type: Sequelize.DATE
       },
       endTime: {
-        allowNull: false,
         type: Sequelize.DATE
       },
       createdAt: {

@@ -17,7 +17,7 @@ describe('schemes', () => {
             });
 
             it('should create a new label', () => {
-                return db.Label.findAll({include: [{all: true, nested: true}]}).then(_labels => {
+                return db.Label.findAll({include: [{all: true, nested: false}]}).then(_labels => {
                     expect(_labels).to.have.lengthOf(1);
                     expect(_labels[0]).to.have.property('name', 'label1');
                     expect(_labels[0]).to.have.property('color', '343434');
