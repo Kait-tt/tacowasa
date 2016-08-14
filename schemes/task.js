@@ -40,6 +40,9 @@ module.exports = function(sequelize, DataTypes) {
                     foreignKey: {
                         allowNull: false
                     }
+                });
+                Task.belongsToMany(models.Label, {
+                    through: models.TaskLabel
                 })
             }
         }

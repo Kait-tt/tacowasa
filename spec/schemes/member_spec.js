@@ -17,7 +17,7 @@ describe('schemes', () => {
 
             beforeEach(() => {
                 users = [];
-                return Promise.all(['user1', 'user2'].map(username => db.User.create({username}).then(_user => users.push(_user))))
+                return Promise.race(['user1', 'user2'].map(username => db.User.create({username}).then(_user => users.push(_user))))
                     .then(() => db.Project.create({name: 'project1', createUserId: users[0].id}).then(_project => project = _project))
                     .then(project => Promise.race(users.map((user, idx) => project.addUser(user, membersParams[idx]))));
             });

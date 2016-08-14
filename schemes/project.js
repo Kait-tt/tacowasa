@@ -47,6 +47,7 @@ module.exports = function(sequelize, DataTypes) {
                 Project.hasMany(models.Stage);
                 Project.hasMany(models.Cost);
                 Project.hasMany(models.Task);
+                Project.hasMany(models.Label);
             }
         }
     });
