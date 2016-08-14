@@ -23,7 +23,11 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         classMethods: {
             associate: function(models) {
-                GitHubRepository.belongsTo(models.Project);
+                GitHubRepository.belongsTo(models.Project, {
+                    foreignKey: {
+                        allowNull: true
+                    }
+                });
             }
         }
     });

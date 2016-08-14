@@ -18,6 +18,8 @@ fs
         const model = sequelize.import(path.join(__dirname, file));
         if (model.name === 'githubRepository') {
             db['GitHubRepository'] = model;
+        } else if (model.name === 'githubTask') {
+            db['GitHubTask'] = model;
         } else {
             db[_.upperFirst(model.name)] = model;
         }

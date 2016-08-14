@@ -45,6 +45,7 @@ module.exports = function(sequelize, DataTypes) {
                     through: models.TaskLabel
                 });
                 Task.hasMany(models.Work);
+                Task.hasOne(models.GitHubTask);
             }
         }
     });

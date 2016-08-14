@@ -6,7 +6,7 @@ var db = require('../../schemes');
 afterEach(() => helper.db.clean());
 
 describe('schemes', () => {
-    describe('project', () => {
+    describe('githubRepository', () => {
         describe('#create', () => {
             let project, repo;
 
