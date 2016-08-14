@@ -4,10 +4,6 @@ module.exports = function(sequelize, DataTypes) {
         nextMemberId: {
             type: DataTypes.INTEGER
         },
-        accessLevelId: {
-            allowNull: false,
-            type: DataTypes.INTEGER
-        },
         isVisible: {
             allowNull: false,
             defaultValue: true,
@@ -20,6 +16,11 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         classMethods: {
             associate: function(models) {
+                Member.belongsTo(models.AccessLevel, {
+                    foreignKey: {
+                        allowNull: false
+                    }
+                });
             }
         }
     });

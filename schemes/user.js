@@ -16,7 +16,7 @@ module.exports = function(sequelize, DataTypes) {
                     as: 'createUser',
                     foreignKey: 'createUserId'
                 });
-                User.hasMany(models.Work)
+                User.hasMany(models.Work);
             }
         }
     });

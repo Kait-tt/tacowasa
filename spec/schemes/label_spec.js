@@ -38,7 +38,7 @@ describe('schemes', () => {
                 });
 
                 it('task should have a label', () => {
-                    return db.Task.findById(task.id, {include: [{all: true, nested: true}]}).then(task => {
+                    return db.Task.findById(task.id, {include: [{model: db.Label}]}).then(task => {
                         expect(task.labels).to.have.lengthOf(1);
                         expect(task.labels[0]).to.have.property('name', 'label1');
                     });

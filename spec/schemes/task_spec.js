@@ -22,7 +22,7 @@ describe('schemes', () => {
             });
 
             it('should create a new task', () => {
-                return db.Task.findAll({include: [{all: true, nested: true}]}).then(tasks => {
+                return db.Task.findAll({include: [{model: db.Cost}]}).then(tasks => {
                     expect(tasks).to.have.lengthOf(1);
                     expect(tasks[0]).to.have.property('title', 'title1');
                     expect(tasks[0]).to.have.deep.property('cost.value', 3);
@@ -30,7 +30,7 @@ describe('schemes', () => {
             });
 
             it('project should have a task', () => {
-                return db.Project.findById(project.id, {include: [{all: true, nested: true}]}).then(_project => {
+                return db.Project.findById(project.id, {include: [{model: db.Task, include: [{model: db.Cost}]}]}).then(_project => {
                     expect(_project.tasks).to.have.lengthOf(1);
                     expect(_project.tasks[0]).to.have.property('title', 'title1');
                     expect(_project.tasks[0]).to.have.deep.property('cost.value', 3);

@@ -6,7 +6,7 @@ var db = require('../../schemes');
 afterEach(() => helper.db.clean());
 
 describe('schemes', () => {
-    describe('label', () => {
+    describe('work', () => {
         describe('#create', () => {
             let user, project, label, stage, cost, task, work;
 

@@ -11,15 +11,16 @@ describe('schemes', () => {
         describe('create project and add member', () => {
             let users, project;
             let membersParams = [
-                {accessLevelId: 1, isVisible: true, wipLimit: 6},
-                {accessLevelId: 0, isVisible: false, wipLimit: 15}
+                {accessLevelId: null, isVisible: true, wipLimit: 6},
+                {accessLevelId: null, isVisible: false, wipLimit: 15}
             ];
 
             beforeEach(() => {
                 users = [];
                 return Promise.race(['user1', 'user2'].map(username => db.User.create({username}).then(_user => users.push(_user))))
                     .then(() => db.Project.create({name: 'project1', createUserId: users[0].id}).then(_project => project = _project))
-                    .then(project => Promise.race(users.map((user, idx) => project.addUser(user, membersParams[idx]))));
+                    .then(() => db.AccessLevel.create({name: 'developer', projectId: project.id})).then(x => membersParams.forEach(m => m.accessLevelId = x.id))
+                    .then(() => Promise.race(users.map((user, idx) => project.addUser(user, membersParams[idx]))));
             });
 
             it('should create two members', () => {
