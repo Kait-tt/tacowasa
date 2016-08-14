@@ -16,7 +16,11 @@ fs
     })
     .forEach(file => {
         const model = sequelize.import(path.join(__dirname, file));
-        db[_.upperFirst(model.name)] = model;
+        if (model.name === 'githubRepository') {
+            db['GitHubRepository'] = model;
+        } else {
+            db[_.upperFirst(model.name)] = model;
+        }
     });
 
 Object.keys(db).forEach(modelName => {

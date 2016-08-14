@@ -49,6 +49,7 @@ module.exports = function(sequelize, DataTypes) {
                 Project.hasMany(models.Task);
                 Project.hasMany(models.Label);
                 Project.hasMany(models.AccessLevel);
+                Project.hasOne(models.GitHubRepository);
             }
         }
     });

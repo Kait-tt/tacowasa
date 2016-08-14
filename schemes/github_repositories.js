@@ -1,6 +1,6 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
-    var githubRepositories = sequelize.define('githubRepositories', {
+    const GitHubRepository = sequelize.define('githubRepository', {
         username: {
             allowNull: false,
             type: DataTypes.STRING
@@ -23,9 +23,9 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         classMethods: {
             associate: function(models) {
-                // associations can be defined here
+                GitHubRepository.belongsTo(models.Project);
             }
         }
     });
-    return githubRepositories;
+    return GitHubRepository;
 };
