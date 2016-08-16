@@ -12,7 +12,7 @@ module.exports = function(sequelize, DataTypes) {
         wipLimit: {
             allowNull: false,
             type: DataTypes.INTEGER
-        },
+        }
     }, {
         classMethods: {
             associate: function(models) {
@@ -21,6 +21,7 @@ module.exports = function(sequelize, DataTypes) {
                         allowNull: false
                     }
                 });
+                Member.belongsTo(models.Project);
             }
         }
     });
