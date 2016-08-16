@@ -10,11 +10,11 @@ afterEach(() => helper.db.clean());
 describe('models', () => {
     describe('project', () => {
         describe('#create', () => {
+            const username = 'user1';
             let project;
 
             beforeEach(() => {
-                return db.User.create({username: 'user1'})
-                    .then(user => Project.create('project1', user))
+                return Project.create('project1', username)
                     .then(x => project = x);
             });
 

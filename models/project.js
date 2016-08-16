@@ -22,8 +22,11 @@ class Project {
         };
     }
 
-    static create(name, createUser) {
-        return db.Project.create({name: name, createUserId: createUser.id})
+    static create(name, username) {
+        let user;
+
+        return db.User.findOrCreate({where: {username}}).then(([_user]) => user = _user)
+            .then(user => db.Project.create({name: name, createUserId: user.id}))
             .then(project => {
                 // setting options
                 return Promise.all([
@@ -45,7 +48,7 @@ class Project {
             }).then(project => {
                 // add owner
                 return db.AccessLevel.findOne({projectId: project.id, name: 'Owner'})
-                    .then(owner => project.addUser(createUser, {accessLevelId: owner.id, wipLimit: project.defaultWipLimit}))
+                    .then(owner => project.addUser(user, {accessLevelId: owner.id, wipLimit: project.defaultWipLimit}))
                     .then(() => project);
             }).then(project => Project.findById(project.id));
     }
