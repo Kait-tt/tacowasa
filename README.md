@@ -11,13 +11,36 @@ Web based digital Kanban tool
 - compass
 - mysql
 
-# install (development)
+# install
+## development
 ```
+mysql -uroot -p -e "create database tacowasa_development"
 git clone https://github.com/Kait-tt/tacowasa
-mysql -uroot -e "create database tacowasa_development"
-$(npm bin)/sequelize db:migrate
+cd tacowasa
+npm install
+npm run migrate
+```
+
+## production
+```
+mysql -uroot -p -e "create database tacowasa"
+git clone https://github.com/Kait-tt/tacowasa
+cd tacowasa
+npm install --production
+$(npm bin)/cross-env NODE_ENV=production npm run migrate
+```
+
+# test
+require: install.development
+```
+mysql -u root -p -e "create database tacowasa_test"
+npm run migrate:test
+npm run test:cover
 ```
 
 # scripts
-- `npm run test:all`
-- `npm run test:cover`
+- `npm run migrate`: migration database
+- `npm run migrate:test` migration test database
+- `npm run test` : test specified files (e.g., `npm run test spec/schemes/project._spec.js`
+- `npm run test:all` : test all spec files
+- `npm run test:cover` : test all spec files and calc coverage
