@@ -15,19 +15,6 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false,
             type: DataTypes.STRING
         },
-        createUserId: {
-            allowNull: false,
-            type: DataTypes.INTEGER
-        },
-        defaultStageId: {
-            type: DataTypes.INTEGER
-        },
-        defaultAccessLevelId: {
-            type: DataTypes.INTEGER
-        },
-        defaultCostId: {
-            type: DataTypes.INTEGER
-        },
         defaultWipLimit: {
             defaultValue: 12,
             type: DataTypes.INTEGER
@@ -38,17 +25,36 @@ module.exports = function(sequelize, DataTypes) {
                 Project.belongsToMany(models.User, {
                     through: models.Member
                 });
-                Project.belongsTo(models.User, {
-                    as: 'createUser',
-                    foreignKey: {
-                        name: 'createUserId', allowNull: false
-                    }
-                });
                 Project.hasMany(models.Stage);
                 Project.hasMany(models.Cost);
                 Project.hasMany(models.Task);
                 Project.hasMany(models.Label);
                 Project.hasMany(models.AccessLevel);
+                Project.belongsTo(models.User, {
+                    as: 'createUser',
+                    foreignKey: {
+                        name: 'createUserId',
+                        allowNull: false
+                    }
+                });
+                Project.belongsTo(models.Stage, {
+                    as: 'defaultStage',
+                    foreignKey: {
+                        name: 'defaultStageId'
+                    }
+                });
+                Project.belongsTo(models.AccessLevel, {
+                    as: 'defaultAccessLevel',
+                    foreignKey: {
+                        name: 'defaultAccessLevelId'
+                    }
+                });
+                Project.belongsTo(models.Cost, {
+                    as: 'defaultCost',
+                    foreignKey: {
+                        name: 'defaultCostId'
+                    }
+                });
                 Project.hasOne(models.GitHubRepository);
             }
         }

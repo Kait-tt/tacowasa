@@ -14,7 +14,7 @@ describe('schemes', () => {
             });
 
             it('should create a project', () => {
-                return db.Project.findAll({include: [{all: true, bested: true}]})
+                return db.Project.findAll({include: [db.Stage, db.User, {model: db.Stage, as: 'defaultStage'}]})
                     .then(projects => {
                         expect(projects).to.have.lengthOf(1);
                         expect(projects[0]).to.have.property('name', 'project1');

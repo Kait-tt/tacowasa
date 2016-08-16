@@ -36,7 +36,7 @@ describe('schemes', () => {
             });
 
             it('project should have two members', () => {
-                return db.Project.findById(project.id, {include: [{all: true, nested: true}]}).then(_project => {
+                return db.Project.findById(project.id, {include: [{model: db.User}]}).then(_project => {
                     expect(_project.users).to.have.lengthOf(2);
 
                     _project.users.forEach((_user, idx) => {

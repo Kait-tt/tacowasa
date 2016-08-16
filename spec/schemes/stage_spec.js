@@ -28,7 +28,7 @@ describe('schemes', () => {
             });
 
             it('project should have a stage', () => {
-                return db.Project.findById(project.id, {include: [{all: true, nested: true}]}).then(_project => {
+                return db.Project.findById(project.id, {include: [{model: db.Stage, as: 'stages'}]}).then(_project => {
                     expect(_project.stages).to.have.lengthOf(1);
                     expect(_project.stages[0]).to.have.property('id', stage.id);
                     expect(_project.stages[0]).to.have.property('name', 'todo');
