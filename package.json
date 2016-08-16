@@ -7,8 +7,8 @@
     "migrate": "sequelize db:migrate",
     "migrate:test": "cross-env NODE_ENV=test sequelize db:migrate",
     "test": "cross-env NODE_ENV=test mocha --reporter spec --timeout 10000",
-    "test:all": "cross-env NODE_ENV=test npm run test --recursive spec/schemes/",
-    "test:cover": "cross-env NODE_ENV=test istanbul cover node_modules/mocha/bin/_mocha -- -u exports --timeout 10000 --recursive spec/schemes/",
+    "test:all": "cross-env NODE_ENV=test npm run test --recursive spec/schemes/ spec/models/",
+    "test:cover": "cross-env NODE_ENV=test istanbul cover node_modules/mocha/bin/_mocha -- -u exports --timeout 10000 --recursive spec/schemes/ spec/models/",
     "coveralls": "cross-env NODE_ENV=test cat ./coverage/lcov.info | coveralls"
   },
   "repository": {

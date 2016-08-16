@@ -4,9 +4,6 @@ const _ = require('lodash');
 
 
 class Project {
-    constructor() {
-
-    }
 
     static get defaultFindOption() {
         return {
@@ -25,26 +22,24 @@ class Project {
         };
     }
 
-    static create(name, createUser, {accessLevels, stages, costs, labels, defaultStage, defaultAccessLevel, defaultCost, defaultWipLimit}={}) {
+    static create(name, createUser) {
         return db.Project.create({name: name, createUserId: createUser.id})
             .then(project => {
                 // setting options
                 return Promise.all([
-                    accessLevels ? Promise.resolve(accessLevels) : Project.createDefaultAccessLevels(project.id),
-                    stages       ? Promise.resolve(stages)       : Project.createDefaultStages(project.id),
-                    costs        ? Promise.resolve(costs)        : Project.createDefaultCosts(project.id),
-                    labels       ? Promise.resolve(labels)       : Project.createDefaultLabels(project.id)
-                ]).then(([accessLevels, stages, costs, labels]) => Promise.all([
-                    defaultAccessLevel  ? Promise.resolve(defaultAccessLevel) : db.AccessLevel.findOne({projectId: project.id, name: 'Developer'}),
-                    defaultStage        ? Promise.resolve(defaultStage)       : db.Stage.findOne({projectId: project.id, name: 'issue'}),
-                    defaultCost         ? Promise.resolve(defaultStage)       : db.Cost.findOne({projectId: project.id, name: 'undecided'}),
-                    Promise.resolve(_.isNumber(defaultWipLimit) ? defaultWipLimit : 12)
-                ])).then(([defaultAccessLevel, defaultStage, defaultCost, defaultWipLimit]) => {
+                    Project.createDefaultAccessLevels(project.id),
+                    Project.createDefaultStages(project.id),
+                    Project.createDefaultCosts(project.id),
+                    Project.createDefaultLabels(project.id)
+                ]).then(() => Promise.all([
+                    db.AccessLevel.findOne({projectId: project.id, name: 'Developer'}),
+                    db.Stage.findOne({projectId: project.id, name: 'issue'}),
+                    db.Cost.findOne({projectId: project.id, name: 'undecided'})
+                ])).then(([defaultAccessLevel, defaultStage, defaultCost]) => {
                     return project.update({
-                        defaultStageId: defaultStage.id,
                         defaultAccessLevelId: defaultAccessLevel.id,
-                        defaultCostId: defaultCost.id,
-                        defaultWipLimit
+                        defaultStageId: defaultStage.id,
+                        defaultCostId: defaultCost.id
                     });
                 });
             }).then(project => {
