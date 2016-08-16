@@ -52,7 +52,7 @@ class Project {
 
     static findAll(options={}) {
         return db.Project.findAll(_.defaults(options, Project.defaultFindOption))
-            .then(project => project.toJSON());
+            .then(projects => projects.map(x => x.toJSON()));
     }
 
     static findOne(options={}) {
