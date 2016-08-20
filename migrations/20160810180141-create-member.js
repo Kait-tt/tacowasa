@@ -16,6 +16,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
+      prevMemberId: {
+        type: Sequelize.INTEGER
+      },
       nextMemberId: {
         type: Sequelize.INTEGER
       },
