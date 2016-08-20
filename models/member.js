@@ -9,10 +9,11 @@ class Member {
         return co(function* () {
             const project = yield db.Project.findById(projectId, {include: [db.User]});
 
-            // exists?
+            // already added?
             if (project.users.find(user => user.username === username)) {
                 return Promise.reject(`${username} is added to ${project.name}(${project.id})`);
             }
+
             const user = yield db.User.findOrCreate({where: {username}});
             const firstUser = project.users.find(x => !x.member.prevMemberId);
 
@@ -36,28 +37,34 @@ class Member {
 
     static remove(projectId, username) {
         return co(function* () {
-            const project = yield db.Project.findById(projectId);
             const user = yield Member.findByUsername(projectId, username);
-            if (!user) { return Promise.reject(`${username} is not found in ${project.name}(${projectId})`); }
 
+            // exists?
+            if (!user) {
+                const project = yield db.Project.findById(projectId);
+                return Promise.reject(`${username} is not found in ${project.name}(${projectId})`);
+            }
+
+            // update link
             const {prevMemberId, nextMemberId} = user.member;
-
             if (prevMemberId) {
                 yield db.Member.update({nextMemberId}, {where: {projectId, id: prevMemberId}});
             }
-
             if (prevMemberId) {
                 yield db.Member.update({prevMemberId}, {where: {projectId, id: nextMemberId}});
             }
 
+            // destroy!
             yield db.Member.destroy({where: {projectId, userId: user.id}});
         });
     }
 
     static update(projectId, username, updateParams) {
-        return db.User.findOne({where: {username}})
-            .then(user => db.Member.update(updateParams, {where: {projectId, userId: user.id}}))
-            .then(() => Member.findByUsername(projectId, username));
+        return co(function* () {
+            const user = yield db.User.findOne({where: {username}});
+            yield db.Member.update(updateParams, {where: {projectId, userId: user.id}});
+            return yield Member.findByUsername(projectId, username);
+        });
     }
 
     static updateOrder() {
@@ -79,7 +86,9 @@ class Member {
     }
 
     static sortMembers(users) {
-        if (!users.length) return [];
+        if (!users.length) {
+            return [];
+        }
 
         const src = {};
         users.forEach(user => src[user.member.id] = user);
