@@ -12,7 +12,7 @@ class Member {
 
             // already added?
             if (_.find(project.users, {username})) {
-                return Promise.reject(new Error(`${username} is added to ${project.name}(${project.id})`));
+                new Error(`${username} is added to ${project.name}(${project.id})`);
             }
 
             const user = yield db.User.findOrCreate({where: {username}});
@@ -43,7 +43,7 @@ class Member {
             // user is not found?
             if (!user) {
                 const project = yield db.Project.findById(projectId);
-                return Promise.reject(new Error(`${username} was not found in ${project.name}(${projectId})`));
+                new Error(`${username} was not found in ${project.name}(${projectId})`);
             }
 
             // update link
@@ -61,6 +61,11 @@ class Member {
     }
 
     static update(projectId, username, updateParams) {
+        // include prohibited params?
+        if (_.intersection(Object.keys(updateParams), ['prevMemberId', 'nextMemberId']).length) {
+            new Error('update method cannot update member order. use updateOrder method.');
+        }
+
         return co(function* () {
             const user = yield db.User.findOne({where: {username}});
             yield db.Member.update(updateParams, {where: {projectId, userId: user.id}});
@@ -77,12 +82,12 @@ class Member {
 
             // user is not found?
             if (!user) {
-                return Promise.reject(new Error(`${username} was not found in ${project.name}(${project.id})`));
+                new Error(`${username} was not found in ${project.name}(${project.id})`);
             }
 
             // beforeUser is not found?
             if (beforeUsername && !beforeUser) {
-                return Promise.reject(new Error(`${beforeUsername} was not found in ${project.name}(${project.id})`));
+                new Error(`${beforeUsername} was not found in ${project.name}(${project.id})`);
             }
 
             // same position?
