@@ -133,10 +133,10 @@ class Member {
 
     static getAllSorted(projectId) {
         return db.Project.findById(projectId, {include: [db.User]})
-            .then(project => Member.sortMembers(project.users));
+            .then(project => Member._sort(project.users).map(x => x.toJSON()));
     }
 
-    static sortMembers(users) {
+    static _sort(users) {
         if (!users.length) {
             return [];
         }

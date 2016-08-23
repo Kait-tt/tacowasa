@@ -16,8 +16,8 @@ class Task {
         };
     }
 
-    static findById(projectId, taskId, options={}) {
-        return db.Task.findOne(_.defaults(options, Task.defaultFindOption, {where: {projectId, id: taskId}}))
+    static findById(taskId, options={}) {
+        return db.Task.findById(taskId, _.defaults(options, Task.defaultFindOption))
             .then(task => task.toJSON());
     }
 
@@ -26,18 +26,28 @@ class Task {
             .then(tasks => tasks.map(x => x.toJSON()));
     }
 
-    static add(projectId, {title, body, stageId, userId, costId/*, labelId=[]*/}) {
+    static create(projectId, {title, body, stageId, userId, costId/*, labelId=[]*/}) {
         return co(function* () {
-            const project = yield db.Project.findById(projectId);
+            const project = yield db.Project.findById(projectId, {include: [db.Task]});
             stageId = stageId || project.defaultStageId;
+            const firstTask = _.find(project.tasks, {prevTaskId: null});
 
             yield Task._validateStageAndUser(projectId, stageId, userId, title);
             // TODO: check WIP limit
 
-            return yield db.Task.create({
+            // create
+            const newTask = yield db.Task.create({
                 projectId, title, body, userId, stageId,
-                costId: costId || project.defaultCostId
+                costId: costId || project.defaultCostId,
+                nextTaskId: firstTask && firstTask.id
             });
+
+            // update link
+            if (firstTask) {
+                yield db.Task.update({prevTaskId: newTask.id}, {where: {id: firstTask.id}});
+            }
+
+            return newTask;
         });
     }
 
@@ -83,7 +93,7 @@ class Task {
     // start or stop work
     static updateWorkingState(projectId, taskId, isWorking) {
         return co(function* () {
-            const task = yield Task.findById(projectId, taskId);
+            const task = yield Task.findById(taskId);
 
             if (!task.stage.canWork) {
                 throw new Error(`cannot change working when stage of task is ${task.stage.name} in ${projectId}. (${taskId})`);
@@ -103,9 +113,29 @@ class Task {
         });
     }
 
-    // update all work history
-    static updateWorkHistory(projectId, taskId, workHistory) {
+    // replace all work history
+    static updateWorkHistory(projectId, taskId, works) {
+        return co(function* () {
+            // validation
+            for (let work of works) {
+                for (let key of ['isEnded', 'startTime', 'endTime', 'userId', 'taskId']) {
+                    if (!work[key]) {
+                        throw new Error(`works is invalid parameter. ${{projectId, taskId, works: JSON.stringify(works, null, '    ')}}`);
+                    }
+                }
+            }
 
+            const existsWorks = yield db.Work.findAll({where: {taskId}});
+
+            // remove all
+            for (let work of existsWorks) {
+                yield work.destroy();
+            }
+
+            // add all
+            const _works = works.map(x => _.defaults({taskId}, x));
+            yield db.Work.bulkCreate(_works);
+        });
     }
 
     // update task order in project
@@ -124,6 +154,34 @@ class Task {
                 throw new Error(`assignment is invalid with the stage(${stageId} in ${projectId}. (${task})`);
             }
         });
+    }
+
+    static getAllSorted(projectId) {
+        return Task.findAll(projectId)
+            .then(tasks => Task._sort(tasks));
+    }
+
+    static _sort(tasks) {
+        if (!tasks.length) {
+            return [];
+        }
+
+        const src = {};
+        tasks.forEach(x => src[x.id] = x);
+
+        const res = [];
+        const first = tasks.find(x => !x.prevTaskId);
+        res.push(first);
+        src[first.id] = null;
+
+        let last = first;
+        while (last.nextTaskId) {
+            last = src[last.nextTaskId];
+            res.push(last);
+            src[last.id] = null;
+        }
+
+        return res;
     }
 }
 

@@ -19,10 +19,10 @@ describe('models', () => {
 
         it('project should have no task', () => expectTaskSize(project.id, 0));
 
-        describe('#add', () => {
+        describe('#create', () => {
             context('with default value', () => {
                 let task;
-                beforeEach(() => Task.add(project.id, {title: taskTitles[0], body: 'body1'}).then(x => task = x));
+                beforeEach(() => Task.create(project.id, {title: taskTitles[0], body: 'body1'}).then(x => task = x));
 
                 it('project should have 2 tasks', () => expectTaskSize(project.id, 1));
                 it('should set params', () => {
@@ -36,7 +36,7 @@ describe('models', () => {
 
             context('with specified value', () => {
                 let task;
-                beforeEach(() => Task.add(project.id, {
+                beforeEach(() => Task.create(project.id, {
                     title: taskTitles[0],
                     body: 'body1',
                     userId: project.users[0].id,
@@ -55,12 +55,12 @@ describe('models', () => {
             });
         });
 
-        describe('#add x 5', () => {
+        describe('#create x 5', () => {
             let tasks;
             beforeEach(() => co(function* () {
                 tasks = [];
                 for (let title of taskTitles) {
-                    let task = yield Task.add(project.id, {title, body: `body of ${title}`});
+                    let task = yield Task.create(project.id, {title, body: `body of ${title}`});
                     tasks.push(task);
                 }
             }));
@@ -93,7 +93,7 @@ describe('models', () => {
                     return Task.updateContent(project.id, tasks[1].id, updateParams);
                 });
 
-                it('should be updated', () => Task.findById(project.id, tasks[1].id).then(task => {
+                it('should be updated', () => Task.findById(tasks[1].id).then(task => {
                     _.forEach(updateParams, (v, k) => {
                         expect(task).to.have.property(k ,v);
                     });
@@ -103,7 +103,7 @@ describe('models', () => {
             describe('#updateStatus', () => {
                 beforeEach(() => Task.updateStatus(project.id, tasks[1].id, {userId: null, stageId: project.stages[1].id}));
 
-                it('should be updated', () => Task.findById(project.id, tasks[1].id).then(task => {
+                it('should be updated', () => Task.findById(tasks[1].id).then(task => {
                     expect(task).to.have.property('stageId', project.stages[1].id);
                     expect(task).to.have.property('userId', null);
                 }));
@@ -119,7 +119,7 @@ describe('models', () => {
                             stageId: _.find(project.stages, {canWork: true}).id
                         });
                         yield Task.updateWorkingState(project.id, tasks[1].id, true);
-                        task = yield Task.findById(project.id, tasks[1].id);
+                        task = yield Task.findById(tasks[1].id);
                     }));
 
                     it('should be started work', () => expect(task).to.have.property('isWorking', true));
@@ -134,7 +134,7 @@ describe('models', () => {
                     context('and stop work', () => {
                         beforeEach(() => co(function* () {
                             yield Task.updateWorkingState(project.id, tasks[1].id, false);
-                            task = yield Task.findById(project.id, tasks[1].id);
+                            task = yield Task.findById(tasks[1].id);
                         }));
 
                         it('should be stopped work', () => expect(task).to.have.property('isWorking'), false);
@@ -144,6 +144,48 @@ describe('models', () => {
                             expect(task).to.have.deep.property('works[0].endTime').that.be.a('date');
                         });
                     });
+                });
+            });
+
+            describe('#updateWorkHistory', () => {
+                let task;
+                let works;
+
+                beforeEach(() => co(function* () {
+                    let taskId = tasks[1].id;
+                    let userId = project.users[0].id;
+                    works = [
+                        {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId},
+                        {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId},
+                        {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId}
+                    ];
+                    yield Task.updateWorkHistory(project.id, taskId, works);
+                    task = yield Task.findById(taskId);
+                }));
+
+                it('should replace to the works', () => {
+                    expect(task.works).to.lengthOf(3);
+                });
+
+                context('and do one', () => {
+                    beforeEach(() => co(function* () {
+                        works.splice(1,1); // length of works is 2
+                        yield Task.updateWorkHistory(project.id, task.id, works);
+                        task = yield Task.findById(task.id);
+                    }));
+
+                    it('should replace to the new works', () => {
+                        expect(task.works).to.lengthOf(2);
+                    });
+                });
+            });
+
+            describe('#getAllSorted', () => {
+                let tasks;
+                beforeEach(() => Task.getAllSorted(project.id).then(xs => tasks = xs));
+                it('should be sorted', () => {
+                    const titles = _.reverse(taskTitles.slice());
+                    expect(_.map(tasks, 'title')).to.eql(titles);
                 });
             });
         });

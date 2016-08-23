@@ -1,6 +1,9 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
     const Task = sequelize.define('task', {
+        prevTaskId: {
+            type: DataTypes.INTEGER
+        },
         nextTaskId: {
             type: DataTypes.INTEGER
         },
