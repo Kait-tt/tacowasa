@@ -54,6 +54,34 @@ describe('models', () => {
                 });
             });
         });
+
+        describe('#add x 5', () => {
+            let tasks;
+            beforeEach(() => co(function* () {
+                tasks = [];
+                for (let title of taskTitles) {
+                    let task = yield Task.add(project.id, {title, body: `body of ${title}`});
+                    tasks.push(task);
+                }
+            }));
+
+            it('project should have 5 tasks', () => expectTaskSize(project.id, 5));
+
+            describe('#archive', () => {
+                beforeEach(() => Task.archive(project.id, tasks[1].id));
+
+                it('the stage of archived task should be archive', () => co(function* () {
+                    const _tasks = yield Task.findAll(project.id);
+                    _tasks.forEach(task => {
+                        if (task.id === tasks[1].id) {
+                            expect(task).to.have.deep.property('stage.name', 'archive');
+                        } else {
+                            expect(task).to.have.not.deep.property('stage.name', 'archive');
+                        }
+                    });
+                }));
+            });
+        });
     });
 });
 

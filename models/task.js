@@ -4,6 +4,28 @@ const _ = require('lodash');
 const co = require('co');
 
 class Task {
+    static get defaultFindOption() {
+        return {
+            include: [
+                {model: db.Stage, as: 'stage'},
+                {model: db.User, as: 'user'},
+                {model: db.Cost, as: 'cost'},
+                {model: db.Label, as: 'labels'},
+                {model: db.Work, as: 'works'}
+            ]
+        };
+    }
+
+    static findById(projectId, taskId, options={}) {
+        return db.Task.findOne(_.defaults(options, Task.defaultFindOption, {where: {projectId, id: taskId}}))
+            .then(task => task.toJSON());
+    }
+
+    static findAll(projectId, options={}) {
+        return db.Task.findAll(_.defaults(options, Task.defaultFindOption, {where: {projectId}}))
+            .then(tasks => tasks.map(x => x.toJSON()));
+    }
+
     static add(projectId, {title, body, stageId, userId, costId/*, labelId=[]*/}) {
         return co(function* () {
             const project = yield db.Project.findById(projectId);
@@ -20,7 +42,13 @@ class Task {
     }
 
     static archive(projectId, taskId) {
-        
+        return co(function* () {
+            const archiveStage = yield db.Stage.find({where: {projectId, name: 'archive'}});
+            if (!archiveStage) {
+                throw new Error(`archive stage is not found in ${projectId}`);
+            }
+            yield db.Task.update({stageId: archiveStage.id}, {where: {projectId, id: taskId}});
+        });
     }
 
     // update assignee and/or stage
