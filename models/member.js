@@ -12,7 +12,7 @@ class Member {
 
             // already added?
             if (_.find(project.users, {username})) {
-                new Error(`${username} is added to ${project.name}(${project.id})`);
+                throw new Error(`${username} is added to ${project.name}(${project.id})`);
             }
 
             const user = yield db.User.findOrCreate({where: {username}});
@@ -43,7 +43,7 @@ class Member {
             // user is not found?
             if (!user) {
                 const project = yield db.Project.findById(projectId);
-                new Error(`${username} was not found in ${project.name}(${projectId})`);
+                throw new Error(`${username} was not found in ${project.name}(${projectId})`);
             }
 
             // update link
@@ -63,7 +63,7 @@ class Member {
     static update(projectId, username, updateParams) {
         // include prohibited params?
         if (_.intersection(Object.keys(updateParams), ['prevMemberId', 'nextMemberId']).length) {
-            new Error('update method cannot update member order. use updateOrder method.');
+            throw new Error('update method cannot update member order. use updateOrder method.');
         }
 
         return co(function* () {
@@ -82,12 +82,12 @@ class Member {
 
             // user is not found?
             if (!user) {
-                new Error(`${username} was not found in ${project.name}(${project.id})`);
+                throw new Error(`${username} was not found in ${project.name}(${project.id})`);
             }
 
             // beforeUser is not found?
             if (beforeUsername && !beforeUser) {
-                new Error(`${beforeUsername} was not found in ${project.name}(${project.id})`);
+                throw new Error(`${beforeUsername} was not found in ${project.name}(${project.id})`);
             }
 
             // same position?

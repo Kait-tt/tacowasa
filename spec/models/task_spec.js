@@ -188,6 +188,44 @@ describe('models', () => {
                     expect(_.map(tasks, 'title')).to.eql(titles);
                 });
             });
+
+            describe('#updateOrder', () => {
+                let n = 5;
+
+                _.times(n, from => {
+                    _.times(n, to => {
+                        if (from === to) return;
+                        context(`update position from ${from} to ${to}`, () => {
+                            let ids;
+                            beforeEach(() => co(function* () {
+                                ids = _.map(yield Task.getAllSorted(project.id), 'id');
+                                const target = ids[from];
+                                const before = ids[to];
+                                ids.splice(from, 1);
+                                ids.splice(ids.indexOf(before), 0, target);
+                                yield Task.updateOrder(project.id, target, before);
+                            }));
+
+                            it(`should be ordered`, () => Task.getAllSorted(project.id).then(tasks => {
+                                expect(_.map(tasks, 'id')).to.eql(ids);
+                            }));
+                        });
+                    });
+                    context(`update position from ${from} to last`, () => {
+                        let ids;
+                        beforeEach(() => co(function* () {
+                            ids = _.map(yield Task.getAllSorted(project.id), 'id');
+                            const target = ids.splice(from, 1)[0];
+                            ids.push(target);
+                            yield Task.updateOrder(project.id, target, null);
+                        }));
+
+                        it(`should ordered`, () => Task.getAllSorted(project.id).then(tasks => {
+                            expect(_.map(tasks, 'id')).to.eql(ids);
+                        }));
+                    });
+                });
+            });
         });
     });
 });

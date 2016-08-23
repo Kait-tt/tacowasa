@@ -140,7 +140,48 @@ class Task {
 
     // update task order in project
     static updateOrder(projectId, taskId, beforeTaskId) {
+        return co(function* () {
+            const {tasks} = yield db.Project.findById(projectId, {include: [db.Task]});
+            const task = _.find(tasks, {id: taskId});
+            const beforeTask = beforeTaskId && _.find(tasks, {id: beforeTaskId});
 
+            if (!task) {
+                throw new Error(`${taskId} was not found in ${projectId}.`);
+            }
+
+            if (beforeTaskId && !beforeTask) {
+                throw new Error(`${beforeTaskId} was not found in ${projectId}.`);
+            }
+
+            // same position?
+            if (beforeTask && beforeTask.prevTaskId === task.id) { return; }
+            if (!beforeTask && !task.nextTaskId) { return; }
+
+            // update old around links
+            {
+                const {prevTaskId, nextTaskId} = task;
+                if (prevTaskId) {
+                    yield db.Task.update({nextTaskId}, {where: {projectId, id: prevTaskId}});
+                }
+                if (nextTaskId) {
+                    yield db.Task.update({prevTaskId}, {where: {projectId, id: nextTaskId}});
+                }
+            }
+
+            // insert and update links
+            const nextTaskId = beforeTask ? beforeTask.id : null;
+            const prevTaskId = beforeTask ? beforeTask.prevTaskId : _.find(tasks, {nextTaskId: null}).id;
+            // update prev
+            if (prevTaskId) {
+                yield db.Task.update({nextTaskId: task.id}, {where: {projectId, id: prevTaskId}});
+            }
+            // update next
+            if (nextTaskId) {
+                yield db.Task.update({prevTaskId: task.id}, {where: {projectId, id: nextTaskId}});
+            }
+            // update target
+            yield db.Task.update({prevTaskId, nextTaskId}, {where: {projectId, id: task.id}});
+        });
     }
 
     // params.task is taskId,  taskTitle or others
