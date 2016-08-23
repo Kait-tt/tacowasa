@@ -81,6 +81,24 @@ describe('models', () => {
                     });
                 }));
             });
+
+            describe('#updateContent', () => {
+                let updateParams;
+                beforeEach(() => {
+                    updateParams = {
+                        title: 'updated title',
+                        body: 'updated body',
+                        costId: project.costs[2].id
+                    };
+                    return Task.updateContent(project.id, tasks[1].id, updateParams);
+                });
+
+                it('should be updated', () => Task.findById(project.id, tasks[1].id).then(task => {
+                    _.forEach(updateParams, (v, k) => {
+                        expect(task).to.have.property(k ,v);
+                    });
+                }));
+            });
         });
     });
 });

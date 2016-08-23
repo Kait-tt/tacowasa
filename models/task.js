@@ -51,13 +51,19 @@ class Task {
         });
     }
 
-    // update assignee and/or stage
-    static updateStatus(projectId, taskId, {userId=null, stageId=null}) {
-
+    // update title, body and/or costId
+    static updateContent(projectId, taskId, {title, body, costId}) {
+        const updateParams = {};
+        _.forEach({title, body, costId}, (v, k) => {
+            if (!_.isNil(v)) {
+                updateParams[k] = v;
+            }
+        });
+        return db.Task.update(updateParams, {where: {projectId, id: taskId}});
     }
 
-    // update title, body and/or cost
-    static updateContent(projectId, taskId, {title, body, cost}) {
+    // update assignee and/or stage
+    static updateStatus(projectId, taskId, {userId=null, stageId=null}) {
 
     }
 
