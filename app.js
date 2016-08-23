@@ -3,6 +3,7 @@ const app = koa();
 const router = require('koa-router')();
 const port = parseInt(process.env.PORT, 10) || 3000;
 const render = require('koa-ejs');
+const config = require('config');
 
 // logger
 app.use(function *(next){

@@ -17,3 +17,6 @@ temp/
 tmp/
 
 coverage/
+
+/config/*
+!/config/default.json

@@ -1,0 +1,29 @@
+{
+  "title": "Tacowasa",
+
+  "db": {
+    "username": "root",
+    "password": null,
+    "database": "tacowasa_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "logging": false
+  },
+
+  "github": {
+    "clientID": "",
+    "clientSecret": "",
+    "callbackURL": "http://127.0.0.1:3000/auth/github/callback",
+    "hookURL": "http://127.0.0.1:3000/github/:id",
+    "test": {
+      "token": "",
+      "user": "",
+      "repo": ""
+    }
+  },
+
+  "session": {
+    "name": "name",
+    "secret": "secret"
+  }
+}
