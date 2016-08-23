@@ -98,8 +98,25 @@ describe('models', () => {
                 it('the task should have three labels', () => {
                     expect(task.labels).to.lengthOf(3);
                     _.forEach(attachLabels, (label, i) => {
-                        expect(task.labels[i]).have.property('name', label.name);
-                        expect(task.labels[i]).have.property('color', label.color);
+                        expect(task.labels[i]).to.have.property('name', label.name);
+                        expect(task.labels[i]).to.have.property('color', label.color);
+                    });
+                });
+
+                describe('#detach', () => {
+                    let detachLabel;
+
+                    beforeEach(() => co(function* () {
+                        detachLabel = attachLabels[1];
+                        yield Label.detach(project.id, detachLabel.id, task.id);
+                        task = yield Task.findById(task.id);
+                    }));
+
+                    it('the task should have two labels', () => {
+                        expect(task.labels).to.lengthOf(2);
+                    });
+                    it('the task should not have detached label', () => {
+                        expect(_.map(task.labels, 'id')).to.not.includes(detachLabel.id);
                     });
                 });
             });
