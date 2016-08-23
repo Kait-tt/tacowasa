@@ -81,8 +81,26 @@ class Task {
     }
 
     // start or stop work
-    static updateWorkingState(projectId, taskId, workingState) {
+    static updateWorkingState(projectId, taskId, isWorking) {
+        return co(function* () {
+            const task = yield Task.findById(projectId, taskId);
 
+            if (!task.stage.canWork) {
+                throw new Error(`cannot change working when stage of task is ${task.stage.name} in ${projectId}. (${taskId})`);
+            }
+
+            yield db.Task.update({isWorking}, {where: {projectId, id: taskId}});
+
+            if (isWorking) { // start
+                yield db.Work.create({userId: task.user.id, taskId: task.id});
+            } else { // stop
+                const lastWork = _.find(task.works, {isEnded: false});
+                if (!lastWork) {
+                    throw new Error(`work is not found of ${taskId} in ${projectId}.`);
+                }
+                yield db.Work.update({isEnded: true, endTime: Date.now()}, {where: {id: lastWork.id}});
+            }
+        });
     }
 
     // update all work history

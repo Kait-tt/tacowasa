@@ -108,6 +108,44 @@ describe('models', () => {
                     expect(task).to.have.property('userId', null);
                 }));
             });
+
+            describe('#updateWorkingState', () => {
+                let task;
+
+                context('start work', () => {
+                    beforeEach(() => co(function* () {
+                        yield Task.updateStatus(project.id, tasks[1].id, {
+                            userId: project.users[0].id,
+                            stageId: _.find(project.stages, {canWork: true}).id
+                        });
+                        yield Task.updateWorkingState(project.id, tasks[1].id, true);
+                        task = yield Task.findById(project.id, tasks[1].id);
+                    }));
+
+                    it('should be started work', () => expect(task).to.have.property('isWorking', true));
+                    it('should create a new work', () => {
+                        expect(task.works).to.lengthOf(1);
+                        expect(task).to.have.deep.property('works[0].isEnded', false);
+                        expect(task).to.have.deep.property('works[0].startTime').that.be.a('date');
+                        expect(task).to.have.deep.property('works[0].endTime', null);
+                        expect(task).to.have.deep.property('works[0].userId', project.users[0].id);
+                    });
+
+                    context('and stop work', () => {
+                        beforeEach(() => co(function* () {
+                            yield Task.updateWorkingState(project.id, tasks[1].id, false);
+                            task = yield Task.findById(project.id, tasks[1].id);
+                        }));
+
+                        it('should be stopped work', () => expect(task).to.have.property('isWorking'), false);
+                        it('the work should be ended', () => {
+                            expect(task.works).to.lengthOf(1);
+                            expect(task).to.have.deep.property('works[0].isEnded', true);
+                            expect(task).to.have.deep.property('works[0].endTime').that.be.a('date');
+                        });
+                    });
+                });
+            });
         });
     });
 });

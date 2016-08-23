@@ -13,6 +13,11 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false,
             type: DataTypes.BOOLEAN
         },
+        canWork: {
+            allowNull: false,
+            defaultValue: false,
+            type: DataTypes.BOOLEAN,
+        }
     }, {
         classMethods: {
             associate: function(models) {

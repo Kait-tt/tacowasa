@@ -81,13 +81,13 @@ class Project {
 
     static createDefaultStages(projectId, options={}) {
         return db.Stage.bulkCreate([
-            {projectId, name: 'issue',    displayName: 'Issue',   assigned: false},
-            {projectId, name: 'backlog',  displayName: 'Backlog', assigned: false},
-            {projectId, name: 'todo',     displayName: 'TODO',    assigned: true},
-            {projectId, name: 'doing',    displayName: 'Doing',   assigned: true},
-            {projectId, name: 'review',   displayName: 'Review',  assigned: true},
-            {projectId, name: 'done',     displayName: 'Done',    assigned: false},
-            {projectId, name: 'archive',  displayName: 'Archive', assigned: false}
+            {projectId, name: 'issue',    displayName: 'Issue',   assigned: false, canWork: false},
+            {projectId, name: 'backlog',  displayName: 'Backlog', assigned: false, canWork: false},
+            {projectId, name: 'todo',     displayName: 'TODO',    assigned: true,  canWork: false},
+            {projectId, name: 'doing',    displayName: 'Doing',   assigned: true,  canWork: true},
+            {projectId, name: 'review',   displayName: 'Review',  assigned: true,  canWork: false},
+            {projectId, name: 'done',     displayName: 'Done',    assigned: false, canWork: false},
+            {projectId, name: 'archive',  displayName: 'Archive', assigned: false, canWork: false}
         ], options);
     }
 
