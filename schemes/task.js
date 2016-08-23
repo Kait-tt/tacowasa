@@ -33,7 +33,8 @@ module.exports = function(sequelize, DataTypes) {
                 });
                 Task.belongsTo(models.User, {
                     foreignKey: {
-                        allowNull: false
+                        allowNull: true,
+                        defaultValue: null
                     }
                 });
                 Task.belongsTo(models.Cost, {
