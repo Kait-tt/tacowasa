@@ -63,8 +63,21 @@ class Task {
     }
 
     // update assignee and/or stage
-    static updateStatus(projectId, taskId, {userId=null, stageId=null}) {
+    static updateStatus(projectId, taskId, {userId=null, stageId}) {
+        return co(function* () {
+            const task = yield db.Task.findById(taskId);
 
+            yield Task._validateStageAndUser(projectId, stageId, userId, task.title);
+
+            // cannot update status when task is working
+            if (task.isWorking) {
+                throw new Error(`cannot update status of a task when the task is working. ${task.title}`);
+            }
+
+            // TODO: check WIP limit
+
+            yield db.Task.update({userId, stageId}, {where: {projectId, id: taskId}});
+        });
     }
 
     // start or stop work
@@ -82,14 +95,15 @@ class Task {
 
     }
 
-    static _validateStageAndUser(projectId, stageId, userId, title=null) {
+    // params.task is taskId,  taskTitle or others
+    static _validateStageAndUser(projectId, stageId, userId, task) {
         return co(function* () {
             const stage = yield db.Stage.findOne({where: {projectId, id: stageId}});
             if (stage.assigned && !userId) {
-                throw new Error(`no assignment is invalid with the stage(${stageId}) in ${projectId}. (${title})`);
+                throw new Error(`no assignment is invalid with the stage(${stageId}) in ${projectId}. (${task})`);
             }
             if (!stage.assigned && userId) {
-                throw new Error(`assignment is invalid with the stage(${stageId} in ${projectId}. (${title})`);
+                throw new Error(`assignment is invalid with the stage(${stageId} in ${projectId}. (${task})`);
             }
         });
     }

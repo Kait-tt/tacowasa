@@ -99,6 +99,15 @@ describe('models', () => {
                     });
                 }));
             });
+
+            describe('#updateStatus', () => {
+                beforeEach(() => Task.updateStatus(project.id, tasks[1].id, {userId: null, stageId: project.stages[1].id}));
+
+                it('should be updated', () => Task.findById(project.id, tasks[1].id).then(task => {
+                    expect(task).to.have.property('stageId', project.stages[1].id);
+                    expect(task).to.have.property('userId', null);
+                }));
+            });
         });
     });
 });
