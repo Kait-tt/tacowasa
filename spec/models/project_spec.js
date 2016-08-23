@@ -2,8 +2,8 @@
 const expect = require('chai').expect;
 const _ = require('lodash');
 const helper = require('../helper');
-const db = require('../../schemes');
-const Project = require('../../models/project');
+const db = require('../../lib/schemes');
+const Project = require('../../lib/models/project');
 
 afterEach(() => helper.db.clean());
 

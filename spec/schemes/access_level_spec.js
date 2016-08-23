@@ -1,7 +1,7 @@
 'use strict';
-var expect = require('chai').expect;
-var helper = require('../helper');
-var db = require('../../schemes');
+const expect = require('chai').expect;
+const helper = require('../helper');
+const db = require('../../lib/schemes');
 
 afterEach(() => helper.db.clean());
 

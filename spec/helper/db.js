@@ -1,4 +1,4 @@
-const db = require('../../schemes');
+const db = require('../../lib/schemes');
 const Model = db.Sequelize.Model;
 
 module.exports = {
