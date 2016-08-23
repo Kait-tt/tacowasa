@@ -5,7 +5,7 @@ env:
     global:
         - NODE_ENV=test
 install:
-    - mysql -uroot -e "create database tacowasa_test"
+    - mysql -uroot -e "create database tacowasa"
 script:
     - npm i
     - npm run migrate:test

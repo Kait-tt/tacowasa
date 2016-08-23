@@ -4,7 +4,7 @@
   "db": {
     "username": "root",
     "password": null,
-    "database": "tacowasa_test",
+    "database": "tacowasa",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "logging": false
