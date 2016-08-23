@@ -70,25 +70,26 @@ describe('models', () => {
                     if (from === to) return;
                     context(`update position from ${from} to ${to}`, () => {
                         const _usernames = _.reverse(usernames.slice());
-                        beforeEach(() => Member.updateOrder(project.id, _usernames[from], _usernames[to]));
-
-                        it(`should ordered`, () => {
+                        beforeEach(() => {
                             const target = _usernames[from];
                             const before = _usernames[to];
                             _usernames.splice(from, 1);
                             _usernames.splice(_usernames.indexOf(before), 0, target);
+                            return Member.updateOrder(project.id, target, before)
                         });
+
+                        it(`should ordered`, () => expectSorted(project.id, _usernames));
                     });
                 });
                 context(`update position from ${from} to last`, () => {
                     const _usernames = _.reverse(usernames.slice());
-                    beforeEach(() => Member.updateOrder(project.id, _usernames[from], null));
-
-                    it(`should ordered`, () => {
+                    beforeEach(() => {
                         const target = _usernames.splice(from, 1)[0];
                         _usernames.push(target);
-                        return expectSorted(project.id, _usernames);
+                        return Member.updateOrder(project.id, target, null)
                     });
+
+                    it(`should ordered`, () => expectSorted(project.id, _usernames));
                 });
             });
         });
