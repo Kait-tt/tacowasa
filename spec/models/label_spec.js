@@ -65,6 +65,44 @@ describe('models', () => {
                     expect(_.map(labels, 'id')).to.not.includes(targetLabel.id);
                 });
             });
+
+            describe('#attach', () => {
+                let task;
+                let attachLabel;
+                beforeEach(() => co(function* () {
+                    task = yield Task.create(project.id, {title: 'task1', body: 'body1'});
+                    attachLabel = labels[0];
+                    yield Label.attach(project.id, attachLabel.id, task.id);
+                    task = yield Task.findById(task.id);
+                }));
+
+                it('the task should have a label', () => {
+                    expect(task.labels).to.lengthOf(1);
+                    expect(task).to.have.deep.property('labels[0].name', attachLabel.name);
+                    expect(task).to.have.deep.property('labels[0].color', attachLabel.color);
+                });
+            });
+
+            describe('#attach x 3', () => {
+                let task;
+                let attachLabels;
+                beforeEach(() => co(function* () {
+                    task = yield Task.create(project.id, {title: 'task1', body: 'body1'});
+                    attachLabels = labels.slice(0, 3);
+                    for (let label of attachLabels) {
+                        yield Label.attach(project.id, label.id, task.id);
+                    }
+                    task = yield Task.findById(task.id);
+                }));
+
+                it('the task should have three labels', () => {
+                    expect(task.labels).to.lengthOf(3);
+                    _.forEach(attachLabels, (label, i) => {
+                        expect(task.labels[i]).have.property('name', label.name);
+                        expect(task.labels[i]).have.property('color', label.color);
+                    });
+                });
+            });
         });
     });
 });
