@@ -1,12 +1,17 @@
-const router = require('koa-router')();
+const express = require('express');
+const router = express.Router();
 
-router.get('/', function* () {
-    yield this.render('index', {
+router.get('/', function (req, res) {
+    const mustLogin = req.params.mustLogin === '1';
+    const logined = req.isAuthenticated && req.isAuthenticated();
+    const userName = req.user ? req.user.username : null;
+
+    res.render('index', {
         title: 'Tacowasa',
         displayTitle: 'Tacowasa',
-        logined: false,
-        mustLogin: false,
-        userName: null
+        logined: logined,
+        mustLogin: mustLogin,
+        userName: userName
     });
 });
 

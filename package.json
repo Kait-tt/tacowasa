@@ -4,7 +4,7 @@
   "description": "Web based digital Kanban tool",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node ./bin/www",
     "migrate": "sequelize db:migrate",
     "migrate:test": "cross-env NODE_ENV=test sequelize db:migrate",
     "test": "cross-env NODE_ENV=test mocha --reporter spec --timeout 10000",
@@ -30,16 +30,26 @@
     "node": "~6.3.1"
   },
   "dependencies": {
+    "bluebird": "^3.4.1",
+    "body-parser": "^1.15.2",
     "co": "^4.6.0",
     "config": "^1.21.0",
+    "connect-mysql": "^2.1.1",
+    "cookie-parser": "^1.4.3",
     "cross-env": "^2.0.0",
-    "koa": "^1.2.1",
-    "koa-ejs": "^3.0.0",
-    "koa-router": "^5.4.0",
+    "debug": "^2.2.0",
+    "ejs": "^2.5.1",
+    "express": "^4.14.0",
+    "express-session": "^1.14.0",
     "lodash": "^4.14.2",
+    "morgan": "^1.7.0",
     "mysql": "^2.11.1",
+    "passport": "^0.3.2",
+    "passport-github": "^1.1.0",
     "sequelize": "^3.23.6",
-    "sequelize-cli": "^2.4.0"
+    "sequelize-cli": "^2.4.0",
+    "serve-favicon": "^2.3.0",
+    "socket.io": "^1.4.8"
   },
   "devDependencies": {
     "chai": "^3.5.0",

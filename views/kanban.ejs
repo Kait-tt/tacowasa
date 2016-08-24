@@ -8,7 +8,7 @@
     <link rel='stylesheet' href='/vendor/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css'/>
     <link rel='stylesheet' href='/vendor/bootstrap-select/dist/css/bootstrap-select.min.css'/>
     <link rel="stylesheet" href='/vendor/bootstrap-markdown/css/bootstrap-markdown.min.css' />
-    <script>window.username = '<%= userName %>';</script>
+    <script>window.username = '<%= username %>';</script>
 </head>
 <body>
 
@@ -126,7 +126,7 @@
                                 <div class="user-label-area">
                                     <span class="user-name">
                                         <img data-bind="attr: { src: member.avatarUrl }" class="user-avatar" src="" width="24" height="24">
-                                        <b data-bind="text: userName"></b>
+                                        <b data-bind="text: username"></b>
                                         <span data-bind="text: '(' + member.wip() + '/' + member.wipLimit() + ')'"></span>
                                         <a href="#" class="user-settings-button"
                                            data-toggle="modal" data-target="#user-settings-modal"
@@ -234,7 +234,7 @@
                             <span class="glyphicon glyphicon-time"></span>
                             <span data-bind="text: allWorkTimeFormat"></span>
                         </div>
-                        <!-- ko if: assigneeMember() && stage() === 'doing' && assigneeMember().userName() !== '<%= userName %>' -->
+                        <!-- ko if: assigneeMember() && stage() === 'doing' && assigneeMember().username() !== '<%= username %>' -->
                         <div class="issue-detail-is-working-wrapper" data-bind="tooltip: { placement:'right',
                             title: '作業状態です。「作業中」にすると作業時間が計測されます。' }">
                             <input type="checkbox" id="issue-detail-is-working" class="pull-right" data-size="mini" data-on-text="作業中"
@@ -271,7 +271,7 @@
                             <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Assign
                         </label>
                         <p class="form-control-static" id="issue-detail-assign"
-                           data-bind="text: assigneeMember() ? assigneeMember().userName : '(None)'"></p>
+                           data-bind="text: assigneeMember() ? assigneeMember().username : '(None)'"></p>
                     </div>
 
                     <div class="form-group issue-detail-cost-wrap" data-bind="css: { 'has-error': $root.updateIssueWillBeOverWipLimit() }">
@@ -349,7 +349,7 @@
                                     <td data-bind="text: startTimeFormat"></td>
                                     <td data-bind="text: endTimeFormat"></td>
                                     <td data-bind="text: duration"></td>
-                                    <td data-bind="text: userName"></td>
+                                    <td data-bind="text: username"></td>
                                 </tr>
                                 </tbody>
                                 <!-- /ko -->
@@ -369,9 +369,9 @@
                                     <td data-bind="css: { 'has-error': !isValidUserId() } ">
                                         <select class="form-control"
                                                 data-bind="options: $root.members,
-                                                optionsText: 'userName',
-                                                optionsValue: 'userName',
-                                                value: userName,
+                                                optionsText: 'username',
+                                                optionsValue: 'username',
+                                                value: username,
                                                 optionsCaption: '(no assignee)'" required>
                                         </select>
                                     </td>
@@ -524,8 +524,8 @@
 
                         <select class="form-control" id="assign-issue-user"
                                 data-bind="options: $root.canAssignMembers,
-                                optionsText: 'userName',
-                                optionsValue: 'userName',
+                                optionsText: 'username',
+                                optionsValue: 'username',
                                 value: $root.assignUserName,
                                 optionsCaption: '(no assignee)'" required>
                         </select>
@@ -604,7 +604,7 @@
                             <span class="glyphicon glyphicon-link"> GitHub</span>
                         </label>
                         <p><a class="form-control-static" id="project-settings-github-link" target="_blank" data-bind="
-                            text: github().userName() + '/' + github().repoName(),
+                            text: github().username() + '/' + github().repoName(),
                             attr: { href: github().url } "></a></p>
                     </div>
 
@@ -661,7 +661,7 @@
                         <!-- ko foreach: members -->
                         <tr>
                             <td><img data-bind="attr: { src: avatarUrl }" src="" width="24" height="24"></td>
-                            <td data-bind="text: userName"></td>
+                            <td data-bind="text: username"></td>
                             <td data-bind="text: wip() + '/' + wipLimit()"></td>
                             <td>
                                 <div class="btn-group" role="group">
@@ -716,7 +716,7 @@
                         <label for="user-settings-name" class="control-label">
                             <span class="glyphicon glyphicon-blackboard"></span> Name
                         </label>
-                        <p class="form-control-static" id="project-settings-user" data-bind="text: userName"></p>
+                        <p class="form-control-static" id="project-settings-user" data-bind="text: username"></p>
                     </div>
 
                     <div class="form-group">
@@ -784,7 +784,7 @@
                         <label for="user-settings-name" class="control-label">
                             <span class="glyphicon glyphicon-blackboard"></span> Name
                         </label>
-                        <p class="form-control-static" id="project-settings-user" data-bind="text: $root.selectedMember().userName"></p>
+                        <p class="form-control-static" id="project-settings-user" data-bind="text: $root.selectedMember().username"></p>
                     </div>
                     <!-- /ko -->
                 </div>
