@@ -2,7 +2,7 @@
 
 const app = require('../app');
 const http = require('http');
-const io = require('../routes/socket').socket;
+const socketRouting = require('../routes/socket/');
 
 const port = parseInt(process.env.PORT, 10) || 3000;
 app.set('port', port);
@@ -11,28 +11,29 @@ const server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-io(server);
+const socket = new socketRouting(server);
+app.set('socket', socket);
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error('Port ' + port + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error('Port ' + port + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error('Port ' + port + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error('Port ' + port + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
 }
 
 function onListening() {
-  console.log('Listening on port ' + server.address().port);
+    console.log('Listening on port ' + server.address().port);
 }
