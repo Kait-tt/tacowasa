@@ -12,7 +12,6 @@ describe('models', () => {
         describe('#create', () => {
             const username = 'user1';
             let project;
-
             beforeEach(() => {
                 return Project.create('project1', username)
                     .then(x => project = x);
@@ -22,7 +21,6 @@ describe('models', () => {
 
             describe('#findAll', () => {
                 let res;
-
                 beforeEach(() => Project.findAll().then(x => res = x));
 
                 it('should return a array having a project', () => expect(res).to.lengthOf(1));
@@ -30,7 +28,6 @@ describe('models', () => {
 
             describe('#findOne', () => {
                 let res;
-
                 beforeEach(() => Project.findOne().then(x => res = x));
 
                 it('should return a project', () => expect(res).to.be.an('object'));
@@ -38,10 +35,22 @@ describe('models', () => {
 
             describe('#findById', () => {
                 let res;
-
                 beforeEach(() => Project.findById(project.id).then(x => res = x));
 
                 it('should return a project', () => expect(res).to.be.an('object'));
+            });
+
+            describe('#archive', () => {
+                let res;
+                beforeEach(() => Project.archive(project.id).then(x => res = x))
+
+                it('should archive the project', () => expect(res).to.have.property('enabled', false));
+
+                context('#findOne', () => {
+                    beforeEach(() => Project.findAll().then(x => res = x));
+
+                    it('should not include the archived project', () => expect(res).to.lengthOf(0));
+                })
             });
         });
     });
