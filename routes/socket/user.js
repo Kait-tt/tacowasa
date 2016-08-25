@@ -1,6 +1,3 @@
-const _ = require('lodash');
-const co = require('co');
-
 class SocketUser {
     constructor(socket) {
         this.socket = socket;

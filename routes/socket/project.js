@@ -77,7 +77,8 @@ class SocketProject {
         return Promise.resolve();
     }
 
-    // events
+    /// events
+
     addMember(user, {username}) {
         return Member.add(this.projectId, username)
             .then(addedUser => {

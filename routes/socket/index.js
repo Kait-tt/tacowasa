@@ -8,7 +8,7 @@ const SocketProject = require('./project');
 
 class SocketRouter {
     constructor(server) {
-        this.io = socketio.listen(sesrver);
+        this.io = socketio.listen(server);
         this.users = {};
         this.projects = {};
 

@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const _ = require('lodash');
 const Project = require('../lib/models/project');
-// var GitHub = require('../lib/model/github');
 // var Log = require('../lib/model/log');
 // var logger = new (require('../lib/model/loggerAPI'));
 // TODO: logging
@@ -41,7 +40,7 @@ router.post('/projects', (req, res) => {
 
     // TODO: this is stub
     return res.status(500).json({message: 'stub'});
-    // TODO: implement import porject
+    // TODO: implement import project
     // (new GitHub(req.user.token)).importProject(
     //     username,
     //     reponame,
