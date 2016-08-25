@@ -76,7 +76,7 @@ describe('models', () => {
             }));
 
             it('should return projects including specified username as member', () => {
-                expect(_.map(res, 'name')).to.eql(['project1', 'project3']);
+                expect(_.map(res, 'name')).to.have.members(['project1', 'project3']);
             });
         });
     });
