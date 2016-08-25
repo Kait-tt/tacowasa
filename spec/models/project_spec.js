@@ -1,9 +1,12 @@
 'use strict';
 const expect = require('chai').expect;
 const _ = require('lodash');
+const co = require('co');
 const helper = require('../helper');
 const db = require('../../lib/schemes');
 const Project = require('../../lib/models/project');
+const User = require('../../lib/models/user');
+const Member = require('../../lib/models/member');
 
 afterEach(() => helper.db.clean());
 
@@ -51,6 +54,29 @@ describe('models', () => {
 
                     it('should not include the archived project', () => expect(res).to.lengthOf(0));
                 })
+            });
+        });
+
+        describe('#findByIncludedUsername', () => {
+            let res;
+            beforeEach(() => co(function* () {
+                for (let username of ['target', 'user1', 'user2']) {
+                    yield User.findOrCreate(username);
+                }
+                const project1 = yield Project.create('project1', 'target');
+                const project2 = yield Project.create('project2', 'user1');
+                const project3 = yield Project.create('project3', 'user2');
+                yield Member.add(project2.id, 'user2');
+                yield Member.add(project3.id, 'target');
+                // project1 has target
+                // project2 has user1 and user2
+                // project3 has user3 and target
+
+                res = yield Project.findByIncludedUsername('target');
+            }));
+
+            it('should return projects including specified username as member', () => {
+                expect(_.map(res, 'name')).to.eql(['project1', 'project3']);
             });
         });
     });
