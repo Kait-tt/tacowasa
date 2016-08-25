@@ -130,7 +130,7 @@ class SocketProject {
     updateTaskStatus(user, {taskId, updateParams: {userId, stageId}}) {
         return co(function* () {
             const updatedTask = yield Task.updateStatus(this.projectId, taskId, {userId, stageId});
-            const assignedUser = userId && yield Member.findByUserId(this.projectId, userId);
+            const assignedUser = userId && (yield Member.findByUserId(this.projectId, userId));
             const assignedUsername = assignedUser && assignedUser.username;
             const stage = yield Stage.findById(projectId, stageId);
             this.emits('updateTaskStatus', {task: updatedTask});

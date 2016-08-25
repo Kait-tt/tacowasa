@@ -48,7 +48,11 @@ const webpackConfig = {
         extensions: ['', '.js', '.json']
     },
     plugins: _.compact([
-        new webpack.optimize.CommonsChunkPlugin('common.js')
+        new webpack.optimize.CommonsChunkPlugin('common.js'),
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery'
+        })
     ])
 };
 

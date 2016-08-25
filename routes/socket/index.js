@@ -20,7 +20,7 @@ class SocketRouter {
             next(new Error(`required login: ${socket.id}`));
         });
 
-        this.io.socket.on('connection', socket => {
+        this.io.sockets.on('connection', socket => {
             const user = new SocketUser(socket);
             let projectSocket;
 

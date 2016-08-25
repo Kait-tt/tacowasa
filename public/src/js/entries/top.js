@@ -1,6 +1,5 @@
 'use strict';
 require('../../scss/top.scss');
-const $ = require('jquery');
 require('bootstrap');
 
 const topOffset = 60;
