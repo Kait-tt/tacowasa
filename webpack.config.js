@@ -2,7 +2,8 @@ const _ = require('lodash');
 const webpack = require('webpack');
 const ENV = process.env.NODE_ENV;
 
-module.exports = {
+// development
+const webpackConfig = {
     entry: {
         top: __dirname + '/public/src/js/entries/top.js'
     },
@@ -47,12 +48,19 @@ module.exports = {
         extensions: ['', '.js', '.json']
     },
     plugins: _.compact([
-        new webpack.optimize.CommonsChunkPlugin('common.js'),
-        ENV === 'production' ? new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                warnings: false
-            },
-            test: /\.(js|json)$/
-        }) : null
+        new webpack.optimize.CommonsChunkPlugin('common.js')
     ])
 };
+
+// production
+if (ENV === 'production') {
+    const uglifyJsPlugin = new webpack.optimize.UglifyJsPlugin({
+        compress: {
+            warnings: false
+        },
+        test: /\.(js|json)$/
+    });
+    webpackConfig.plugins.push(uglifyJsPlugin);
+}
+
+module.exports = webpackConfig;
