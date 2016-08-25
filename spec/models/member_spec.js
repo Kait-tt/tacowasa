@@ -29,14 +29,30 @@ describe('models', () => {
         });
 
         describe('#add x 3', () => {
+            let users;
             beforeEach(() => co(function* () {
-                yield Member.add(project.id, usernames[1]);
-                yield Member.add(project.id, usernames[2]);
-                yield Member.add(project.id, usernames[3]);
+                users = ['dummy'];
+                users.push(yield Member.add(project.id, usernames[1]));
+                users.push(yield Member.add(project.id, usernames[2]));
+                users.push(yield Member.add(project.id, usernames[3]));
             }));
 
             it('project should have 4 members', () => expectMemberSize(project.id, 4));
             it('should be inserted to top', () => expectSorted(project.id, _.reverse(usernames.slice(0, 4))));
+
+            describe('#findByUsername', () => {
+                let user;
+                beforeEach(() => Member.findByUsername(project.id, usernames[2]).then(x => user = x));
+
+                it('should be return a user', () => expect(user).to.have.property('id', users[2].id));
+            });
+
+            describe('#findByUserId', () => {
+                let user;
+                beforeEach(() => Member.findByUserId(project.id, users[2].id).then(x => user = x));
+
+                it('should be return a user', () => expect(user).to.have.property('username', usernames[2]));
+            });
 
             describe('#remove', () => {
                 beforeEach(() => Member.remove(project.id, usernames[1]));
