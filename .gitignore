@@ -11,7 +11,10 @@ css/
 
 *.log
 
-images/avator/*
+public/images/avatar/*
+!public/images/avatar/.gitkeep
+public/dist/*
+!public/dist/.gitkeep
 
 temp/
 tmp/

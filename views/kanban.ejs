@@ -8,7 +8,7 @@
     <link rel='stylesheet' href='/vendor/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css'/>
     <link rel='stylesheet' href='/vendor/bootstrap-select/dist/css/bootstrap-select.min.css'/>
     <link rel="stylesheet" href='/vendor/bootstrap-markdown/css/bootstrap-markdown.min.css' />
-    <script>window.username = '<%= username %>';</script>
+    <script>window.username = '<%= userName %>';</script>
 </head>
 <body>
 
@@ -26,11 +26,27 @@
             <!-- /ko -->
         </div>
         <div class="btn-group navbar-left" role="group" id="toolbar-btn-group">
-          <button type="button" class="btn btn-default navbar-btn"
-                                    data-toggle="modal" data-target="#add-issue-modal"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <span class="sr-only">Add task</span></button>
-          <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#members-settings-modal"><span class="glyphicon glyphicon-user"></span> <span class="sr-only">Members</span></button>
-          <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#project-settings-modal"><span class="glyphicon glyphicon-cog"></span> <span class="sr-only">Settings</span></button>
-          <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#project-labels-modal"><span class="glyphicon glyphicon-tags"></span> <span class="sr-only">Labels</span></button>
+            <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#add-issue-modal" data-bind="tooltip: { title: '新規タスク作成', placement: 'bottom' }">
+                <span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span> <span class="sr-only">Add task</span>
+            </button>
+            <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#members-settings-modal" data-bind="tooltip: { title: 'メンバー管理', placement: 'bottom' }">
+                <span class="glyphicon glyphicon-user"></span> <span class="sr-only">Members</span>
+            </button>
+            <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#project-labels-modal" data-bind="tooltip: { title: 'ラベル管理', placement: 'bottom' }">
+                <span class="glyphicon glyphicon-tags"></span> <span class="sr-only">Labels</span>
+            </button>
+            <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#project-settings-modal" data-bind="tooltip: { title: 'プロジェクト管理', placement: 'bottom' }">
+                <span class="glyphicon glyphicon-cog"></span> <span class="sr-only">Settings</span>
+            </button>
+            <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#project-stats-modal" data-bind="tooltip: { title: '統計', placement: 'bottom' }">
+                <span class="glyphicon glyphicon-stats"></span> <span class="sr-only">Stats</span>
+            </button>
+            <button type="button" class="btn btn-default navbar-btn" data-bind="visible: viewMode() === 'full', click: viewMode.bind(this, 'compact'), tooltip: { title: 'コンパクトモードに変更', placement: 'bottom' }">
+                <span class="glyphicon glyphicon-resize-small"></span> <span class="sr-only">Compact View</span>
+            </button>
+            <button type="button" class="btn btn-default navbar-btn" data-bind="visible: viewMode() === 'compact', click: viewMode.bind(this, 'full'), tooltip: { title: 'フルモードに変更', placement: 'bottom' }">
+                <span class="glyphicon glyphicon-resize-full"></span> <span class="sr-only">Full View</span>
+            </button>
         </div>
         <form class="navbar-form navbar-left search-form" role="search">
             <div class="form-group has-feedback">
@@ -38,7 +54,7 @@
                 <span class="glyphicon glyphicon-search form-control-feedback"></span>
             </div>
         </form>
-        <div class="navbar-text" data-bind="visible: loginMember() && loginMember().workingIssues().length">
+        <div class="navbar-text" data-bind="if: loginMember() && loginMember().workingIssues().length">
             <span class="user-working-message alert alert-success">
                 <span class="glyphicon glyphicon-play-circle"></span> 作業中です。
                 (<span data-bind="text: loginMember().workingTimeFormat()"></span>経過)
@@ -46,10 +62,10 @@
         </div>
         <div class="navbar-right" role="group" id="joined-members-group">
             <ul data-bind="foreach: {
-                data: joinedMembers,
+                data: _.uniq(joinedMembers()),
                 afterAdd: view.effects.fadeIn,
                 beforeRemove: view.effects.fadeOut }">
-                <li>
+                <li data-bind="tooltip: { title: username, placement: 'bottom' }">
                     <img data-bind="attr: { src: avatarUrl }" class="user-avatar" src="" width="34" height="34">
                 </li>
             </ul>
@@ -57,12 +73,9 @@
     </div>
 </div>
 
-<div id="main" class="main" data-bind="visible: true, css: {'open': openedIssueList}" style="display: none">
-    <div id="issue-toggle-wrapper">
-        <button data-bind="click: toggleOpenedIssueList">
-            <span class="glyphicon glyphicon-chevron-right" data-bind="css: { reverse: openedIssueList() }"></span>
-        </button>
-    </div>
+<div class="loader" data-bind="visible: false" style="display: block"></div>
+
+<div id="main" class="main" data-bind="visible: true, css: {'compact': viewMode() === 'compact'}" style="display: none">
     <div class="blocks">
         <ul class="stage-blocks">
             <% stages.forEach(function (stage) { %>
@@ -70,7 +83,7 @@
                     <li id="three-stage-blocks">
                         <ul class="inner-stage-blocks">
                 <% } %>
-                <li id="<%= stage.name %>-block" class="stage-block" <% if(stage.name == 'issue'){ %> data-bind="css: {open: openedIssueList(), folded : !openedIssueList()}" <% } %>>
+                <li id="<%= stage.name %>-block" class="stage-block">
                     <h2 class="stage-title">
                         <%= stage.displayName %> <span class="badge" data-bind="text: $root.stages.<%= stage.name %>().length"></span>
                         <% if(stage.name == 'done') { %>
@@ -126,7 +139,7 @@
                                 <div class="user-label-area">
                                     <span class="user-name">
                                         <img data-bind="attr: { src: member.avatarUrl }" class="user-avatar" src="" width="24" height="24">
-                                        <b data-bind="text: username"></b>
+                                        <b data-bind="text: userName"></b>
                                         <span data-bind="text: '(' + member.wip() + '/' + member.wipLimit() + ')'"></span>
                                         <a href="#" class="user-settings-button"
                                            data-toggle="modal" data-target="#user-settings-modal"
@@ -234,7 +247,7 @@
                             <span class="glyphicon glyphicon-time"></span>
                             <span data-bind="text: allWorkTimeFormat"></span>
                         </div>
-                        <!-- ko if: assigneeMember() && stage() === 'doing' && assigneeMember().username() !== '<%= username %>' -->
+                        <!-- ko if: assigneeMember() && stage() === 'doing' && assigneeMember().userName() !== '<%= userName %>' -->
                         <div class="issue-detail-is-working-wrapper" data-bind="tooltip: { placement:'right',
                             title: '作業状態です。「作業中」にすると作業時間が計測されます。' }">
                             <input type="checkbox" id="issue-detail-is-working" class="pull-right" data-size="mini" data-on-text="作業中"
@@ -271,7 +284,7 @@
                             <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Assign
                         </label>
                         <p class="form-control-static" id="issue-detail-assign"
-                           data-bind="text: assigneeMember() ? assigneeMember().username : '(None)'"></p>
+                           data-bind="text: assigneeMember() ? assigneeMember().userName : '(None)'"></p>
                     </div>
 
                     <div class="form-group issue-detail-cost-wrap" data-bind="css: { 'has-error': $root.updateIssueWillBeOverWipLimit() }">
@@ -349,7 +362,7 @@
                                     <td data-bind="text: startTimeFormat"></td>
                                     <td data-bind="text: endTimeFormat"></td>
                                     <td data-bind="text: duration"></td>
-                                    <td data-bind="text: username"></td>
+                                    <td data-bind="text: userName"></td>
                                 </tr>
                                 </tbody>
                                 <!-- /ko -->
@@ -369,9 +382,9 @@
                                     <td data-bind="css: { 'has-error': !isValidUserId() } ">
                                         <select class="form-control"
                                                 data-bind="options: $root.members,
-                                                optionsText: 'username',
-                                                optionsValue: 'username',
-                                                value: username,
+                                                optionsText: 'userName',
+                                                optionsValue: 'userName',
+                                                value: userName,
                                                 optionsCaption: '(no assignee)'" required>
                                         </select>
                                     </td>
@@ -524,8 +537,8 @@
 
                         <select class="form-control" id="assign-issue-user"
                                 data-bind="options: $root.canAssignMembers,
-                                optionsText: 'username',
-                                optionsValue: 'username',
+                                optionsText: 'userName',
+                                optionsValue: 'userName',
                                 value: $root.assignUserName,
                                 optionsCaption: '(no assignee)'" required>
                         </select>
@@ -604,7 +617,7 @@
                             <span class="glyphicon glyphicon-link"> GitHub</span>
                         </label>
                         <p><a class="form-control-static" id="project-settings-github-link" target="_blank" data-bind="
-                            text: github().username() + '/' + github().repoName(),
+                            text: github().userName() + '/' + github().repoName(),
                             attr: { href: github().url } "></a></p>
                     </div>
 
@@ -661,7 +674,7 @@
                         <!-- ko foreach: members -->
                         <tr>
                             <td><img data-bind="attr: { src: avatarUrl }" src="" width="24" height="24"></td>
-                            <td data-bind="text: username"></td>
+                            <td data-bind="text: userName"></td>
                             <td data-bind="text: wip() + '/' + wipLimit()"></td>
                             <td>
                                 <div class="btn-group" role="group">
@@ -716,7 +729,7 @@
                         <label for="user-settings-name" class="control-label">
                             <span class="glyphicon glyphicon-blackboard"></span> Name
                         </label>
-                        <p class="form-control-static" id="project-settings-user" data-bind="text: username"></p>
+                        <p class="form-control-static" id="project-settings-user" data-bind="text: userName"></p>
                     </div>
 
                     <div class="form-group">
@@ -784,7 +797,7 @@
                         <label for="user-settings-name" class="control-label">
                             <span class="glyphicon glyphicon-blackboard"></span> Name
                         </label>
-                        <p class="form-control-static" id="project-settings-user" data-bind="text: $root.selectedMember().username"></p>
+                        <p class="form-control-static" id="project-settings-user" data-bind="text: $root.selectedMember().userName"></p>
                     </div>
                     <!-- /ko -->
                 </div>
@@ -855,6 +868,73 @@
 </div>
 
 
+<!-- Project stats Modal -->
+<div class="modal fade" id="project-stats-modal" tabindex="-1" role="dialog" aria-labelledby="project-stats-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="project-stats-modal-label">Project Stats</h4>
+            </div>
+            <div class="modal-body">
+                <div class="iteration-member-stats">
+                    <h3>イテレーションごとメンバーごとの実働時間</h3>
+                    <hint>1イテレーション=1週間で計算</hint>
+                    <div class="table-responsible">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>iteration/username</th>
+                                <!-- ko foreach: members -->
+                                <!-- ko if: visible -->
+                                <th data-bind="text: userName"></th>
+                                <!-- /ko -->
+                                <!-- /ko -->
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!-- ko foreach: {data: stats.iterationWorkTime, as: 'stats'} -->
+                            <tr>
+                                <th data-bind="text: stats.startFormat + ' - ' + stats.endFormat"></th>
+                                <!-- ko foreach: {data: $root.members, as: 'user'} -->
+                                <!-- ko if: user.visible -->
+                                <td data-bind="text: stats.users[user.userName()].format"></td>
+                                <!-- /ko -->
+                                <!-- /ko -->
+                            </tr>
+                            <!-- /ko -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <div class="label-stats">
+                    <h3>ラベルごとの合計実働時間</h3>
+                    <div class="table-responsible">
+                        <table class="table">
+                            <thead>
+                            <tr><th>label name</th><th>time</th></tr>
+                            </thead>
+                            <tbody>
+                            <!-- ko foreach: stats.totalTimeLabels -->
+                            <tr>
+                                <td data-bind="text: name"></td>
+                                <td data-bind="text: format"></td>
+                            </tr>
+                            <!-- /ko -->
+                            <tr>
+                                <td>(Total)</td>
+                                <td data-bind="text: stats.totalTimeFormat"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- include javascripts -->
 <script src="/vendor/jquery/dist/jquery.min.js"></script>
 <script src="/vendor/jquery-ui/jquery-ui.min.js"></script>
@@ -876,6 +956,7 @@
 <script src="/javascripts/module/knockout/knockout-selectPicker.js"></script>
 <script src="/javascripts/module/knockout/knockout-bootstrap-switch.js"></script>
 <script src="/javascripts/module/util.js"></script>
+<script src="/javascripts/module/localStorage.js"></script>
 <script src="/javascripts/model/Socket.js"></script>
 <script src="/javascripts/model/stageTypes.js"></script>
 <script src="/javascripts/model/Label.js"></script>
@@ -884,6 +965,7 @@
 <script src="/javascripts/model/User.js"></script>
 <script src="/javascripts/model/Project.js"></script>
 <script src="/javascripts/model/Projects.js"></script>
+<script src="/javascripts/model/ProjectStats.js"></script>
 <script src="/javascripts/view/effects.js"></script>
 <script src="/javascripts/view/miniMenu.js"></script>
 <script src="/javascripts/view/scroller.js"></script>

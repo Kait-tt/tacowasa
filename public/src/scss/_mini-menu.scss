@@ -1,0 +1,51 @@
+$mini-menu-size: 70px;
+$icon-size: 14px;
+
+.mini-menu {
+  position: static;
+  display: block;
+  margin: 0;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+
+  button, a {
+    border-style: none;
+    padding: 3px;
+    width: $icon-size + 6 + 4;
+    height: $icon-size + 6 + 4;
+    border-radius: ($icon-size + 6 + 4) / 2;
+  }
+
+  .mini-menu-default {
+    position: relative;
+    z-index: 10;
+    height: 18px;
+    width: 18px;
+
+    .btn {
+      padding: 0;
+      height: 18px;
+      width: 18px;
+      text-align: center;
+      top: 0;
+    }
+  }
+
+  .mini-menu-list {
+    z-index: 15;
+    display: none;
+    position: absolute;
+    top: $mini-menu-size  / -2;
+    left: $mini-menu-size  / -2;
+    width: $mini-menu-size;
+    height: $mini-menu-size;
+    background-color: rgba(240, 240, 240, 0.8);
+    border-radius: $mini-menu-size / 2;
+
+    li {
+      position: absolute;
+      z-index: 25;
+    }
+  }
+}
