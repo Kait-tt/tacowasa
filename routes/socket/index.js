@@ -38,8 +38,10 @@ class SocketRouter {
             }).catch(err => console.error(err)));
 
             socket.on('disconnect', () => co(function* () {
-                yield this.leaveProjectRoom(user);
-                yield projectSocket.leaveProjectRoom(user);
+                if (user.projectId) {
+                    yield this.leaveProjectRoom(user);
+                    yield projectSocket.leaveProjectRoom(user);
+                }
                 console.log(`disconnect: ${socket.id}`);
                 user.active = false;
                 delete this.users[socket.id];
