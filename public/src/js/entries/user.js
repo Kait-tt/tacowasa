@@ -1,47 +1,49 @@
-(function (global, $, _, ko, util) {
-    'use strict';
+// (function (global, $, _, ko, util) {
+'use strict';
+require('bootstrap');
+require('../../scss/user.scss');
+require('babel-polyfill');
+const ko = require('knockout');
+const ImportProject = require('../viewmodels/import_project');
+const Alert = require('../viewmodels/alert');
+const effects = require('../views/effects');
+const Project = require('../models/project');
 
-    var viewmodel = util.namespace('kpp.viewmodel'),
-        model = util.namespace('kpp.model'),
-        view = util.namespace('kpp.view'),
-        alert = new (util.namespace('util.viewmodel')).Alert({
-            maxAlertNum: 2
-        }),
-        effects = view.effects,
-        projects = new model.Projects(),
-        vm = {
-            importProject: new viewmodel.ImportProject({
-                projects: projects
-            }),
-            alerts: alert.alerts,
-            projects: projects.items,
-            removeProject: null,
-            selectedProject: ko.observable()
-        };
+const alert = new Alert({maxAlertNum: 2});
+const projects = ko.observableArray();
+const importProject = new ImportProject({projects});
 
-    vm.importProject.submit = alert.wrapDeferred(vm.importProject.submit,
-        'ProjectのImportに成功しました',
-        'ProjectのImportに失敗しました');
+const vm = {
+    importProject,
+    alerts: alert.alerts,
+    projects: projects.items,
+    removeProject: null,
+    selectedProject: ko.observable()
+};
 
-    vm.removeProject = alert.wrapDeferred(removeProject,
-        'Projectの削除に成功しました',
-        'Projectの削除に失敗しました');
+vm.importProject.submit = alert.wrapAlert(importProject.submit.bind(importProject),
+    'ProjectのImportに成功しました',
+    'ProjectのImportに失敗しました');
 
+vm.removeProject = alert.wrapAlert(removeProject,
+    'Projectの削除に成功しました',
+    'Projectの削除に失敗しました');
 
-    $('[data-toggle="tooltip"]').tooltip();
+$('[data-toggle="tooltip"]').tooltip();
 
-    projects.fetch()
-        .done(function () {
-            effects.applyBindings(global);
-            ko.applyBindings(vm);
-        });
+Project.fetchAll()
+    .then(_projects => {
+        _projects.forEach(x => projects.push(x));
+        effects.applyBindings(window);
+        ko.applyBindings(vm);
+    })
+    .catch(err => console.error(err));
 
-    function removeProject() {
-        var project = vm.selectedProject();
-        return project.remove()
-            .then(function () {
-                projects.items.remove(project);
-            });
-    }
-
-}(window, jQuery, _, ko, window.nakazawa.util));
+function removeProject() {
+    const project = vm.selectedProject();
+    return project.remove()
+        .then(() => {
+            projects.items.remove(project);
+        })
+        .catch(err => console.error(err));
+}

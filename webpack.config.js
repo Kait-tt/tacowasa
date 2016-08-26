@@ -5,7 +5,9 @@ const ENV = process.env.NODE_ENV;
 // development
 const webpackConfig = {
     entry: {
-        top: __dirname + '/public/src/js/entries/top.js'
+        top: __dirname + '/public/src/js/entries/top.js',
+        user: __dirname + '/public/src/js/entries/user.js',
+        kanban: __dirname + '/public/src/js/entries/kanban.js'
     },
     output: {
         path: __dirname + '/public/dist',
@@ -47,13 +49,13 @@ const webpackConfig = {
     resolve: {
         extensions: ['', '.js', '.json']
     },
-    plugins: _.compact([
+    plugins: [
         new webpack.optimize.CommonsChunkPlugin('common.js'),
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery'
         })
-    ])
+    ],
 };
 
 // production

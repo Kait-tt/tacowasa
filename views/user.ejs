@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <title><%= title %></title>
     <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,700' rel='stylesheet' type='text/css'>
-    <link rel='stylesheet' href='/stylesheets/user.css'/>
+
+    <!-- include javascripts -->
+    <script src="/common.js"></script>
+    <script src="/user.js"></script>
 </head>
 <body>
 
@@ -137,7 +140,7 @@
                     <div class="form-group">
                         <label for="import-repository-name" class="control-label">GitHubのリポジトリ名</label>
                         <input type="text" class="form-control" id="import-repository-name" placeholder="GitHub Repository Name"
-                                data-bind="value: importProject.repository" required>
+                                data-bind="value: importProject.reponame" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -150,28 +153,6 @@
         </div>
     </div>
 </div>
-
-<!-- include javascripts -->
-<script src="/vendor/jquery/dist/jquery.min.js"></script>
-<script src="/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="/vendor/lodash/lodash.min.js"></script>
-<script src="/vendor/knockoutjs/dist/knockout.js"></script>
-<script src="/vendor/blockui/jquery.blockUI.js"></script>
-<script src="/vendor/moment/moment.js"></script>
-
-<script src="/javascripts/module/util.js"></script>
-<script src="/javascripts/module/block.js"></script>
-<script src="/javascripts/model/stageTypes.js"></script>
-<script src="/javascripts/model/Issue.js"></script>
-<script src="/javascripts/model/Work.js"></script>
-<script src="/javascripts/model/User.js"></script>
-<script src="/javascripts/model/Label.js"></script>
-<script src="/javascripts/model/Project.js"></script>
-<script src="/javascripts/model/Projects.js"></script>
-<script src="/javascripts/view/effects.js"></script>
-<script src="/javascripts/viewmodel/importProject.js"></script>
-<script src="/javascripts/viewmodel/Alert.js"></script>
-<script src="/javascripts/roots/user.js"></script>
 
 </body>
 </html>

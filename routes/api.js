@@ -10,7 +10,7 @@ const Project = require('../lib/models/project');
 // Get Projects
 router.get('/projects', (req, res) => {
     Project.findByIncludedUsername(req.user.username)
-        .then(projects => req.status(200).json({message: 'OK', projects}))
+        .then(projects => res.status(200).json({message: 'OK', projects}))
         .catch(err => serverError(res, err));
 });
 
