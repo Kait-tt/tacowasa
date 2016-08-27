@@ -1,9 +1,12 @@
 'use strict';
 const ko = require('knockout');
 const _ = require('lodash');
-// const User = require('./user');
-// const Label = require('./label');
-// const Stage = require('./stage');
+const User = require('./user');
+const Label = require('./label');
+const Stage = require('./stage');
+const Task = require('./task');
+const Cost = require('./cost');
+const util = require('../modules/util');
 
 class Project {
     static get columnKeys() {
@@ -22,23 +25,12 @@ class Project {
             'defaultStage',
             'defaultAccessLevel',
             'defaultCost'
-            // TODO github ?
-            // githubColumnKeys = [
-            //     'userName',
-            //     'repoName',
-            //     'url',
-            //     'sync'
-            // ];
         ];
     }
 
     constructor(opts) {
         Project.columnKeys.forEach(key => {
             this[key] = ko.observable(opts[key]);
-            // if (!this.github()) { this.github({}); }
-            // githubColumnKeys.forEach(function (key) {
-            //     this.github()[key] = ko.observable(o.github ? o.github[key] : null);
-            // }, this);
         });
 
         // initialize labels
@@ -51,11 +43,20 @@ class Project {
 
         // initialize users
         this.users = ko.observableArray();
-        (opts.users || []).forEach(x => this.addUser(x, {reverse: true}));
+        (opts.users || []).forEach(x => this.addUser(x));
+
+        // initialize stage
+        this.stages = ko.observableArray();
+        (opts.stages || []).forEach(x => this.addStage(x));
+
+        // initialize costs
+        this.costs = ko.observableArray();
+        (opts.costs || []).forEach(x => this.addCost(x));
 
         // this.stages[stageName] = 各ステージにあるTask
         this.stageTasks = {};
-        this.stages().forEach(({stageName}) => {
+        // TODO: stageが追加された時の処理
+        this.stages().forEach(({name: stageName}) => {
             this.stageTasks[stageName] = ko.computed(() => {
                 return this.tasks().filter(task => task.stage() === stageName);
             });
@@ -110,139 +111,141 @@ class Project {
 
     /*** task ***/
 
+    getTask(taskOrWhere) {
+        if (taskOrWhere instanceof Task) { return taskOrWhere; }
+        return _.find(this.tasks(), taskOrWhere);
+    }
+
     addTask(taskParams) {
-        // this.issues.unshift(new Issue(_.extend(issue, {
-        //     members: this.members,
-        //     labels: issue.labels.map(function (labelId) { return this.getLabel(labelId); }, this)
-        // })));
+         this.issues.unshift(new Issue(_.extend(taskParams, {
+             users: this.users,
+             labels: (taskParams.labels || []).map(x => this.getLabelById(x.id))
+         })));
     }
 
-    archiveTask(taskOrId) {
-        // issue.stage(stageTypes.archive.name);
+    archiveTask(taskOrWhere) {
+        const task = this.resolveTask(taskOrWhere);
+        const stage = this.getStage({name: 'archive'});
+        if (!stage) { throw new Error('archive stage was not found.'); }
+
+        task.stage(stage);
     }
 
-    getTaskById(taskId) {
-        // return _.find(this.issues(), function (x) { return x._id() === issueId; });
+    updateTaskStatus(taskOrWhere, stageOrWhere, userOrWhere) {
+        const task = this.getTask(taskOrWhere);
+        const stage = this.getStage(stageOrWhere);
+        const user = userOrWhere && this.getUser(userOrWhere);
+        if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
+        if (!stage) { throw new Error(`stage was not found. : ${stageOrWhere}`); }
+
+        task.stage(task);
+        task.user(user);
     }
 
-    updateTaskStatus(taskOrId, stage, userOrIdOrUsername) {
-        // var issue = this.getIssue(issueId),
-        //     member = this.getMember(memberId);
-        // if (!issue) { throw new Error('issue not found'); }
-        //
-        // issue.stage(toStage);
-        // issue.assignee(member ? memberId : null);
+    updateTaskWorkingState(taskOrWhere, isWorking) {
+        const task = this.getTask(taskOrWhere);
+        if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
+
+        task.isWorking(isWorking);
     }
 
-    updateTaskWorkingState(taskOrId, isWorking) {
-        // var issue = this.getIssue(issueId);
-        // if (!issue) { throw new Error('issue not found'); }
-        //
-        // issue.isWorking(isWorking);
-        // issue.updateWorkHistory(workHistory);
+    updateTaskWorkHistory(taskOrWhere, workHistory) {
+        const task = this.getTask(taskOrWhere);
+        if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
+
+        task.updateWorkHistory(workHistory);
     }
 
-    updateTaskWorkHistory(taskOrId, workHistory) {
-        // var issue = this.getIssue(issueId);
-        // if (!issue) { throw new Error('issue not found'); }
-        //
-        // issue.updateWorkHistory(workHistory);
-    }
+    updateTaskOrder(taskOrWhere, beforeTaskOrWhere) {
+        const task = this.getTask(taskOrWhere);
+        if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
 
-    updateTaskOrder(taskOrId, beforeTaskOrId) {
-        // var issue = this.getIssue(issueId);
-        // if (!issue) { throw new Error('issue not found'); }
-        //
-        // var insertBeforeOfIssue = null;
-        // if (insertBeforeOfIssueId) {
-        //     insertBeforeOfIssue = this.getIssue(insertBeforeOfIssueId);
-        //     if (!insertBeforeOfIssue) { throw new Error('issue not found'); }
-        // }
-        //
-        // util.moveToBefore(this.issues, issue, insertBeforeOfIssue);
+        if (beforeTaskOrWhere) {
+            const beforeTask = this.getTask(beforeTaskOrWhere);
+            if (!beforeTask) { throw new Error(`beforeTask was not found. : ${beforeTaskOrWhere}`); }
+
+            util.moveToBefore(this.tasks, task, beforeTask);
+        } else {
+            util.moveToBefore(this.tasks, task, null);
+        }
     }
 
     /*** user ***/
 
-    addUser(userParams, o) {
-        // this.members[(o && o.reverse) ? 'push' : 'unshift'](new User(_.extend(member.user, {
-        //     issues: this.issues,
-        //     wipLimit: member.wipLimit,
-        //     visible: member.visible
-        // })));
+    getUser(userOrWhere) {
+        if (userOrWhere instanceof User) { return userOrWhere; }
+        return _.find(this.users(), userOrWhere);
     }
 
-    removeUser(userOrIdOrUsername) {
-        // this.members.remove(member);
+    addUser(userParam) {
+        this.users.unshift(new User(_.extend(userParams)));
     }
 
-    updateUser(userOrIdOrUsername, updateParams) {
-        // // wip update
-        // if (params && params.wipLimit && params.wipLimit !== member.wipLimit()) {
-        //     member.wipLimit(params.wipLimit);
-        // }
-        // // visible update
-        // if (params && _.isBoolean(params.visible) && params.visible !== member.visible()) {
-        //     member.visible(params.visible);
-        // }
+    removeUser(userOrWhere) {
+        const user = this.getUser(userOrWhere);
+        if (!user) { throw new Error(`user was not found. : ${userOrWhere}`); }
+
+        this.users.remove(user);
+    }
+
+    updateUser(userOrWhere, updateParams) {
+        const user = this.getUser(userOrWhere);
+        if (!user) { throw new Error(`user was not found. : ${userOrWhere}`); }
+
+        _.forEach(updateParams, (val, key) => {
+            if (ko.isObservable(user[key])) {
+                user[key](val);
+            }
+        });
     };
 
-    getUserById(userId) {
-        // return _.find(this.members(), function (x) { return x._id() === memberId; });
-    };
+    updateUserOrder(userOrWhere, beforeUserOrWhere) {
+        const user = this.getUser(userOrWhere);
+        if (!user) { throw new Error(`user was not found. : ${userOrWhere}`); }
 
-    getUserByUsername(username) {
-        // return _.find(this.members(), function (x) { return x.userName() === memberName; });
-    };
+        if (beforeUserOrWhere) {
+            const beforeUser = this.getUser(beforeUserOrWhere);
+            if (!beforeUser) { throw new Error(`beforeUser was not found. : ${beforeUserOrWhere}`); }
 
-    updateUserOrder(userOrIdOrUsername, beforeUserOrIdOrUsername) {
-        // var member = this.getMemberByName(userName);
-        // if (!member) { throw new Error('member not found'); }
-        //
-        // var insertBeforeOfMember = null;
-        // if (insertBeforeOfUserName) {
-        //     insertBeforeOfMember = this.getMemberByName(insertBeforeOfUserName);
-        //     if (!insertBeforeOfMember) { throw new Error('member not found'); }
-        // }
-        //
-        // util.moveToBefore(this.members, member, insertBeforeOfMember);
+            util.moveToBefore(this.users, user, beforeUser);
+        } else {
+            util.moveToBefore(this.users, user, null);
+        }
     }
 
     /*** label ***/
 
+    getLabel(labelOrWhere) {
+        if (labelOrWhere instanceof Label) { return labelOrWhere; }
+        return _.find(this.labels(), labelOrWhere);
+    }
+
     addLabel(labelParams) {
-        // this.labels.push(new Label(labelParams));
+        this.labels.push(new Label(labelParams));
     }
 
-    getLabelById(labelId) {
-        // return _.find(this.labels(), function (x) { return x._id() === labelId; });
-    };
+    attachLabel(taskOrWhere, labelOrWhere) {
+        const task = this.getTask(taskOrWhere);
+        if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
+        const label = this.getLabel(labelOrWhere);
+        if (!label) { throw new Error(`label was not found. : ${labelOrWhere}`); }
 
-    attachLabel(taskOrId, labelOrId) {
-        // var issue = this.getIssue(issueId);
-        // if (!issue) { throw new Error('issue not found'); }
-        // var label = this.getLabel(labelId);
-        // if (!label) { throw new Error('label not found'); }
-        //
-        // if (!_.includes(issue.labels(), label)) {
-        //     issue.labels.push(label);
-        // }
+        task.attachLabel(label); // TODO: task#attachLabel
     }
 
-    detachLabel(taskOrId, labelOrId) {
-        // var issue = this.getIssue(issueId);
-        // if (!issue) { throw new Error('issue not found'); }
-        // var label = this.getLabel(labelId);
-        // if (!label) { throw new Error('label not found'); }
-        //
-        // if (_.includes(issue.labels(), label)) {
-        //     issue.labels.remove(label);
-        // }
+    detachLabel(taskOrWhere, labelOrWhere) {
+        const task = this.getTask(taskOrWhere);
+        if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
+        const label = this.getLabel(labelOrWhere);
+        if (!label) { throw new Error(`label was not found. : ${labelOrWhere}`); }
+
+        task.detachLabel(label);  // TODO: task#detachLabel
     }
 
-    replaceLabelAll(newLabels, newIssues) {
+    replaceLabelAll(newLabels, newTasks) {
+        throw new Error('replaceLabelAll is unsupported.');
         // this.labels.splice(0, this.labels.slice().length, newLabels.map(function (x) { return new model.Label(x); }));
-        // // TODO: O(N^2) なので O(NlogN)に抑える
+        // O(N^2) なので O(NlogN)に抑える
         // newIssues.forEach(function (newIssue) {
         //     var issue = this.getIssue(newIssue._id);
         //     if (!issue) { return console.error('issue not found'); }
@@ -250,6 +253,29 @@ class Project {
         //         newIssue.labels.map(function (labelId) { return this.getLabel(labelId); }, this));
         // }, this);
     }
+
+    /*** stage ***/
+
+    getStage(stageOrWhere) {
+        if (stageOrWhere instanceof Stage) { return stageOrWhere; }
+        return _.find(this.stages(), stageOrWhere);
+    }
+
+    addStage(stageParams) {
+        this.stages.push(new Stage(stageParams));
+    }
+
+    /*** costs ***/
+
+    getCost(costOrWhere) {
+        if (costOrWhere instanceof Cost) { return costOrWhere; }
+        return _.find(this.costs(), costOrWhere);
+    }
+
+    addCost(costParams) {
+        this.costs.push(new Cost(costParams));
+    }
+
 }
 
 module.exports = Project;

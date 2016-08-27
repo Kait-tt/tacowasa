@@ -1,9 +1,9 @@
 'use strict';
 const ko = require('knockout');
 
-class Stage {
+class Cost {
     constructor(opts) {
-        Stage.columnKeys.forEach(key => {
+        Cost.columnKeys.forEach(key => {
             this[key] = ko.observable(opts[key]);
         });
     }
@@ -11,11 +11,9 @@ class Stage {
     static get columnKeys() {
         return [
             'name',
-            'displayName',
-            'assigned',
-            'canWork'
+            'value'
         ];
     }
 }
 
-module.exports = Stage;
+module.exports = Cost;
