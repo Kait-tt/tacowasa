@@ -1,22 +1,21 @@
 // ref: https://jsfiddle.net/meno/MBLP9/
+'use strict';
+const ko = require('knockout');
 
-(function ($, ko) {
-    ko.bindingHandlers.bootstrapSwitchOn = {
-        init: function (element, valueAccessor, allBindingsAccessor, viewModel) {
-            var $elem = $(element);
-            $elem.bootstrapSwitch();
-            $elem.bootstrapSwitch('state', ko.utils.unwrapObservable(valueAccessor()));
-            $elem.on('switchChange.bootstrapSwitch', function (e, state){
-                valueAccessor()(state);
-            });
-        },
-        update: function (element, valueAccessor, allBindingsAccessor, viewModel) {
-            var $elem = $(element);
-            var vStatus = $elem.bootstrapSwitch('state');
-            var vmStatus = ko.utils.unwrapObservable(valueAccessor());
-            if (vStatus !== vmStatus) {
-                $elem.bootstrapSwitch('state', vmStatus);
-            }
+ko.bindingHandlers.bootstrapSwitchOn = {
+    init: (element, valueAccessor, allBindingsAccessor, viewModel) => {
+        const $elem = $(element);
+        $elem.bootstrapSwitch();
+        $elem.bootstrapSwitch('state', ko.unwrap(valueAccessor()));
+        $elem.on('switchChange.bootstrapSwitch', (e, state) => valueAccessor()(state));
+    },
+
+    update: (element, valueAccessor, allBindingsAccessor, viewModel) => {
+        const $elem = $(element);
+        const vStatus = $elem.bootstrapSwitch('state');
+        const vmStatus = ko.unwrap(valueAccessor());
+        if (vStatus !== vmStatus) {
+            $elem.bootstrapSwitch('state', vmStatus);
         }
-    };
-}(jQuery, ko));
+    }
+};

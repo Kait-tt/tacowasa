@@ -1,53 +1,56 @@
 // ref: http://jsfiddle.net/bkzb272j/1/
+const ko = require('knockout');
+'use strict';
 
-(function ($, ko) {
-    ko.bindingHandlers.selectPicker = {
-        init  : function (element, valueAccessor, allBindingsAccessor) {
-            if ($(element).is('select')) {
-                if (ko.isObservable(valueAccessor())) {
-                    if ($(element).prop('multiple') && $.isArray(ko.utils.unwrapObservable(valueAccessor()))) {
-                        // in the case of a multiple select where the valueAccessor() is an observableArray, call the default Knockout selectedOptions binding
-                        ko.bindingHandlers.selectedOptions.init(element, valueAccessor, allBindingsAccessor);
-                    } else {
-                        // regular select and observable so call the default value binding
-                        ko.bindingHandlers.value.init(element, valueAccessor, allBindingsAccessor);
-                    }
+ko.bindingHandlers.selectPicker = {
+    init  : (element, valueAccessor, allBindingsAccessor) => {
+        const $elem = $(element);
+        if ($elem.is('select')) {
+            if (ko.isObservable(valueAccessor())) {
+                if ($elem.prop('multiple') && $.isArray(ko.unwrap(valueAccessor()))) {
+                    // in the case of a multiple select where the valueAccessor() is an observableArray, call the default Knockout selectedOptions binding
+                    ko.bindingHandlers.selectedOptions.init(element, valueAccessor, allBindingsAccessor);
+                } else {
+                    // regular select and observable so call the default value binding
+                    ko.bindingHandlers.value.init(element, valueAccessor, allBindingsAccessor);
                 }
-                $(element).addClass('selectpicker').selectpicker();
             }
-        },
-        update: function (element, valueAccessor, allBindingsAccessor) {
-            if ($(element).is('select')) {
-                var selectPickerOptions = allBindingsAccessor().selectPickerOptions;
-                if (typeof selectPickerOptions !== 'undefined' && selectPickerOptions !== null) {
-                    var options         = selectPickerOptions.optionsArray,
-                        optionsText     = selectPickerOptions.optionsText,
-                        optionsValue    = selectPickerOptions.optionsValue,
-                        optionsCaption  = selectPickerOptions.optionsCaption,
-                        isDisabled      = selectPickerOptions.disabledCondition || false,
-                        resetOnDisabled = selectPickerOptions.resetOnDisabled || false;
-                    if (ko.utils.unwrapObservable(options).length > 0) {
-                        // call the default Knockout options binding
-                        ko.bindingHandlers.options.update(element, options, allBindingsAccessor);
-                    }
-                    if (isDisabled && resetOnDisabled) {
-                        // the dropdown is disabled and we need to reset it to its first option
-                        $(element).selectpicker('val', $(element).children('option:first').val());
-                    }
-                    $(element).prop('disabled', isDisabled);
-                }
-                if (ko.isObservable(valueAccessor())) {
-                    if ($(element).prop('multiple') && $.isArray(ko.utils.unwrapObservable(valueAccessor()))) {
-                        // in the case of a multiple select where the valueAccessor() is an observableArray, call the default Knockout selectedOptions binding
-                        ko.bindingHandlers.selectedOptions.update(element, valueAccessor);
-                    } else {
-                        // call the default Knockout value binding
-                        ko.bindingHandlers.value.update(element, valueAccessor);
-                    }
-                }
-
-                $(element).selectpicker('refresh');
-            }
+            $elem.addClass('selectpicker').selectpicker();
         }
-    };
-}(jQuery, ko));
+    },
+
+    update: (element, valueAccessor, allBindingsAccessor) => {
+        const $elem = $(element);
+        if ($elem.is('select')) {
+            const selectPickerOptions = allBindingsAccessor().selectPickerOptions;
+            if (typeof selectPickerOptions !== 'undefined' && selectPickerOptions !== null) {
+                var options         = selectPickerOptions.optionsArray,
+                    optionsText     = selectPickerOptions.optionsText,
+                    optionsValue    = selectPickerOptions.optionsValue,
+                    optionsCaption  = selectPickerOptions.optionsCaption,
+                    isDisabled      = selectPickerOptions.disabledCondition || false,
+                    resetOnDisabled = selectPickerOptions.resetOnDisabled || false;
+                if (ko.unwrap(options).length > 0) {
+                    // call the default Knockout options binding
+                    ko.bindingHandlers.options.update(element, options, allBindingsAccessor);
+                }
+                if (isDisabled && resetOnDisabled) {
+                    // the dropdown is disabled and we need to reset it to its first option
+                    $elem.selectpicker('val', $elem.children('option:first').val());
+                }
+                $elem.prop('disabled', isDisabled);
+            }
+            if (ko.isObservable(valueAccessor())) {
+                if ($elem.prop('multiple') && $.isArray(ko.unwrap(valueAccessor()))) {
+                    // in the case of a multiple select where the valueAccessor() is an observableArray, call the default Knockout selectedOptions binding
+                    ko.bindingHandlers.selectedOptions.update(element, valueAccessor);
+                } else {
+                    // call the default Knockout value binding
+                    ko.bindingHandlers.value.update(element, valueAccessor);
+                }
+            }
+
+            $elem.selectpicker('refresh');
+        }
+    }
+};

@@ -35,7 +35,7 @@ class Alert {
                     if (successMessage) {
                         this.pushAlert({
                             title: 'Successful!',
-                            message: ko.unwrapObservable(successMessage),
+                            message: ko.unwrap(successMessage),
                             isSuccess: true
                         })
                     }
@@ -43,7 +43,7 @@ class Alert {
                     if (errorMessage) {
                         this.pushAlert({
                             title: 'Error',
-                            message: ko.unwrapObservable(errorMessage),
+                            message: ko.unwrap(errorMessage),
                             isSuccess: false
                         });
                     }

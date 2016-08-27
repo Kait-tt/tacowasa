@@ -1,48 +1,53 @@
-(function (EventEmitter, _, io, util) {
-    'use strict';
+'use strict';
+const EventEmitter2 = require('eventemitter2');
+const io = require('socket.io-client');
+const _ = require('lodash');
 
-    var model = util.namespace('kpp.model'),
-        defaultOptions = { };
+function Socket() {
+    var that = io.connect();
+    that.eventEmitCallback = new EventEmitter2();
 
-    model.Socket = model.Socket || Socket;
-
-    function Socket(o) {
-        var that = io.connect();
-        that.eventEmitCallback = new EventEmitter();
-
-        // ソケットのデバッグ出力を有効にする
-        // on/emit時の内容をコンソールに出力する
-        that.initSocketDebugMode = function () {
-            // debug on event
-            Object.keys(that._callbacks).forEach(function (key) {
-                that.on(key, function (res) {
-                    console.log('on: ' + key, res);
+    // ソケットのデバッグ出力を有効にする
+    // on/emit時の内容をコンソールに出力する
+    that.initSocketDebugMode = () => {
+        // debug on event
+        Object.keys(that._callbacks)
+            .filter(key => !_.includes(['ping', 'pong'], key))
+            .forEach(key => {
+                that.on(key, res => {
+                    console.debug('on: ' + key, res);
                 });
             });
 
-            // debug on emit
-            that.emit = _.wrap(that.emit.bind(that), function (emit, key, req, fn) {
-                console.log('emit: ' + key, req);
-                emit(key, req, function (res) {
-                    console.log('callback: ' + key, res);
-                    if (fn) { fn.apply(this, arguments); }
-                });
+        // debug on emit
+        that.emit = _.wrap(that.emit.bind(that), (emit, key, req, fn) => {
+            'use strict';
+            const context = this;
+            const enableDebug = !_.includes(['ping', 'pong'], key);
+            enableDebug && console.log('emit: ' + key, req);
+            emit(key, req, res =>  {
+                enableDebug && console.log('callback: ' + key, res);
+                fn && fn.apply(context, arguments);
             });
+        });
+    };
 
-        };
-
-        // emitのcallbackをイベントで受け取れるようにする
-        that.hookEventEmitCallback = function () {
-            that.emit = _.wrap(that.emit.bind(that), function (emit, key, req, fn) {
-                emit(key, req, function (res) {
-                    that.eventEmitCallback.emit(key, req, res);
-                    if (fn) { fn.apply(this, arguments); }
-                });
+    // TODO: 多分動いてない
+    // emitのcallbackをイベントで受け取れるようにする
+    that.hookEventEmitCallback = () => {
+        that.emit = _.wrap(that.emit.bind(that), (emit, key, req, fn) => {
+            'use strict';
+            const context = this;
+            emit(key, req, res => {
+                that.eventEmitCallback.emit(key, req, res);
+                fn && fn.apply(context, arguments);
             });
-        };
+        });
+    };
 
-        that.hookEventEmitCallback();
-        return that;
-    }
+    that.hookEventEmitCallback();
 
-}(EventEmitter2, _, io, window.nakazawa.util));
+    return that;
+}
+
+module.exports = Socket;

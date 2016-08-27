@@ -1,134 +1,151 @@
-(function (_, util) {
-    'use strict';
+'use strict';
+const ko = require('knockout');
+const _ = require('lodash');
+const util = require('../modules/util');
+const Work = require('./work');
 
-    var model = util.namespace('kpp.model'),
-        defaultOptions = { },
-        columnKeys = [
-            '_id',
-            'assignee',
-            'body',
-            'title',
-            'isWorking',
-            'updated_at',
-            'created_at',
-            'github',
-            'stage',
-            'cost',
-            'assigneeMember',
-            'displayTitle',
-            'labels'
-            // 'workHistory',
-            // 'labels', // ids
-            // 'alltext'
-        ];
+class Task {
+    constructor(opts) {
+        Task.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
 
-    model.Issue = model.Issue || Issue;
+        this.projectLabels = opts.projectLabels;
+        this.projectUsers = opts.projectUsers;
+        this.projectCosts = opts.projectCosts;
+        this.projectStages = opts.projectStages;
 
-    function Issue(o) {
-        this.opts = _.defaults(o || {}, defaultOptions);
-        this.init(this.opts);
-    }
+        this.labelIds = ko.observableArray(opts.labelIds || []);
+        this.labels = ko.computed(() => {
+            const projectLabels = this.projectLabels();
+            return this.labelIds().map(id => projectLabels.find(x => x.id() === id));
+        });
+        this.user = ko.computed(() => {
+            const userId = this.userId();
+            return this.projectUsers().find(x => x.id() === userId);
+        });
+        this.cost = ko.computed(() => {
+            const costId = this.costId();
+            return this.projectUsers().find(x => x.id() === costId);
+        });
+        this.stage = ko.computed(() => {
+            const stageId = this.stageId();
+            return this.projectStages().find(x => x.id() === stageId);
+        });
+        this.works = ko.observableArray();
+        this.updateWorkHistory(opts.works || []);
 
-    Issue.defaultCost = 3;
-    Issue.calcAllWorkingIntervalTime = 1000 * 20; // 20 seconds
+        this.isVisible = ko.observable(true);
 
-    Issue.prototype.init = function (o) {
-        _.each(columnKeys, function (key) { this[key] = ko.observable(o[key]); }.bind(this));
-        this.labels = ko.observableArray((o && o.labels) || []);
-        this.workHistory = ko.observableArray(); // 後ろで初期化
 
-        // プロジェクトに所属しているMembers (オブジェクトを指定して監視する)
-        this.members = o.members || ko.observableArray();
-
-        // カンバンボードに表示するか
-        // 検索などで用いる
-        this.visible = ko.observable(true);
-
-        // 検索などに用いる全文テキスト（JSONではない）
-        this.alltext = ko.computed(function () {
-            var res = [];
-            columnKeys.forEach(function (key) {
-                var val = _.isFunction(this[key]) ? this[key]() : this[key];
-                if (_.isObject(val) || _.isArray(val)) val = JSON.stringify(val);
-                if (key === 'assigneeMember') key = 'assignee';
-                res.push(key + ':' + val);
-            }.bind(this));
-            return res.join(' ');
-        }, this, {deferEvaluation: true});
-
-        // workHistoryのプロパティの更新
-        this.updateWorkHistory = function (newWorkHistory) {
-            this.workHistory(newWorkHistory.map(function (x) {
-                return new model.Work(_.extend({members: this.members}, x));
-            }.bind(this)));
-        };
-        this.updateWorkHistory(o.workHistory || []);
-
-        // アサインメンバー
-        this.assigneeMember = ko.computed(function () {
-            var userId = this.assignee();
-            return _.find(this.members(), function (x) { return x._id() === userId; });
-        }, this, {deferEvaluation: true});
-
-        // 表示タイトル
-        this.displayTitle = ko.computed(function () {
-            var title = this.title();
-            if (this.github() && this.github().number && this.github().number !== '0') {
-                title = '#' + this.github().number + ' ' + title;
-            }
+        this.displayTitle = ko.computed(() => {
+            let title = this.title();
+            // TODO: github
+            // if (this.github() && this.github().number && this.github().number !== '0') {
+            //     title = '#' + this.github().number + ' ' + title;
+            // }
             return title;
-        }, this);
-
-        // 合計作業時間の計算（ms）
-        this.calcAllWorkTime = function () {
-            return this.workHistory().reduce(function (sum, work) {
-                return sum + work.calcDuration(true);
-            }.bind(this), 0);
-        };
+        });
 
         // 合計作業時間 (ms)
         this.allWorkTime = ko.observable(this.calcAllWorkTime());
 
         // 合計作業時間 (h時間m分)
-        this.allWorkTimeFormat = ko.computed(function () {
+        this.allWorkTimeFormat = ko.computed(() => {
             return util.dateFormatHM(this.allWorkTime());
-        }, this);
+        });
 
         // 最後の作業時間
         this.lastWorkTime = ko.observable(0);
 
         // 最後の作業時間を計算
-        this.calcLastWorkTime = function () {
-            var history = this.workHistory();
-            if (!history.length) { return 0; }
-            return history[history.length - 1].calcDuration(true);
-        };
 
-        // 作業時間を一定期間おきに計算
-        // ただし、いくつものIssueが同時に計算しないように最初にランダムにwaitを入れる
-        var timeoutId = null;
-        var calcAllWorkTimeIntervalFunc = function () {
+
+        // TODO: 検索用の名前という事に変更
+        this.alltext = ko.computed(() => {
+            const res = [this.title(), this.body()];
+
+            // cost
+            const cost = this.cost();
+            if (cost) {
+                const value = cost.value();
+                res.push(`cost:${value}`);
+            }
+
+            // label
+            this.labels().forEach(label => {
+                const name = label.name();
+                res.push(`label:${name}`);
+            });
+
+            return res.join(' ');
+        });
+
+        this.startCalcWorkTimeInterval()
+    }
+
+    static get columnKeys() {
+        return [
+            'title',
+            'body',
+            'isWorking',
+            'stageId',
+            'userId',
+            'costId',
+            'labelIds',
+            'works'
+        ];
+    }
+
+    static get calcAllWorkingIntervalTime() {
+        return  1000 * 20; // 20 seconds
+    }
+
+    updateWorkHistory(newWorkHistory) {
+        this.works(newWorkHistory.map(x => new Work(_.extends(x, {
+            projectUsers: this.projectUsers
+        }))));
+    }
+
+    calcAllWorkTime() {
+        const times = this.works().map(x => x.calcDuration());
+        return _.sum(times);
+    }
+
+    // 最後の作業時間を計算
+    calcLastWorkTime() {
+        const works = this.works();
+        return works.length ? works[works.length - 1].calcDuration(true) : 0;
+    }
+
+    // 作業時間を一定期間おきに計算
+    // ただし、いくつものTaskが同時に計算しないように最初にランダムにwaitを入れる
+    startCalcWorkTimeInterval() {
+        let timeoutId = null;
+        const calcAllWorkTimeIntervalFunc = () => {
             this.allWorkTime(this.calcAllWorkTime());
             this.lastWorkTime(this.calcLastWorkTime());
 
             if (this.isWorking()) {
-                timeoutId = setTimeout(calcAllWorkTimeIntervalFunc, Issue.calcAllWorkingIntervalTime);
-            } else {
-                if (timeoutId) {
-                    clearTimeout(timeoutId);
-                    timeoutId = null;
-                }
+                timeoutId = setTimeout(calcAllWorkTimeIntervalFunc, Task.calcAllWorkingIntervalTime + _.random(-5000, 5000));
+            } else if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
             }
-        }.bind(this);
+        };
 
-        this.isWorking.subscribe(calcAllWorkTimeIntervalFunc);
-        if (this.isWorking()) {
-            setTimeout(calcAllWorkTimeIntervalFunc, 1000);
-        }
-
-        this.workHistory.subscribe(function () {
+        this.workHistory.subscribe(() => {
             this.allWorkTime(this.calcAllWorkTime());
-        }, this);
-    };
+            this.lastWorkTime(this.calcLastWorkTime());
+        });
 
-}(_, window.nakazawa.util));
+        this.isWorking.subscribe(() => {
+            this.allWorkTime(this.calcAllWorkTime());
+            this.lastWorkTime(this.calcLastWorkTime());
+        });
+
+        if (this.isWorking()) {
+            timeoutId = setTimeout(calcAllWorkTimeIntervalFunc, Task.calcAllWorkingIntervalTime + _.random(-5000, 5000));
+        }
+    }
+}
+
+module.exports = Task;

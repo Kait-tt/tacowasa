@@ -23,35 +23,31 @@ class Project {
             'accessLevels',
             'createUser',
             'defaultStage',
-            'defaultAccessLevel',
+            //'defaultAccessLevel',
             'defaultCost'
         ];
     }
 
     constructor(opts) {
-        Project.columnKeys.forEach(key => {
-            this[key] = ko.observable(opts[key]);
-        });
+        Project.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
 
-        // initialize labels
+        // array init
         this.labels = ko.observableArray();
-        (opts.labels || []).forEach(x => this.addLabel(x));
-
-        // initialize tasks
         this.tasks = ko.observableArray();
-        _.reverse(opts.tasks || []).forEach(x => this.addTask(x));
-
-        // initialize users
         this.users = ko.observableArray();
-        (opts.users || []).forEach(x => this.addUser(x));
-
-        // initialize stage
         this.stages = ko.observableArray();
-        (opts.stages || []).forEach(x => this.addStage(x));
-
-        // initialize costs
         this.costs = ko.observableArray();
+
+        (opts.labels || []).forEach(x => this.addLabel(x));
+        (opts.tasks || []).forEach(x => this.addTask(x));
+        (opts.users || []).forEach(x => this.addUser(x));
+        (opts.stages || []).forEach(x => this.addStage(x));
         (opts.costs || []).forEach(x => this.addCost(x));
+
+        // defaultValue init
+        // TODO: defaultValueが変わった時の処理
+        this.defaultStage = ko.computed(() => this.stages().find(x => x.id() === opts.defaultStage.id));
+        this.defaultCost = ko.computed(() => this.costs().find(x => x.id() === opts.defaultCost.id));
 
         // this.stages[stageName] = 各ステージにあるTask
         this.stageTasks = {};
@@ -118,8 +114,12 @@ class Project {
 
     addTask(taskParams) {
          this.issues.unshift(new Issue(_.extend(taskParams, {
-             users: this.users,
-             labels: (taskParams.labels || []).map(x => this.getLabelById(x.id))
+             projectUsers: this.users,
+             projectLabels: this.labels,
+             projectCosts: this.costs,
+             projectStages: this.stages
+             // labels: (taskParams.labels || []).map(x => this.getLabel(x.id))
+
          })));
     }
 
@@ -178,7 +178,11 @@ class Project {
     }
 
     addUser(userParam) {
-        this.users.unshift(new User(_.extend(userParams)));
+        this.users.unshift(new User(_.extend(userParam, {
+            projectTasks: this.tasks,
+            projectStages: this.stages,
+            projectCosts: this.costs
+        })));
     }
 
     removeUser(userOrWhere) {

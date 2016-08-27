@@ -1,82 +1,83 @@
-(function (_, util) {
-    'use strict';
+'use strict';
+const ko = require('knockout');
+const _ = require('lodash');
+const util = require('../modules/util');
 
-    var model = util.namespace('kpp.model'),
-        defaultOptions = { },
-        columnKeys = [
-            '_id',
-            'created_at',
-            'userName',
-            'wipLimit',
-            'visible'
-        ],
-        stageTypeAssignedKeys = model.stageTypeAssignedKeys,
-        defaultCost = model.Issue.defaultCost;
+class User {
+    constructor(opts) {
+        User.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
+        User.memberColumnKeys.forEach(key => this[key] = ko.observable(opts[key]));
 
-    model.User = model.User || User;
+        this.projectStages = opts.projectStages;
+        this.projectTasks = opts.projectTasks;
+        this.projectCosts = opts.projectCosts;
 
-    function User(o) {
-        this.opts = _.defaults(o || {}, defaultOptions);
-        this.init(this.opts);
-    }
+        this.assignedTasks = ko.computed(() => {
+            return this.projectTasks().filter(x =>  x.userId() === this.id());
+        });
 
-    User.prototype.init = function (o) {
-        columnKeys.forEach(function (key) { this[key] = ko.observable(o[key]); }, this);
+        // this.stages[stage] = 各ステージにある担当task
+        // TODO: stageが追加された時の処理
+        this.stages = {};
+        this.projectStages().forEach(({name: stageName, id: stageId}) => {
+            this.stages[stageName] = ko.computed(() => {
+                return this.assignedTasks().filter(x => x.stageId() === stageId);
+            });
+        });
 
-        // プロジェクト全体のIssues (オブジェクトを指定して監視する)
-        this.issues = o.issues || ko.observableArray();
-
-        // 担当Issues
-        this.assignedIssues = ko.computed(function () {
-            return this.issues().filter(function (issue) { return issue.assignee() === this._id(); }, this);
-        }, this, {deferEvaluation: true});
-
-        // this[stage] = 各ステージにある担当Issues
-        stageTypeAssignedKeys.forEach(function (stage) {
-            this[stage] = ko.computed(function () {
-                return this.assignedIssues().filter(function (issue) { return issue.stage() === stage; });
-            }, this, {deferEvaluation: true});
-        }, this);
-
-        // 作業中のIssue
-        this.workingIssues = ko.computed(function () {
-            return this.doing().filter(function (issue) { return issue.isWorking(); });
-        }, this);
+        this.workingTask = ko.computed(() => {
+            return this.assignedTasks().find(x => x.isWorking());
+        });
 
         // 作業開始からどのくらいの時間がたっているか
-        this.workingTime = ko.computed(function () {
-            var issues = this.workingIssues();
-            if (!issues.length) { return 0; }
-            return _.max(issues.map(function (x) { return x.lastWorkTime(); }));
-        }, this);
+        this.workingTime = ko.computed(() => {
+            const task = this.workingTask();
+            return task ? task.lastWorkTime() : 0;
+        });
 
         // 作業開始からどのくらいの時間がたっているか (h時間m分)
-        this.workingTimeFormat = ko.computed(function () {
+        this.workingTimeFormat = ko.computed(() => {
             return util.dateFormatHM(this.workingTime());
-        }, this);
+        });
 
         // 仕掛数
-        this.wip = ko.computed(function () {
-            return this.assignedIssues().reduce(function (sum, issue) {
-                var cost = Number(issue.cost());
-                return sum + (cost ? cost : defaultCost);
-            }.bind(this), 0);
-        }, this, {deferEvaluation: true});
+        this.wip = ko.computed(() => {
+            const projectCosts = this.projectCosts();
+            const costs = this.assignedTasks().map(task => {
+                const costId = task.costId();
+                const cost = projectCosts.find(x => x.id() === costId);
+                return cost.value();
+            });
+            return _.sum(costs);
+        });
 
         // 仕掛数MAX
-        this.isWipLimited = ko.computed(function () {
-            return this.wip() >= this.wipLimit();
-        }, this);
-
-        // addedCostを足すとWIP制限を超過するか
-        this.willBeOverWipLimit = function (addedCost) {
-            return this.wip() + addedCost > this.wipLimit();
-        };
+        this.isWipLimited = ko.computed(() => this.wip() >= this.wipLimit());
 
         // アバターURL
-        this.avatarUrl = ko.computed(function () {
-            return '/users/' + this.userName() + '/avatar';
-        }, this);
-    };
+        this.avatarUrl = ko.computed(() => {
+            const username = this.username();
+            return `/users/${username}/avatar`;
+        });
+    }
 
-}(_, window.nakazawa.util));
+    static get columnKeys() {
+        return [
+            'id',
+            'username'
+        ];
+    }
+
+    static get memberColumnKeys() {
+        return [
+            'isVisible',
+            'wipLimit'
+        ];
+    }
+
+    willBeOverWipLimit(addedCost) {
+        return this.wip() + addedCost > this.wipLimit();
+    }
+}
+
+module.exports = User;

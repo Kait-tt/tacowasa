@@ -1,48 +1,48 @@
-(function (global, $, util) {
-    'use strict';
+'use strict';
+const _ = require('lodash');
 
-    var ns =  util.namespace('kpp.module'),
-        dummyStorage = {
-            data: {},
-            getItem: function (key) { return this.data[key]; },
-            setItem: function (key, val) { this.data[key] = [val]; }
-        },
-        storage = ('localStorage' in global && global.localStorage) || dummyStorage,
-        defaultSettings = {
-            viewMode: 'full'
-        },
-        storageWrap = {};
+const defaultSettings = {
+    viewMode: 'full'
+};
 
-    storageWrap.load = function () {
-        _.each(defaultSettings, function (defaultValue, key) {
-            if (storage.getItem(key) === null || storage.getItem(key) === undefined) {
+const dummyStorage = {
+    data: {},
+    getItem: key => {
+        return dummyStorage.data[key];
+    },
+    setItem: (key, val) => {
+        dummyStorage.data[key] = [val];
+    }
+};
+
+const storage = ('localStorage' in window && window.localStorage) || dummyStorage;
+
+const storageWrap = {
+    load: () => {
+        _.each(defaultSettings, (defaultValue, key) => {
+            if (_.isNil(storage.getItem(key))) {
                 storage.setItem(key, defaultValue);
             }
         });
         storageWrap.validate();
         return storageWrap;
-    };
+    },
 
-    storageWrap.validate = function () {
-        if (!_.includes(['full', 'compact'], storage.getItem('viewMode'))) {
-            console.error('viewMode is invalid in localStorage: ' + storage.getItem('viewMode'));
+    validate: () => {
+        const viewMode = storage.getItem('viewMode');
+        if (!_.includes(['full', 'compact'], viewMode)) {
+            console.error('viewMode is invalid in localStorage: ' + viewMode);
             storage.setItem('viewMode', defaultSettings.viewMode);
         }
-    };
+    },
 
-    storageWrap.setItem = function (key, val) {
+    setItem: (key, val) => {
         storage.setItem(key, val);
-    };
+    },
 
-    storageWrap.getItem = function (key) {
+    getItem: key => {
         return storage.getItem(key);
-    };
+    }
+};
 
-    /**
-     * localStorageのラッパー
-     */
-
-    ns.localStorage = storageWrap;
-
-
-}(window, jQuery, window.nakazawa.util));
+module.exports = storageWrap;

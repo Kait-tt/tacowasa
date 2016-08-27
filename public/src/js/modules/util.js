@@ -3,14 +3,14 @@ const ko = require('knockout');
 const _ = require('lodash');
 const moment = require('moment');
 
-class Util {
+const util = {
     /**
      * URLクエリーパーサー
      *
      * @param query ?から始まるパースする文字列(e.g. window.location.search)
      * @returns {{}}
      */
-    static parseGetQuery(query) {
+    parseGetQuery: query => {
         const res = {};
 
         if (1 < query.length) {
@@ -22,7 +22,7 @@ class Util {
         }
 
         return res;
-    }
+    },
 
     /**
      * 多次元配列の初期化
@@ -31,13 +31,13 @@ class Util {
      * @param initValue
      * @returns {*[]}
      */
-    static initArray(dims, initValue) {
-        if (dims.length) { return ko.unwrapObservable(initValue); }
+    initArray: (dims, initValue) => {
+        if (dims.length) { return ko.unwrap(initValue); }
 
         const length = dims[0];
         const restDims = dims.slice(1);
         return _.times(length).map(() => util.initArray(restDims, initValue));
-    }
+    },
 
     /**
      * 汎用比較関数
@@ -50,11 +50,11 @@ class Util {
      * @param reverse
      * @returns {number}
      */
-    static comp(a, b, reverse=false) {
+    comp: (a, b, reverse=false) => {
         if (a === b) { return 0; }
         if (a < b) { return reverse ? 1 : -1; }
         return reverse ? -1 : 1;
-    }
+    },
 
     /**
      * DOMイベントバブルを無効にする
@@ -62,13 +62,13 @@ class Util {
      * @param {Event} e イベントオブジェクト
      * @returns {boolean} falseを返してキャンセルする
      */
-    static cancelBubble(e) {
+    cancelBubble: e => {
         e.preventDefault();
         e.stopPropagation();
         return false;
-    }
+    },
 
-    static moveToBefore(ary, target, beforeOf) {
+    moveToBefore: (ary, target, beforeOf) => {
         // remove
         ary.splice(ary.indexOf(target), 1);
 
@@ -80,27 +80,27 @@ class Util {
         }
 
         return ary;
-    }
+    },
 
-    static dateFormatHM(time) {
+    dateFormatHM: time => {
         time = new Date(time);
         const hour = Math.floor(time / 60 / 60 / 1000);
         const minute = Math.round((time - hour * 60 * 60 * 1000) / 60 / 1000);
         return hour ? (hour + '時間' + minute + '分') : minute + '分';
-    }
+    },
 
-    static secondsFormatHM(seconds) {
+    secondsFormatHM: seconds => {
         const hour = Math.floor(seconds / 60 / 60);
         const minute = Math.round((seconds - hour * 60 * 60) / 60);
         return hour ? (hour + '時間' + minute + '分') : minute + '分';
-    }
+    },
 
-    static dateFormatYMDHM(time) {
+    dateFormatYMDHM: time => {
         return (moment.isMoment(time) ? time : moment(new Date(time))).format('YYYY/MM/DD HH:mm:ss');
-    }
+    },
 
     // " や ' を考慮してテキストを分割する
-    static splitSearchQuery(text) {
+    splitSearchQuery: text => {
         if (!_.isString(text)) { return []; }
         text = text.trim();
 
@@ -151,6 +151,6 @@ class Util {
             quote = null;
         }
     }
-}
+};
 
-module.exports = Util;
+module.exports = util;

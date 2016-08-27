@@ -1,72 +1,29 @@
-(function (_, moment, util) {
-    'use strict';
+'use strict';
+const ko = require('knockout');
+const _ = require('lodash');
+const util = require('../modules/util');
+const moment = require('moment');
 
-    var model = util.namespace('kpp.model'),
-        defaultOptions = { },
-        columnKeys = [
-            'startTime',
-            'endTime',
-            'isEnded',
-            'userId'
-            // 'user',
-            // 'userName',
-            // 'startTimeFormat',
-            // 'endTimeFormat',
-            // 'duration'
-        ];
+class Work {
+    constructor(opts) {
+        Work.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
 
-    model.Work = model.Work || Work;
+        this.projectUsers = opts.projectUsers;
 
-    function Work(o) {
-        this.opts = _.defaults(o || {}, defaultOptions);
-        this.init(this.opts);
-    }
-
-    Work.clone = function (work) {
-        var opts = {};
-        _.each(columnKeys, function (key) {
-            opts[key] = work[key]();
-        });
-        opts.members = work.members;
-        return new Work(opts);
-    };
-
-    Work.prototype.init = function (o) {
-        // isEndedの修正...
-        if (!o.isEnded && o.userId && o.endTime) {
-            o.isEnded = true;
+        // isEndedの修正... // TODO: databaseを直す
+        if (!opts.isEnded && opts.userId && opts.endTime) {
+            opts.isEnded(true);
         }
 
-        _.each(columnKeys, function (key) { this[key] = ko.observable(o[key]); }.bind(this));
-
-        // プロジェクトに所属しているMembers (オブジェクトを指定して監視する)
-        this.members = o.members || ko.observableArray();
-
-        this.isValidStartTime = ko.computed(function () {
-            var start = moment(this.startTime());
-            if (!start.isValid()) { return false; }
-            if (this.endTime()) { return start.toDate() <= new Date(this.endTime()); }
-            return true;
-        }, this);
-
-        this.isValidEndTime = ko.computed(function () {
-            if (this.isEnded() && !this.endTime()) { return true; } // be working
-            var end = moment(this.endTime());
-            if (!end.isValid()) { return false; }
-            return end.toDate() >= new Date(this.startTime());
-        }, this);
-
-        this.isValidUserId = ko.computed(function () {
-            var userId = this.userId();
-            var isEnded = this.isEnded();
-            return (userId && isEnded) || (!userId && !isEnded);
-        }, this);
+        this.isValidStartTime = ko.computed(() => this.validateStartTime());
+        this.isValidEndTime = ko.computed(() => this.validateEndTime());
+        this.isValidUserId = ko.computed(() => this.validateUserId());
 
         this.startTimeFormat = ko.computed({
-            read: function () {
+            read: () => {
                 return util.dateFormatYMDHM(this.startTime());
             },
-            write: function (value) {
+            write: (value) => {
                 // validかどうかに関係なく入れる。validチェックは他で。
                 this.startTime(String(moment(value).toDate()));
             },
@@ -74,10 +31,10 @@
         });
 
         this.endTimeFormat = ko.computed({
-            read: function () {
+            read: () => {
                 return this.endTime() ? util.dateFormatYMDHM(this.endTime()) : null;
             },
-            write: function (value) {
+            write: (value) => {
                 // validかどうかに関係なく入れる。validチェックは他で。
                 // ただし、空白のみの文字列はnullとして入れる
                 this.endTime(_.isString(value) && !value.trim() ? null : String(moment(value).toDate()));
@@ -85,38 +42,67 @@
             owner: this
         });
 
-        this.duration = ko.computed(function () {
-            var duration = this.calcDuration(false);
+        this.duration = ko.computed(() => {
+            const duration = this.calcDuration(false);
             return _.isNumber(duration) ? util.dateFormatHM(duration) : null;
-        }, this);
+        });
 
-        this.user = ko.computed(function () {
-            return _.find(this.members(), function (user) { return user._id() === this.userId(); }.bind(this));
-        }, this);
+        this.user = ko.computed(() => {
+            const userId = this.userId();
+            return this.projectUsers().find(x => x.id() === userId);
+        });
 
-        this.userName = ko.computed(function () {
-            return this.user() ? this.user().userName() : null;
-        }, this);
-
-        this.userName = ko.computed({
+        this.username = ko.computed({
             read: function () {
-                return this.user() ? this.user().userName() : null;
+                const user = this.user();
+                return user ? user.username() : null;
             },
-            write: function (userName) {
+            write: function (username) {
                 // システム的に無効なユーザ名が指定されることは無いはずなので、無効なユーザが指定されたときはnull入れるだけ
-                var user = _.find(this.members(), function (user) { return user.userName() === userName; }.bind(this));
-                this.userId(user ? user._id() : null);
+                const user = this.projectUsers().find(x => x.username() === username);
+                this.userId(user ? user.id() : null);
             },
             owner: this
         });
-    };
+    }
+
+    static get columnKeys() {
+        return [
+            'isEnded',
+            'startTime',
+            'endTime',
+            'userId'
+        ];
+    }
+
+    validateStartTime() {
+        const start = moment(this.startTime());
+        if (!start.isValid()) { return false; }
+        if (this.endTime()) { return start.toDate() <= new Date(this.endTime()); }
+        return true;
+    }
+
+    validateEndTime() {
+        if (this.isEnded() && !this.endTime()) { return true; } // be working
+        const end = moment(this.endTime());
+        if (!end.isValid()) { return false; }
+        return end.toDate() >= new Date(this.startTime());
+    }
+
+    validateUserId() {
+        const userId = this.userId();
+        const isEnded = this.isEnded();
+        return (userId && isEnded) || (!userId && !isEnded);
+    }
 
     // 作業時間の計算
     // force = true なら作業が終了していなくても現在時刻から作業時間を計算する
-    Work.prototype.calcDuration = function (force) {
-        var start = new Date(this.startTime());
-        var end;
-        if (this.endTime()) { // isEndedは正しくないときがあるので、endTimeがあるかで終了してるかを判断する
+    calcDuration(force=false) {
+        let start = new Date(this.startTime());
+        let end;
+        // TODO: ここでisEndedのバグの修正はしなくてよい（上でする or databaseでする）
+        // isEndedは正しくないときがあるので、endTimeがあるかで終了してるかを判断する
+        if (this.endTime()) {
             end = new Date(this.endTime());
         } else if (force) {
             end = new Date();
@@ -126,17 +112,18 @@
 
         // Dateはマイナスにしてはいけないので気を付けて計算する
         if (start < end) { return end - start; }
-        else if (start > end) { return -(start - end); }
+        else if (start > end) { return -(start - end); } // TODO: start > end ってなんだ...？
         else { return 0; }
-    };
+    }
 
-    // サーバDBと合わせたオブジェクト形式に変換する
-    Work.prototype.toMinimumObject = function () {
-        var res = {};
-        columnKeys.forEach(function (key) {
+    // TODO: いる？
+    toMinimumObject() {
+        const res = {};
+        Work.columnKeys.forEach(key => {
             res[key] =  this[key]();
-        }.bind(this));
+        });
         return res;
-    };
+    }
+}
 
-}(_, moment, window.nakazawa.util));
+module.exports = Work;
