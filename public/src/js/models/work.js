@@ -8,8 +8,6 @@ class Work {
     constructor(opts) {
         Work.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
 
-        this.projectUsers = opts.projectUsers;
-
         // isEndedの修正... // TODO: databaseを直す
         if (!opts.isEnded && opts.userId && opts.endTime) {
             opts.isEnded(true);
@@ -17,7 +15,7 @@ class Work {
 
         this.isValidStartTime = ko.computed(() => this.validateStartTime());
         this.isValidEndTime = ko.computed(() => this.validateEndTime());
-        this.isValidUserId = ko.computed(() => this.validateUserId());
+        this.isValidUser = ko.computed(() => this.validateUser());
 
         this.startTimeFormat = ko.computed({
             read: () => {
@@ -47,22 +45,9 @@ class Work {
             return _.isNumber(duration) ? util.dateFormatHM(duration) : null;
         });
 
-        this.user = ko.computed(() => {
-            const userId = this.userId();
-            return this.projectUsers().find(x => x.id() === userId);
-        });
-
-        this.username = ko.computed({
-            read: function () {
-                const user = this.user();
-                return user ? user.username() : null;
-            },
-            write: function (username) {
-                // システム的に無効なユーザ名が指定されることは無いはずなので、無効なユーザが指定されたときはnull入れるだけ
-                const user = this.projectUsers().find(x => x.username() === username);
-                this.userId(user ? user.id() : null);
-            },
-            owner: this
+        this.username = ko.computed(() => {
+            const user = this.user();
+            return user && user.username();
         });
     }
 
@@ -71,7 +56,7 @@ class Work {
             'isEnded',
             'startTime',
             'endTime',
-            'userId'
+            'user'
         ];
     }
 
@@ -89,10 +74,10 @@ class Work {
         return end.toDate() >= new Date(this.startTime());
     }
 
-    validateUserId() {
-        const userId = this.userId();
+    validateUser() {
+        const user = this.user();
         const isEnded = this.isEnded();
-        return (userId && isEnded) || (!userId && !isEnded);
+        return (user && isEnded) || (!user && !isEnded);
     }
 
     // 作業時間の計算

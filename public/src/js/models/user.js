@@ -6,28 +6,9 @@ const util = require('../modules/util');
 class User {
     constructor(opts) {
         User.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
-        User.memberColumnKeys.forEach(key => this[key] = ko.observable(opts[key]));
+        User.memberColumnKeys.forEach(key => this[key] = ko.observable(opts.member[key]));
 
-        this.projectStages = opts.projectStages;
-        this.projectTasks = opts.projectTasks;
-        this.projectCosts = opts.projectCosts;
-
-        this.assignedTasks = ko.computed(() => {
-            return this.projectTasks().filter(x =>  x.userId() === this.id());
-        });
-
-        // this.stages[stage] = 各ステージにある担当task
-        // TODO: stageが追加された時の処理
-        this.stages = {};
-        this.projectStages().forEach(({name: stageName, id: stageId}) => {
-            this.stages[stageName] = ko.computed(() => {
-                return this.assignedTasks().filter(x => x.stageId() === stageId);
-            });
-        });
-
-        this.workingTask = ko.computed(() => {
-            return this.assignedTasks().find(x => x.isWorking());
-        });
+        this.workingTask = ko.observable();
 
         // 作業開始からどのくらいの時間がたっているか
         this.workingTime = ko.computed(() => {
@@ -41,15 +22,7 @@ class User {
         });
 
         // 仕掛数
-        this.wip = ko.computed(() => {
-            const projectCosts = this.projectCosts();
-            const costs = this.assignedTasks().map(task => {
-                const costId = task.costId();
-                const cost = projectCosts.find(x => x.id() === costId);
-                return cost.value();
-            });
-            return _.sum(costs);
-        });
+        this.wip = ko.observable(0);
 
         // 仕掛数MAX
         this.isWipLimited = ko.computed(() => this.wip() >= this.wipLimit());

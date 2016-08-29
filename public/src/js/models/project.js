@@ -32,31 +32,26 @@ class Project {
         Project.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
 
         // array init
-        this.labels = ko.observableArray();
-        this.tasks = ko.observableArray();
-        this.users = ko.observableArray();
         this.stages = ko.observableArray();
         this.costs = ko.observableArray();
+        this.labels = ko.observableArray();
+        this.users = ko.observableArray();
+        this.tasks = ko.observableArray();
 
-        (opts.labels || []).forEach(x => this.addLabel(x));
-        (opts.tasks || []).forEach(x => this.addTask(x));
-        (opts.users || []).forEach(x => this.addUser(x));
         (opts.stages || []).forEach(x => this.addStage(x));
         (opts.costs || []).forEach(x => this.addCost(x));
+        (opts.labels || []).forEach(x => this.addLabel(x));
+        (opts.users || []).forEach(x => this.addUser(x));
+        (opts.tasks || []).forEach(x => this.addTask(x));
 
         // defaultValue init
-        // TODO: defaultValueが変わった時の処理
+        this.defaultStage = ko.computed(() => this.stages().find(x => x.id() === opts.defaultStage.id));
+        this.defaultCost = ko.computed(() => this.costs().find(x => x.id() === opts.defaultCost.id));
         this.defaultStage = ko.computed(() => this.stages().find(x => x.id() === opts.defaultStage.id));
         this.defaultCost = ko.computed(() => this.costs().find(x => x.id() === opts.defaultCost.id));
 
-        // this.stages[stageName] = 各ステージにあるTask
-        this.stageTasks = {};
-        // TODO: stageが追加された時の処理
-        this.stages().forEach(({name: stageName}) => {
-            this.stageTasks[stageName] = ko.computed(() => {
-                return this.tasks().filter(task => task.stage() === stageName);
-            });
-        });
+        // getTasksのmemo
+        this.memoGetTasks = {};
 
         // url of kanban board page
         this.url = ko.computed(() => {
@@ -109,18 +104,46 @@ class Project {
 
     getTask(taskOrWhere) {
         if (taskOrWhere instanceof Task) { return taskOrWhere; }
-        return _.find(this.tasks(), taskOrWhere);
+        return this.tasks().find(task => {
+            return _.every(taskOrWhere, (whereValue, whereKey) => {
+                const val = ko.unwrap(task[whereKey]);
+                return val === whereValue;
+            });
+        });
+    }
+
+    getTasks({userOrWhere=null, stageOrWhere=null}) {
+        const user = this.getUser(userOrWhere);
+        const stage = this.getStage(stageOrWhere);
+        const userKey = user ? user.id() : '(none)';
+        const stageKey = stage ? stage.id() : '(none)';
+        const key = `${userKey}_${stageKey}`;
+        if (!this.memoGetTasks[key]) {
+            this.memoGetTasks[key] = ko.computed(() => {
+                return this.tasks().filter(task => task.user() === user && task.stage === stage);
+            });
+        }
+        return this.memoGetTasks[key];
     }
 
     addTask(taskParams) {
-         this.issues.unshift(new Issue(_.extend(taskParams, {
-             projectUsers: this.users,
-             projectLabels: this.labels,
-             projectCosts: this.costs,
-             projectStages: this.stages
-             // labels: (taskParams.labels || []).map(x => this.getLabel(x.id))
+        taskParams.labels = (taskParams.labels || []).map(x => this.getLabel({id: x.id}));
+        taskParams.user = taskParams.user && this.getUser({id: taskParams.user.id});
+        taskParams.cost = taskParams.cost && this.getCost({id: taskParams.cost.id});
+        taskParams.stage = taskParams.stage && this.getStage({id: taskParams.stage.id});
+        taskParams.works = (taskParams.works || []).map(workParams => {
+            return workParams.user && this.getUser({id: workParams.user.id});
+        });
+        const task = new Task(taskParams);
 
-         })));
+        // update user#workingTask and user#wip
+        const user = task.user();
+        if (user) {
+            user.workingTask(task);
+            user.wip(user.wip() + task.cost.value());
+        }
+
+        this.issues.unshift(task);
     }
 
     archiveTask(taskOrWhere) {
@@ -174,7 +197,12 @@ class Project {
 
     getUser(userOrWhere) {
         if (userOrWhere instanceof User) { return userOrWhere; }
-        return _.find(this.users(), userOrWhere);
+        return this.users().find(user => {
+            return _.every(userOrWhere, (whereValue, whereKey) => {
+                const val = ko.unwrap(user[whereKey]);
+                return val === whereValue;
+            });
+        });
     }
 
     addUser(userParam) {
@@ -221,7 +249,12 @@ class Project {
 
     getLabel(labelOrWhere) {
         if (labelOrWhere instanceof Label) { return labelOrWhere; }
-        return _.find(this.labels(), labelOrWhere);
+        return this.labels().find(label => {
+            return _.every(labelOrWhere, (whereValue, whereKey) => {
+                const val = ko.unwrap(label[whereKey]);
+                return val === whereValue;
+            });
+        });
     }
 
     addLabel(labelParams) {
@@ -262,7 +295,12 @@ class Project {
 
     getStage(stageOrWhere) {
         if (stageOrWhere instanceof Stage) { return stageOrWhere; }
-        return _.find(this.stages(), stageOrWhere);
+        return this.stages().find(stage => {
+            return _.every(stageOrWhere, (whereValue, whereKey) => {
+                const val = ko.unwrap(stage[whereKey]);
+                return val === whereValue;
+            });
+        });
     }
 
     addStage(stageParams) {
@@ -273,7 +311,12 @@ class Project {
 
     getCost(costOrWhere) {
         if (costOrWhere instanceof Cost) { return costOrWhere; }
-        return _.find(this.costs(), costOrWhere);
+        return this.costs().find(cost => {
+            return _.every(costOrWhere, (whereValue, whereKey) => {
+                const val = ko.unwrap(cost[whereKey]);
+                return val === whereValue;
+            });
+        });
     }
 
     addCost(costParams) {

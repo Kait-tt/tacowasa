@@ -2,48 +2,17 @@
 const ko = require('knockout');
 const _ = require('lodash');
 const util = require('../modules/util');
-const Work = require('./work');
 
 class Task {
     constructor(opts) {
         Task.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
 
-        this.projectLabels = opts.projectLabels;
-        this.projectUsers = opts.projectUsers;
-        this.projectCosts = opts.projectCosts;
-        this.projectStages = opts.projectStages;
+        this.labels = ko.observable(opts.labels);
+        this.works = ko.observableArray(opts.works || []);
 
-        this.labelIds = ko.observableArray(opts.labelIds || []);
-        this.labels = ko.computed(() => {
-            const projectLabels = this.projectLabels();
-            return this.labelIds().map(id => projectLabels.find(x => x.id() === id));
-        });
-        this.user = ko.computed(() => {
-            const userId = this.userId();
-            return this.projectUsers().find(x => x.id() === userId);
-        });
-        this.cost = ko.computed(() => {
-            const costId = this.costId();
-            return this.projectUsers().find(x => x.id() === costId);
-        });
-        this.stage = ko.computed(() => {
-            const stageId = this.stageId();
-            return this.projectStages().find(x => x.id() === stageId);
-        });
-        this.works = ko.observableArray();
-        this.updateWorkHistory(opts.works || []);
+        this.isVisible = ko.observable(true); // local
 
-        this.isVisible = ko.observable(true);
-
-
-        this.displayTitle = ko.computed(() => {
-            let title = this.title();
-            // TODO: github
-            // if (this.github() && this.github().number && this.github().number !== '0') {
-            //     title = '#' + this.github().number + ' ' + title;
-            // }
-            return title;
-        });
+        this.displayTitle = ko.computed(() => this.title());
 
         // 合計作業時間 (ms)
         this.allWorkTime = ko.observable(this.calcAllWorkTime());
@@ -56,11 +25,8 @@ class Task {
         // 最後の作業時間
         this.lastWorkTime = ko.observable(0);
 
-        // 最後の作業時間を計算
-
-
-        // TODO: 検索用の名前という事に変更
-        this.alltext = ko.computed(() => {
+        // 検索用テキスト
+        this.textForSearch = ko.computed(() => {
             const res = [this.title(), this.body()];
 
             // cost
@@ -87,22 +53,16 @@ class Task {
             'title',
             'body',
             'isWorking',
-            'stageId',
-            'userId',
-            'costId',
-            'labelIds',
+            'stage',
+            'user',
+            'cost',
+            'labels',
             'works'
         ];
     }
 
     static get calcAllWorkingIntervalTime() {
         return  1000 * 20; // 20 seconds
-    }
-
-    updateWorkHistory(newWorkHistory) {
-        this.works(newWorkHistory.map(x => new Work(_.extends(x, {
-            projectUsers: this.projectUsers
-        }))));
     }
 
     calcAllWorkTime() {
