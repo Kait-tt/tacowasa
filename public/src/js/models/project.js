@@ -6,6 +6,7 @@ const Label = require('./label');
 const Stage = require('./stage');
 const Task = require('./task');
 const Cost = require('./cost');
+const Work = require('./work');
 const util = require('../modules/util');
 
 class Project {
@@ -176,6 +177,17 @@ class Project {
         task.user(user);
     }
 
+    updateTaskContent(taskOrWhere, title, body, costOrWhere) {
+        const task = this.getTask(taskOrWhere);
+        if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
+        const cost = this.getCost(costOrWhere);
+        if (!cost) { throw new Error(`cost was not found. : ${costOrWhere}`); }
+
+        task.title(title);
+        task.body(body);
+        task.cost(cost);
+    }
+
     updateTaskWorkingState(taskOrWhere, isWorking) {
         const task = this.getTask(taskOrWhere);
         if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
@@ -183,11 +195,15 @@ class Project {
         task.isWorking(isWorking);
     }
 
-    updateTaskWorkHistory(taskOrWhere, workHistory) {
+    updateTaskWorkHistory(taskOrWhere, works) {
         const task = this.getTask(taskOrWhere);
         if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
 
-        task.updateWorkHistory(workHistory);
+        const workInstances = works.map(work => {
+            work.user = work.user && this.getUser({id: work.user.id});
+            return new Work(work);
+        });
+        task.works(workInstances);
     }
 
     updateTaskOrder(taskOrWhere, beforeTaskOrWhere) {

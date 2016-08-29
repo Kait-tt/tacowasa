@@ -25,11 +25,11 @@ class SocketProject {
     }
 
     leaveProjectRoom(user) {
-        this.emitLeaveRoom(user);
+        this.leaveRoom(user);
     }
 
     bindSocketUser(user) {
-        this.socketEventKeys.forEach(key => {
+        SocketProject.socketEventKeys.forEach(key => {
             user.socket.on(key, req => {
                 this[key](user, req)
                     .catch(err => {
@@ -62,52 +62,52 @@ class SocketProject {
         });
     }
 
-    joinRoom(user) {
-        this.emits('joinRoom', {username: user.username});
-        return this.notifyText(user.username, 'joined room');
-    }
-
-    emitLeaveRoom(user) {
-        this.emits('leaveRoom', {username: user.username});
-        return this.notifyText(projectId, username, 'left room');
-    }
+    /// events
 
     notifyText(username, text) {
         // TODO: this is stub
         return Promise.resolve();
     }
 
-    /// events
+    joinRoom(user) {
+        this.emits('joinRoom', {username: user.username});
+        return this.notifyText(user.username, 'joined room');
+    }
 
-    addMember(user, {username}) {
+    leaveRoom(user) {
+        this.emits('leaveRoom', {username: user.username});
+        return this.notifyText(projectId, username, 'left room');
+    }
+
+    addUser(user, {username}) {
         return Member.add(this.projectId, username)
             .then(addedUser => {
-                this.emits('addMember', {username, user: addedUser});
-                return this.notifyText(user.username, `added member: "${username}"`);
+                this.emits('addUser', {username, user: addedUser});
+                return this.notifyText(user.username, `added user: "${username}"`);
             });
     }
 
-    removeMember(user, {username}) {
+    removeUser(user, {username}) {
         return Member.remove(this.projectId, username)
             .then(() => {
-                this.emits('removeMember', {username});
-                return this.notifyText(user.username, `removed member: "${username}"`);
+                this.emits('removeUser', {username});
+                return this.notifyText(user.username, `removed user: "${username}"`);
             });
     }
 
-    updateMember(user, {username, updateParams}) {
+    updateUser(user, {username, updateParams}) {
         return Member.update(this.projectId, username, updateParams)
             .then(updatedUser => {
-                this.emits('updateMember', {username, user: updatedUser});
-                return this.notifyText(user.username, `updated member: "${username}"`);
+                this.emits('updateUser', {username, user: updatedUser});
+                return this.notifyText(user.username, `updated user: "${username}"`);
             });
     }
 
-    updateMemberOrder(user, {username, beforeUsername}) {
+    updateUserOrder(user, {username, beforeUsername}) {
         return Member.updateOrder(this.projectId, username, beforeUsername)
             .then(() => {
-                this.emits('updateMemberOrder', {username, beforeUsername});
-                return this.notifyText(user.username, `update member order: insert ${username} before ${beforeUsername}`);
+                this.emits('updateUserOrder', {username, beforeUsername});
+                return this.notifyText(user.username, `update user order: insert ${username} before ${beforeUsername}`);
             });
     }
 
@@ -149,7 +149,7 @@ class SocketProject {
     updateTaskWorkingState(user, {taskId, isWorking}) {
         return Task.updateWorkingState(this.projectId, taskId, isWorking)
             .then(task => {
-                this.emits('updateTaskWorkingState', {taskId, task, isWorking});
+                this.emits('updateTaskWorkingState', {task, isWorking});
                 return this.notifyText(user.username, `${isWorking ? 'start' : 'stop'} to work: ${task.title}`);
             });
     }
@@ -157,15 +157,15 @@ class SocketProject {
     updateTaskWorkHistory(user, {taskId, works}) {
         return Task.updateWorkHistory(this.projectId, taskId, works)
             .then(task => {
-                this.emits('updateTaskWorkHistory', {taskId, task, works});
+                this.emits('updateTaskWorkHistory', {task, works});
                 return this.notifyText(user.username, `updated work history: ${task.title}`);
             })
     }
 
     updateTaskOrder(user, {taskId, beforeTaskId}) {
         return Task.updateOrder(this.projectId, taskId, beforeTaskId)
-            .then(task => {
-                this.emits('updateTaskOrder', {taskId, beforeTaskId});
+            .then(({task, beforeTask}) => {
+                this.emits('updateTaskOrder', {task, beforeTask});
                 return this.notifyText(user.username, `update task order: insert ${taskId} before ${beforeTaskId}`);
             });
     }
@@ -173,7 +173,7 @@ class SocketProject {
     attachLabel(user, {taskId, labelId}) {
         return Label.attach(this.projectId, labelId, taskId)
             .then((task, label) => {
-                this.emits('attachLabel', {taskId, labelId, task, label});
+                this.emits('attachLabel', {task, label});
                 return this.notifyText(user.username, `attached label: {label: ${label.name}, task: ${task.name}}`);
             });
     }
@@ -181,17 +181,19 @@ class SocketProject {
     detachLabel(user, {taskId, labelId}) {
         return Label.detach(this.projectId, labelId, taskId)
             .then((task, label) => {
-                this.emits('detachLabel', {taskId, labelId, task, label});
+                this.emits('detachLabel', {task, label});
                 return this.notifyText(user.username, `detached label: {label: ${label.name}, task: ${task.name}}`);
             });
     }
 
-    get socketEventKeys() {
+    static get socketEventKeys() {
         return [
-            'addMember',
-            'removeMember',
-            'updateMember',
-            'updateMemberOrder',
+            'joinRoom',
+            'leaveRoom',
+            'addUser',
+            'removeUser',
+            'updateUser',
+            'updateUserOrder',
             'createTask',
             'archiveTask',
             'updateTaskStatus',
@@ -201,7 +203,7 @@ class SocketProject {
             'updateTaskOrder',
             'attachLabel',
             'detachLabel'
-        ]
+        ];
     }
 }
 

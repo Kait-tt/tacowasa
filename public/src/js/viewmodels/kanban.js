@@ -1,319 +1,307 @@
-(function (EventEmitter, ko, io, _, util, global) {
-    'use strict';
+'use strict';
+const ko = require('knockout');
+const EventEmitter2 = require('eventemitter2');
+const _ = require('lodash');
+const moment = require('moment');
+const util = require('../modules/util');
+const localStorage = require('../modules/localStorage');
+const DraggableTaskList = require('./draggable_task_list');
+const global = window;
 
-    var viewmodel = util.namespace('kpp.viewmodel'),
-        model = util.namespace('kpp.model'),
-        module = util.namespace('kpp.module'),
-        stageTypeKeys = model.stageTypeKeys,
-        stages = model.stageTypes,
-        DraggableIssueList = viewmodel.DraggableIssueList,
-        defaultCost = model.Issue.defaultCost,
-        localStorage = module.localStorage.load();
 
-    viewmodel.Kanban = viewmodel.Kanban || Kanban;
+/**
+ * カンバンのViewModel
+ *
+ * @event overWIPLimitDropped(arg, user, targetSlaveTaskList) WIPリミットを超えてD&Dした (argはknockout-sortable.beforeMoveイベント引数のarg）
+ * @event workingTaskDropped(arg, task)
+ */
+class Kanban extends EventEmitter2 {
+    constructor({eventEmitterOptions={}, socket, project}) {
+        super(opts);
 
-    /**
-     * カンバンのViewModel
-     *
-     *  Events:
-     *      overWIPLimitDropped(arg, member, targetSlaveIssueList): WIPリミットを超えてD&Dした (argはknockout-sortable.beforeMoveイベント引数のarg）
-     *
-     * @param o
-     * @constructor
-     */
-    function Kanban(o) {
-        EventEmitter.call(this, o);
+        this.socket = socket;
+        this.joinedUser = ko.observableArray();
+        this.activitiesTexts = ko.observableArray();
 
-        var that = this;
+        this.searchQuery = ko.observable();
+        this.searchQuery.subscribe(_.debounce(this.searchTasks, 500));
 
-        that.socket = o.socket;
+        this.viewMode = ko.observable(localStorage.getItem('viewMode')); // full or compact
+        this.viewMode.subscribe(val => localStorage.setItem('viewMode', val));
 
-        that.joinedMembers = ko.observableArray();
+        this.project = project;
+        this.users = project.users;
+        this.tasks = project.tasks;
+        this.labels = project.labels;
+        this.stats = project.stats;
+        this.stages = project.stages;
 
-        that.chatTexts = ko.observableArray();
+        // TODO: ? this.stages
+        // that.stages[name] = 各ステージのTasks
+        // this.stages = null;
 
-        that.searchQuery = ko.observable();
+        // that.draggableList[stage] = DraggableTaskList
+        // that.draggableList[stage][userId] = DraggableTaskList
+        this.draggableList = null;
 
-        that.viewMode = ko.observable(localStorage.getItem('viewMode')); // "full" or "compact"
-        that.viewMode.subscribe(function (val) { // localStorageに保存
-            localStorage.setItem('viewMode', val);
+        this.loginUser = ko.computed(() => {
+            return this.users().find(user => user.username() === global.username);
         });
 
-        that.members = null;
-
-        that.issues = null;
-
-        that.labels = null;
-
-        that.project = null;
-
-        that.stats = null;
-
-        // that.stages[name] = 各ステージのIssues
-        that.stages = null;
-
-        // that.draggableList[stage] = DraggableIssueList
-        // that.draggableList[stage][UserID] = DraggableIssueList
-        that.draggableList = {};
-
-        // 追加するユーザの名前
-        that.addMemberUserName = ko.observable();
-
-        // 追加するIssueのタイトル
-        that.addIssueTitle = ko.observable();
-
-        // 追加するIssueの説明
-        that.addIssueBody = ko.observable();
-
-        // 追加するIssueのステージ
-        that.addIssueStage = ko.observable('issue');
-
-        // 追加するIssueのコスト
-        that.addIssueCost = ko.observable();
-
-        // 追加するIssueのLabels
-        that.addIssueLabels = ko.observableArray();
-
-        // アサイン先のユーザ名
-        that.assignUserName = ko.observable();
-
-        // 選択しているIssue
-        that.selectedIssue = ko.observable();
-
-        // Issueの更新後のタイトル
-        that.updateIssueDetailTitle = ko.observable();
-
-        // Issueの更新後のBody
-        that.updateIssueDetailBody = ko.observable();
-
-        // Issueの更新後のLabels
-        that.updateIssueDetailLabels = ko.observableArray();
-
-        // Issueの更新後のCost
-        that.updateIssueDetailCost = ko.observable();
-
-        // Issueの更新後の作業状態(isWorking)
-        that.updateIssueDetailIsWorking = ko.observable(false);
-
-        // IssueDetail WorkingHistoryの表示mode ('edit' or 'view')
-        that.issueDetailWorkHistoryMode = ko.observable('view');
-
-        // Issueの更新後のWorkHistory
-        that.updateIssueDetailWorkHistory = ko.observableArray();
-
-        that.selectedIssue.subscribe(function (issue) {
-            that.updateIssueDetailTitle(issue ? issue.title() : null);
-            that.updateIssueDetailBody(issue ? issue.body() : null);
-            that.updateIssueDetailLabels(issue ? _.clone(issue.labels()) : []);
-            var cost = issue ? issue.cost() : 0;
-            that.updateIssueDetailCost(String(cost ? cost : 0));
-            that.updateIssueDetailIsWorking(issue ? issue.isWorking() : false);
-            that.issueDetailWorkHistoryMode('view');
-            that.updateIssueDetailWorkHistory.removeAll();
+        this.canAssignUsers = ko.computed(() => {
+            return this.users().filter(user => !user.isWipLimited());
         });
 
-        // 選択しているメンバー
-        that.selectedMember = ko.observable();
+        this.initDraggableTaskList();
+        this.initSocket();
+    }
 
-        // ログインユーザ
-        that.loginMember = ko.computed(function () {
-            var username = global.username;
-            return _.find(that.members(), function (member) {
-                return member.userName() === username;
-            });
-        }, that, {deferEvaluation: true});
-
-        // 編集用の仮のWIP制限
-        that.settingsWipLimit = ko.observable();
-
-        that.selectedMember.subscribe(function (member) {
-            if (member) {
-                that.settingsWipLimit(member.wipLimit());
-            }
-        });
-
-        // アサイン可能なメンバー
-        that.canAssignMembers = ko.computed(function () {
-            return that.members().filter(function (member) {
-                return !member.isWipLimited();
-            });
-        }, that, {deferEvaluation: true});
-
-        that.init = function (project) {
-            that.project = project;
-            that.members = project.members;
-            that.issues = project.issues;
-            that.labels = project.labels;
-            that.stages = project.stages;
-            that.stats = new model.ProjectStats({project: project});
-            that.initDraggableIssueList();
-
-            initSocket(that.socket);
+    // 各ステージ、各ユーザ毎にDraggableTaskListを作る
+    // ユーザの追加を監視する
+    initDraggableTaskList() {
+        this.draggableList = {};
+        const _params = {
+            masterTasks: this.tasks,
+            // onUpdatedStage: this.updateStage,
+            // onUpdatedPriority: that.updateIssuePriority
         };
 
-        // 各ステージ、各メンバー毎にDraggableIssueListを作る
-        // メンバーの追加を監視する
-        that.initDraggableIssueList = function () {
-            that.draggableList = {};
-            var _params = {
-                masterIssues: that.issues,
-                onUpdatedStage: that.updateStage,
-                onUpdatedPriority: that.updateIssuePriority
-            };
+        this.stages().forEach(stage => {
+            const params = _.assign(_.clone(_params), {stage: stage, user: null});
+             let list;
 
-            _.values(stages).forEach(function (stage) {
-                var params = _.extend(_.clone(_params), {stage: stage.name, assignee: null}),
-                    list;
-
-                if (stage.assigned) {
-                    list = {};
-                    that.members().forEach(function (member) {
-                        list[member._id()] = new DraggableIssueList(_.extend(_.clone(params), {assignee: member._id()}));
-                    });
-                    that.members.subscribe(function (changes) {
-                        _.chain(changes)
-                            .where({status: 'added'})
-                            .pluck('value')
-                            .filter(function (member) { return !list[member._id()]; })
-                            .forEach(function (member) {
-                                list[member._id()] = new DraggableIssueList(_.extend(_.clone(params), {assignee: member._id()}));
-                            })
-                            .value(); // value method is exec
-                    }, this, 'arrayChange');
-                } else {
-                    list = new DraggableIssueList(params);
-                }
-
-                that.draggableList[stage.name] = list;
-            });
-        };
-
-        // ドラッグ時にWIP制限を超過するようならばキャンセルする
-        // ドラッグ時に作業中ならキャンセルする
-        that.onBeforeMoveDrag = function (arg) {
-            var list = arg.targetParent.parent,
-                issue = arg.item,
-                member;
-
-            if (!(list instanceof DraggableIssueList)) { return; }
-
-            // 作業中チェック
-            if (issue.isWorking()) {
-                arg.cancelDrop = true;
-                that.emit('workingIssueDropped', arg, issue);
-            }
-
-            // WIPLimitチェック
-            if (!list.assignee || issue.assignee() === list.assignee) { return; }
-
-            member = that.project.getMember(list.assignee);
-            if (!member) { throw new Error('dragged target member is not found: ' + list.assignee); }
-
-            var cost = issue.cost();
-            if (member.willBeOverWipLimit(cost ? cost : defaultCost)) {
-                arg.cancelDrop = true;
-                that.emit('overWIPLimitDropped', arg, member, list);
-            }
-        };
-
-        // 検索する
-        that.searchIssue = function (searchQuery) {
-            if (!_.isString(searchQuery)) { searchQuery = ''; }
-            searchQuery = searchQuery.trim();
-
-            if (searchQuery) { // search
-                var queries = util.splitSearchQuery(searchQuery);
-                that.issues().forEach(function (issue) {
-                    var text = issue.alltext();
-                    issue.visible(queries.every(function (q) { return text.indexOf(q) !== -1; }));
+            if (stage.assigned()) {
+                list = {};
+                this.users().forEach(user => {
+                    list[user.id()] = new DraggableTaskList(_.assign(_.clone(params), {assignee: user.id()}));
                 });
-                
-            } else { // all visible
-                that.issues().forEach(function (issue) {
-                    issue.visible(true);
-                });
-            }
-        };
-
-        // 検索クエリの値が変わったら検索を実行する
-        that.searchQuery.subscribe(_.debounce(that.searchIssue, 500));
-
-        // メンバーを追加する
-        that.addMember = function () {
-            that.socket.emit('add-member', {userName: that.addMemberUserName()}, function (res) {
-                if (res.status === 'success') {
-                    // reset form
-                    that.addMemberUserName(null);
-                }
-            });
-        };
-
-        // メンバーを削除する
-        that.removeMember = function () {
-            var member = that.selectedMember();
-            if (!member) {
-                console.error('unselected member');
-                return;
+                this.users.subscribe(changes => {
+                    _.chain(changes)
+                        .find({status: 'added'})
+                        .map('value')
+                        .filter(user =>!list[user.id()])
+                        .forEach(user => {
+                            list[user.id()] = new DraggableTaskList(_.extend(_.clone(params), {assignee: user.id()}));
+                        })
+                        .value(); // value method is exec
+                }, this, 'arrayChange');
+            } else {
+                list = new DraggableTaskList(params);
             }
 
-            that.socket.emit('remove-member', {userName: member.userName()}, function (res) {
-                if (res.status === 'success') {
-                    // モーダルを閉じる
-                    $('.modal').modal('hide');
-                }
+            list.on('updatedStatus', ({task, stage, user}) => {
+                // update stage
             });
-        };
 
-        // メンバー設定を更新する
-        that.updateMemberWipLimit = function () {
-            var member = that.selectedMember();
-            if (!member) { return console.error('unselected member'); }
+            list.on('updatedPriority', ({task, afterTask}) => {
+                // update task priority
+            });
 
-            that.socket.emit('update-member', {userName: member.userName(), wipLimit: that.settingsWipLimit()});
-        };
+            this.draggableList[stage.name] = list;
+        });
+    }
 
-        that.updateMemberOrderUp = function (member) {
-            var members = that.members();
-            var idx = members.indexOf(member);
-            if (idx === 0) { return console.log(member.userName() + ' is already top'); }
-            that.updateMemberOrder(member, members[idx - 1]);
-        };
+    initSocket() {
+    }
 
-        that.updateMemberOrderDown = function (member) {
-            var members = that.members();
-            var idx = members.indexOf(member);
-            if (idx === members.length - 1) { return console.log(member.userName() + ' is already bottom'); }
-            that.updateMemberOrder(member, (idx + 2) === members.length ? null : members[idx + 2]);
-        };
+    onBeforeMoveDrag(arg) {
+        const list = arg.targetParent.parent;
+        const task = arg.item;
 
-        // タスクの優先順位を変更する
-        that.updateMemberOrder = function (member, insertBeforeOfMember) {
-            var insertBeforeOfUserName =  insertBeforeOfMember ? insertBeforeOfMember.userName() : null;
-            that.socket.emit('update-member-order', {userName: member.userName(), insertBeforeOfUserName: insertBeforeOfUserName});
-        };
+        if (!(list instanceof DraggableTaskList)) { return; }
 
-        // Issueと追加する
-        that.addIssue = function () {
-            var title = that.addIssueTitle(),
-                body = that.addIssueBody(),
-                stage = that.addIssueStage(),
-                cost = that.addIssueCost(),
-                labels = that.addIssueLabels().map(function (x) { return x.name(); });
-            
-            that.socket.emit('add-issue', {title: title, body: body,
-                stage: stage, cost: cost, labels: labels});
-        };
+        // 作業中か
+        if (task.isWorking()) {
+            arg.cancelDrop = true;
+            this.emit('workingTaskDropped', arg, task);
+        }
 
-        // Issueを削除する (archive)
-        that.removeIssue = function (issue) {
-            that.socket.emit('remove-issue', {issueId: issue._id()}, _.noop);
-        };
+        // WIPLimitに達するか
+        if (task.user !== list.user) {
+            const user = list.user;
+            const cost = task.cost();
+            if (user.willBeOverWipLimit(cost.value())) {
+                arg.cancelDrop = true;
+                this.emit('overWIPLimitDropped', arg, user, list);
+            }
+        }
+    }
 
-        // Issueを削除する (archive)
-        that.removeIssueWithSelected = function () {
-            console.log(that.selectedIssue());
-            that.removeIssue(that.selectedIssue());
-        };
+    searchTasks(searchQuery='') {
+        searchQuery = searchQuery.trim();
+
+        if (searchQuery) { // search
+            const queries = util.splitSearchQuery(searchQuery);
+            this.tasks().forEach(task => {
+                const text = task.textForSearch();
+                task.isVisible(queries.every(q  => _.includes(text, q)));
+            });
+
+        } else { // all visible
+            this.tasks().forEach(task => {
+                task.isVisible(true);
+            });
+        }
+    }
+
+    /*** user ***/
+
+    updateUserOrder(user, beforeUser) {
+        const beforeUsername = beforeUser && beforeUser.username();
+        this.socket.emit('updateUserOrder', {username: user.username(), beforeUsername});
+    }
+
+
+
+    /*** task ***/
+}
+
+
+        // // 追加するユーザの名前
+        // that.addMemberUserName = ko.observable();
+        //
+        // // 追加するIssueのタイトル
+        // that.addIssueTitle = ko.observable();
+        //
+        // // 追加するIssueの説明
+        // that.addIssueBody = ko.observable();
+        //
+        // // 追加するIssueのステージ
+        // that.addIssueStage = ko.observable('issue');
+        //
+        // // 追加するIssueのコスト
+        // that.addIssueCost = ko.observable();
+        //
+        // // 追加するIssueのLabels
+        // that.addIssueLabels = ko.observableArray();
+        //
+        // // アサイン先のユーザ名
+        // that.assignUserName = ko.observable();
+        //
+        // // 選択しているIssue
+        // that.selectedIssue = ko.observable();
+        //
+        // // Issueの更新後のタイトル
+        // that.updateIssueDetailTitle = ko.observable();
+        //
+        // // Issueの更新後のBody
+        // that.updateIssueDetailBody = ko.observable();
+        //
+        // // Issueの更新後のLabels
+        // that.updateIssueDetailLabels = ko.observableArray();
+        //
+        // // Issueの更新後のCost
+        // that.updateIssueDetailCost = ko.observable();
+        //
+        // // Issueの更新後の作業状態(isWorking)
+        // that.updateIssueDetailIsWorking = ko.observable(false);
+        //
+        // // IssueDetail WorkingHistoryの表示mode ('edit' or 'view')
+        // that.issueDetailWorkHistoryMode = ko.observable('view');
+        //
+        // // Issueの更新後のWorkHistory
+        // that.updateIssueDetailWorkHistory = ko.observableArray();
+        //
+        // that.selectedIssue.subscribe(function (issue) {
+        //     that.updateIssueDetailTitle(issue ? issue.title() : null);
+        //     that.updateIssueDetailBody(issue ? issue.body() : null);
+        //     that.updateIssueDetailLabels(issue ? _.clone(issue.labels()) : []);
+        //     var cost = issue ? issue.cost() : 0;
+        //     that.updateIssueDetailCost(String(cost ? cost : 0));
+        //     that.updateIssueDetailIsWorking(issue ? issue.isWorking() : false);
+        //     that.issueDetailWorkHistoryMode('view');
+        //     that.updateIssueDetailWorkHistory.removeAll();
+        // });
+        //
+        // // 選択しているメンバー
+        // that.selectedMember = ko.observable();
+        //
+        // // 編集用の仮のWIP制限
+        // that.settingsWipLimit = ko.observable();
+        //
+        // that.selectedMember.subscribe(function (member) {
+        //     if (member) {
+        //         that.settingsWipLimit(member.wipLimit());
+        //     }
+        // });
+        //
+        //
+        // // メンバーを追加する
+        // that.addMember = function () {
+        //     that.socket.emit('add-member', {userName: that.addMemberUserName()}, function (res) {
+        //         if (res.status === 'success') {
+        //             // reset form
+        //             that.addMemberUserName(null);
+        //         }
+        //     });
+        // };
+        //
+        // // メンバーを削除する
+        // that.removeMember = function () {
+        //     var member = that.selectedMember();
+        //     if (!member) {
+        //         console.error('unselected member');
+        //         return;
+        //     }
+        //
+        //     that.socket.emit('remove-member', {userName: member.userName()}, function (res) {
+        //         if (res.status === 'success') {
+        //             // モーダルを閉じる
+        //             $('.modal').modal('hide');
+        //         }
+        //     });
+        // };
+        //
+        // // メンバー設定を更新する
+        // that.updateMemberWipLimit = function () {
+        //     var member = that.selectedMember();
+        //     if (!member) { return console.error('unselected member'); }
+        //
+        //     that.socket.emit('update-member', {userName: member.userName(), wipLimit: that.settingsWipLimit()});
+        // };
+        //
+        // that.updateMemberOrderUp = function (member) {
+        //     var members = that.members();
+        //     var idx = members.indexOf(member);
+        //     if (idx === 0) { return console.log(member.userName() + ' is already top'); }
+        //     that.updateMemberOrder(member, members[idx - 1]);
+        // };
+        //
+        // that.updateMemberOrderDown = function (member) {
+        //     var members = that.members();
+        //     var idx = members.indexOf(member);
+        //     if (idx === members.length - 1) { return console.log(member.userName() + ' is already bottom'); }
+        //     that.updateMemberOrder(member, (idx + 2) === members.length ? null : members[idx + 2]);
+        // };
+        //
+        // // タスクの優先順位を変更する
+        // that.updateMemberOrder = function (member, insertBeforeOfMember) {
+        //     var insertBeforeOfUserName =  insertBeforeOfMember ? insertBeforeOfMember.userName() : null;
+        //     that.socket.emit('update-member-order', {userName: member.userName(), insertBeforeOfUserName: insertBeforeOfUserName});
+        // };
+        //
+        // // Issueと追加する
+        // that.addIssue = function () {
+        //     var title = that.addIssueTitle(),
+        //         body = that.addIssueBody(),
+        //         stage = that.addIssueStage(),
+        //         cost = that.addIssueCost(),
+        //         labels = that.addIssueLabels().map(function (x) { return x.name(); });
+        //
+        //     that.socket.emit('add-issue', {title: title, body: body,
+        //         stage: stage, cost: cost, labels: labels});
+        // };
+        //
+        // // Issueを削除する (archive)
+        // that.removeIssue = function (issue) {
+        //     that.socket.emit('remove-issue', {issueId: issue._id()}, _.noop);
+        // };
+        //
+        // // Issueを削除する (archive)
+        // that.removeIssueWithSelected = function () {
+        //     console.log(that.selectedIssue());
+        //     that.removeIssue(that.selectedIssue());
+        // };
 
         // タスクをアサインする
         // ユーザが指定されていない場合はアンアサインする
@@ -590,109 +578,6 @@
         function initSocket (socket) {
             socket.on('connect', function (req) {
                 socket.emit('join-project-room', {projectId: that.project.id()});
-            });
-
-            socket.on('init-joined-users', function (req) {
-                var usernames = req.joinedUserNames;
-                var members = _.compact(usernames.map(function (username) {
-                    return that.project.getMemberByName(username);
-                }));
-                that.joinedMembers(members);
-            });
-
-            socket.on('join-room', function (req) {
-                var member = that.project.getMemberByName(req.username);
-                if (member) { // ユニーク処理はしない
-                    that.joinedMembers.push(member);
-                }
-            });
-
-            socket.on('leave-room', function (req) {
-                var member = that.project.getMemberByName(req.username);
-                if (member) {
-                    var pos = that.joinedMembers().indexOf(member);
-                    if (pos !== -1) {
-                        that.joinedMembers.splice(pos, 1);
-                    }
-                }
-            });
-
-            socket.on('add-member', function (req) {
-                that.project.addMember(req.member, {reverse: true});
-            });
-
-            socket.on('remove-member', function (req) {
-                var targetMember = that.project.getMember(req.member.user._id);
-                that.project.removeMember(targetMember);
-            });
-
-            socket.on('update-member', function (req) {
-                var targetMember = that.project.getMember(req.member.user._id);
-                that.project.updateMember(targetMember, req.member);
-            });
-
-            socket.on('update-member-order', function (req) {
-                that.project.updateMemberOrder(req.userName, req.insertBeforeOfUserName);
-            });
-
-            socket.on('add-issue', function (req) {
-                that.project.addIssue(req.issue);
-            });
-
-            socket.on('remove-issue', function (req) {
-                var targetIssue = that.project.getIssue(req.issue._id);
-                that.project.removeIssue(targetIssue);
-            });
-
-            socket.on('update-stage', function (req) {
-                that.project.updateStage(req.issueId, req.toStage, req.assignee);
-            });
-
-            socket.on('update-issue-detail', function (req) {
-                var targetIssue = that.project.getIssue(req.issue._id);
-
-                ['title', 'body', 'cost'].forEach(function (key) {
-                    targetIssue[key](req.issue[key]);
-                });
-            });
-
-            socket.on('update-issue-working-state', function (req) {
-                that.project.updateIssueWorkingState(req.issue._id, req.isWorking, req.issue.workHistory);
-            });
-            
-            socket.on('update-issue-work-history', function (req) {
-                that.project.updateIssueWorkHistory(req.issue._id, req.workHistory);
-            });
-            
-            socket.on('update-issue-priority', function (req) {
-                that.project.updateIssuePriority(req.issue._id, req.insertBeforeOfIssueId);
-            });
-
-            socket.on('attach-label', function (req) {
-                if (req.issue && req.label) {
-                    that.project.attachLabel(req.issue._id, that.project.getLabelByName(req.label.name)._id());
-                }
-            });
-
-            socket.on('detach-label', function (req) {
-                if (req.issue && req.label) {
-                    that.project.detachLabel(req.issue._id, that.project.getLabelByName(req.label.name)._id());
-                }
-            });
-
-            socket.on('sync-label-all', function (req) {
-                that.project.replaceLabelAll(req.labels, req.issues);
-            });
-
-            socket.on('chat', function (req) {
-                that.addChatText(req);
-            });
-
-            socket.on('chat-history', function (req) {
-                req.forEach(function (chat) {
-                    that.addChatText(chat);
-                });
-                that.chatTexts.push('--------------------'); // 区切りバー
             });
             
             socket.initSocketDebugMode();
