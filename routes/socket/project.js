@@ -33,7 +33,7 @@ class SocketProject {
             user.socket.on(key, req => {
                 this[key](user, req)
                     .catch(err => {
-                        user.socket.emit('error', {error: err});
+                        user.socket.emit('operationError', {error: err, message: err.message});
                         console.error(err);
                     });
             });
@@ -205,4 +205,4 @@ class SocketProject {
     }
 }
 
-exports = SocketProject;
+module.exports = SocketProject;
