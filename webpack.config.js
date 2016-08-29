@@ -10,6 +10,7 @@ const webpackConfig = {
         kanban: __dirname + '/public/src/js/entries/kanban.js'
     },
     output: {
+        publicPath: '/',
         path: __dirname + '/public/dist',
         filename: '[name].js'
     },
