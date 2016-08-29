@@ -17,10 +17,10 @@ const global = window;
  */
 class Kanban extends EventEmitter2 {
     constructor({eventEmitterOptions={}, socket, project}) {
-        super(opts);
+        super(eventEmitterOptions);
 
         this.socket = socket;
-        this.joinedUser = ko.observableArray();
+        this.joinedUsers = ko.observableArray();
         this.activitiesTexts = ko.observableArray();
 
         this.searchQuery = ko.observable();
@@ -577,13 +577,13 @@ class Kanban extends EventEmitter2 {
         // ソケット通信のイベント設定、デバッグ設定を初期化する
         function initSocket (socket) {
             socket.on('connect', function (req) {
-                socket.emit('join-project-room', {projectId: that.project.id()});
+                socket.emit('joinProjectRoom', {projectId: that.project.id()});
             });
             
             socket.initSocketDebugMode();
 
             if (socket.connected) {
-                socket.emit('join-project-room', {projectId: that.project.id()});
+                socket.emit('joinProjectRoom', {projectId: that.project.id()});
             }
         }
     }

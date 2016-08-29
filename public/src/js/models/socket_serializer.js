@@ -1,8 +1,10 @@
 'use strict';
 const _ = require('lodash');
 
-class SocketProject {
-    constructor({project, socket, kanban}) {
+
+// socketのonイベントをlocalのカンバンに適用するクラス
+class SocketSerializer {
+    constructor({project, socket, kanban, debug=false}) {
         this.project = project;
         this.socket = socket;
         this.kanban = kanban;
@@ -10,11 +12,16 @@ class SocketProject {
     }
 
     bindOnEvents() {
-        SocketProject.socketOnEventsKeys.forEach(key => {
+        SocketSerializer.socketOnEventsKeys.forEach(key => {
             const method = 'on' + _.upperFirst(key);
             this.socket.on(key, params => this[method](params));
         });
     }
+
+    /*** emit events ***/
+
+
+    /*** on events ***/
 
     onNotifyText() {
         // TODO: ...
@@ -113,4 +120,4 @@ class SocketProject {
     }
 }
 
-module.exports = SocketProject;
+module.exports = SocketSerializer;
