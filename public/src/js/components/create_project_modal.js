@@ -1,0 +1,54 @@
+'use strict';
+const ko = require('knockout');
+const EventEmitter2 = require('eventemitter2');
+
+class CreateProjectModal extends EventEmitter2 {
+    constructor(opts={}) {
+        super(opts);
+        this.projectName = ko.observable();
+    }
+
+    submit() {
+        this.emit('submit', {projectName: this.projectName()});
+    }
+
+    register() {
+        ko.components.register('create-project-modal', {
+            viewModel: () => this,
+            template: this.template()
+        })
+    }
+
+    template() {
+        return `
+<div class="modal fade" id="create-project-modal" tabindex="-1" role="dialog" aria-labelledby="create-project-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="create-project-modal-label">Create Project</h4>
+            </div>
+            <form class="form">
+                <div class="modal-body">
+                    <p>新しいプロジェクトを作成します。</p>
+                    <div class="form-group">
+                        <label for="create-project-name" class="control-label">プロジェクト名</label>
+                        <input type="text" class="form-control" id="create-project-name" placeholder="Project Name"
+                            data-bind="value: projectName" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success" data-dismiss="modal"
+                      data-bind="click: submit">Create</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+`;
+    }
+}
+
+module.exports = CreateProjectModal;

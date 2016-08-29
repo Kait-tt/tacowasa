@@ -10,17 +10,26 @@ class Alert {
     }
 
     pushAlert({title='', message='', isSuccess=false}) {
-        this.alerts.unshift({title, message, isSuccess});
+        const content = {title, message, isSuccess};
+        this.alerts.unshift(content);
 
         // maxAlert以上のアラートを削除
         this.alerts.splice(this.maxAlertNum);
 
         // x秒後に自動的にアラートを削除
         setTimeout(() => {
-            this.alerts.remove(alertContent);
+            this.alerts.remove(content);
         }, this.waitHideTime);
 
         return this;
+    }
+
+    pushSuccessAlert({title='Successful!', message=''}) {
+       this.pushAlert({title, message, isSuccess: true});
+    }
+
+    pushErrorAlert({title='Error', message=''}) {
+        this.pushAlert({title, message, isSuccess: false});
     }
 
     // promiseを返す関数をラップする
@@ -33,19 +42,11 @@ class Alert {
             wrappedFunc.apply(this, args)
                 .then(() => {
                     if (successMessage) {
-                        this.pushAlert({
-                            title: 'Successful!',
-                            message: ko.unwrap(successMessage),
-                            isSuccess: true
-                        })
+                        this.pushSuccessAlert({message: ko.unwrap(successMessage)})
                     }
                 }, err => {
                     if (errorMessage) {
-                        this.pushAlert({
-                            title: 'Error',
-                            message: ko.unwrap(errorMessage),
-                            isSuccess: false
-                        });
+                        this.pushErrorAlert({message: ko.unwrap(errorMessage)});
                     }
                     throw new Error(err);
                 });

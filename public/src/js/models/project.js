@@ -24,7 +24,9 @@ class Project {
             'createUser',
             'defaultStage',
             //'defaultAccessLevel',
-            'defaultCost'
+            'defaultCost',
+            'createdAt',
+            'updatedAt'
         ];
     }
 
@@ -78,13 +80,22 @@ class Project {
             type: 'get',
             dataType: 'json'
         })).then(({projects}) => {
-            return _.sortBy(projects, 'id').map(x => new Project(x));
+            return _.reverse(_.sortBy(projects, 'updatedAt')).map(x => new Project(x));
         });
+    }
+
+    static create({projectName}) {
+        return Promise.resolve($.ajax({
+            url: '/api/projects',
+            type: 'post',
+            dataType: 'json',
+            data: {projectName}
+        })).then(({project}) => new Project(project));
     }
 
     static importByGitHub({username, reponame}) {
         return Promise.resolve($.ajax({
-            url: '/api/projects',
+            url: '/api/projects/importByGitHub',
             type: 'post',
             dataType: 'json',
             data: {username, reponame}

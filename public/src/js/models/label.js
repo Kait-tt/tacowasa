@@ -11,7 +11,7 @@ class Label {
             const color = parseInt(this.color(), 16);
             const mono = Math.floor(((color & 0xff) + (color >> 8 & 0xff) + (color >> 16 & 0xff)) / 3);
             const invert = mono < 0x88 ? 0xff : 0x00;
-            const invert16 = _.padLeft(invert.toString(16), 2, '0');
+            const invert16 = _.padStart(invert.toString(16), 2, '0');
             return invert16 + invert16 + invert16;
         });
     }

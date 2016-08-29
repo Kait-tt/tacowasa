@@ -31,15 +31,22 @@ router.delete('/projects/:projectId', (req, res) => {
         .catch(err => serverError(res. err));
 });
 
-// Import Project
+// Create a project
 router.post('/projects', (req, res) => {
+    Project.create(req.body.projectName, req.user.username)
+        .then(project => res.status(200).json({message: 'OK', project}))
+        .catch(err => serverError(res, err));
+});
+
+// Import Project
+router.post('/projects/importByGitHub', (req, res) => {
     const {username, reponame} = req.body;
     if (!username || !reponame) {
-        return res.status(400).json({message: 'Required userName and repoName.'});
+        return res.status(400).json({message: 'require username and reponame.'});
     }
 
     // TODO: this is stub
-    return res.status(500).json({message: 'stub'});
+    return res.status(500).json({message: 'no supported'});
     // TODO: implement import project
     // (new GitHub(req.user.token)).importProject(
     //     username,
