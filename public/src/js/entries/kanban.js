@@ -10,7 +10,7 @@ const effects = require('../views/effects');
 const Scroller = require('../views/scroller');
 const Alert = require('../viewmodels/alert');
 const AlertHub = require('../viewmodels/alert_hub');
-const MiniMenu = require('../views/miniMenu');
+const MiniMenu = require('../views/mini_menu');
 
 let kanban, project, alertHub, vm;
 

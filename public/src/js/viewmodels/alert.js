@@ -2,6 +2,7 @@
 const ko = require('knockout');
 const _ = require('lodash');
 
+// TODO: component化
 class Alert {
     constructor({maxAlertNum=5, waitHideTime=8000}={}) {
         this.maxAlertNum = maxAlertNum;

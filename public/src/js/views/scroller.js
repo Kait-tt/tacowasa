@@ -1,78 +1,68 @@
-(function (_, $, util) {
-    'use strict';
+'use strict';
+const _ = require('lodash');
 
-    var ns = util.namespace('kpp.view'),
-        defaultOptions = {
+// 背景ドラッグで画面をスクロールするView
+class Scroller {
+    constructor(opts={}) {
+        this.opts = _.defaults(opts, Scroller.defaultOptions);
+        this.$contexts = this.opts.selectors.map(selector => $(selector));
+        this.$target = $(this.opts.target);
+
+        this.isClicked = false;
+        this.beforeX = null;
+
+        // scroll event
+        this.opts.selectors.forEach(selector => {
+            $('body').delegate(selector, 'mousedown', this.onMousedown.bind(this));
+        });
+
+        // cancel
+        this.opts.cancelSelectors.forEach(selector => {
+            $('body').delegate(selector, 'mousedown', this.cancel.bind(this));
+        });
+
+        // move event
+        $(window).mousemove(this.onMousemove.bind(this));
+
+        $(window).mouseup(this.cancel.bind(this));
+    }
+
+    cancel(e) {
+        e.canceled = true;
+        this.isClicked = false;
+        this.beforeX = null;
+    }
+
+    onMousedown(e) {
+        if (!e.canceled && e.button === 0) { // 左クリックのみ作動
+            this.isClicked = true;
+            this.beforeX = e.screenX;
+        }
+    }
+
+    onMouseup(e) {
+        this.cancel(e);
+    }
+
+    onMousemove(e) {
+        if (that.isClicked) {
+            const now = e.screenX;
+            const diff = now - this.beforeX;
+            this.$target.scrollLeft(this.$target.scrollLeft() - diff * this.opts.step);
+            this.beforeX = now;
+
+            return false;
+        }
+    }
+
+    static get defaultOptions() {
+        return {
             selectors: [],
             cancelSelectors: [],
             target: window,
             step: 1
         };
-
-    /**
-     * 背景ドラッグで画面をスクロールするView
-     *
-     */
-    ns.Scroller = ns.Scroller || Scroller;
-
-    function Scroller(o) {
-        var that = this;
-
-        that.init = function () {
-            that.opts = _.extend(defaultOptions, o || {});
-            that.$contexts = that.opts.selectors.map(function (selector) { return $(selector); });
-            that.$target = $(that.opts.target);
-
-            that.isClicked = false;
-            that.beforeX = null;
-
-            // scroll event
-            that.opts.selectors.forEach(function (selector) {
-                $('body').delegate(selector, 'mousedown', that.onMousedown);
-            });
-
-            // cancel
-            that.opts.cancelSelectors.forEach(function (selector) {
-                $('body').delegate(selector, 'mousedown', that.cancel);
-            });
-
-            // move event
-            $(window).mousemove(that.onMousemove);
-
-            $(window).mouseup(that.cancel);
-        };
-
-        that.cancel = function (e) {
-            e.canceled = true;
-            that.isClicked = false;
-            that.beforeX = null;
-        };
-
-        that.onMousedown = function (e) {
-            if (!e.canceled && e.button === 0) { // 左クリックのみ作動
-                that.isClicked = true;
-                that.beforeX = e.screenX;
-            }
-        };
-
-        that.onMouseup = that.cancel;
-
-        that.onMousemove = function (e) {
-            var now, diff;
-
-            if (that.isClicked) {
-                now = e.screenX;
-                diff = now - that.beforeX;
-                that.$target.scrollLeft(that.$target.scrollLeft() - diff * that.opts.step);
-                that.beforeX = now;
-
-                return false;
-            }
-        };
-
-        that.init();
     }
+}
 
-
-
-}(_, jQuery, window.nakazawa.util));
+module.exports = Scroller;
