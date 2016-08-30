@@ -1,10 +1,9 @@
 'use strict';
 const _ = require('lodash');
 
-
 // socketのonイベントをlocalのカンバンに適用するクラス
 class SocketSerializer {
-    constructor({project, socket, kanban, debug=false}) {
+    constructor({socket, project, kanban}) {
         this.project = project;
         this.socket = socket;
         this.kanban = kanban;
@@ -18,29 +17,35 @@ class SocketSerializer {
         });
     }
 
-    /*** emit events ***/
-
-
     /*** on events ***/
 
-    onNotifyText() {
-        // TODO: ...
+    onNotifyText({text}) {
+        this.kanban.activitiesTexts.push(text);
     }
 
     onJoinRoom({username}) {
-        // TODO: onJoinRoom
+        const user = this.project.getUser({username});
+        const joinedUsers = this.kanban.joinedUsers();
+        if (!_.includes(joinedUsers, user)) {
+            this.kanban.joinedUsers.push(user);
+        }
     }
 
     onLeaveRoom({username}) {
-        // TODO: onLeaveRoom
+        const user = this.project.getUser({username});
+        const joinedUsers = this.kanban.joinedUsers();
+        if (_.includes(joinedUsers, user)) {
+            this.kanban.joinedUsers.remove(user);
+        }
     }
 
     onInitJoinedUsernames({joinedUsernames}) {
-        // TODO: this.kanban.joinedUsers(..)
+        const users = joinedUsernames.map(({username}) => this.project.getUser({username}));
+        this.kanban.joinedUsers(users)
     }
 
-    onActivityHistory(params) {
-        // TODO: onActivityHistory
+    onActivityHistory({activities}) {
+        _.reverse(activities).forEach(x => this.kanban.activitiesTexts.push(x.text));
     }
 
     onAddUser({username, user}) {

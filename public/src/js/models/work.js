@@ -60,6 +60,26 @@ class Work {
         ];
     }
 
+    clone() {
+        return new Work({
+            isEnded: this.isEnded(),
+            startTime: this.startTime(),
+            endTime: this.endTime(),
+            user: this.user
+        });
+    }
+
+    // local format -> server format
+    deserialize() {
+        const user = this.user();
+        return {
+            isEnded: this.isEnded(),
+            startTime: this.startTime(),
+            endTime: this.endTime(),
+            userId: user ? user.id() : null
+        };
+    }
+
     validateStartTime() {
         const start = moment(this.startTime());
         if (!start.isValid()) { return false; }
