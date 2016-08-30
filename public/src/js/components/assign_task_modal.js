@@ -67,7 +67,7 @@ class AssignTaskModal extends EventEmitter2 {
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-success" data-dismiss="modal"
-                            data-bind="click: submit">Assign</button>
+                            data-bind="click: assign">Assign</button>
                 </div>
             </form>
 

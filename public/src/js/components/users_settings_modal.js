@@ -64,24 +64,26 @@ class UsersSettingsModal extends EventEmitter2 {
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- ko foreach: users -->
                         <tr>
                             <td><img data-bind="attr: { src: avatarUrl }" src="" width="24" height="24"></td>
                             <td data-bind="text: username"></td>
                             <td data-bind="text: wip() + '/' + wipLimit()"></td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-xs btn-default" data-bind="click: orderUp">
+                                    <button type="button" class="btn btn-xs btn-default" data-bind="click: $root.orderUp">
                                         <span class="glyphicon glyphicon-triangle-top"></span>
                                     </button>
-                                    <button type="button" class="btn btn-xs btn-default" data-bind="click: orderDown">
+                                    <button type="button" class="btn btn-xs btn-default" data-bind="click: $root.orderDown">
                                         <span class="glyphicon glyphicon-triangle-bottom"></span>
                                     </button>
                                 </div>
                             </td>
                             <td>
-                                <input type="checkbox" data-bind="checked: visible, click: visibleUser" />
+                                <input type="checkbox" data-bind="checked: isVisible, click: $root.visibleUser" />
                             </td>
                         </tr>
+                        <!-- /ko -->
                     </tbody>
                 </table>
 

@@ -22,7 +22,7 @@ class UserSettingsModal extends EventEmitter2 {
     }
 
     register() {
-        ko.components.register('users-settings-modal', {
+        ko.components.register('user-settings-modal', {
             viewModel: () => this,
             template: this.template()
         })

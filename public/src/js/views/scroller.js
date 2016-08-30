@@ -45,7 +45,7 @@ class Scroller {
     }
 
     onMousemove(e) {
-        if (that.isClicked) {
+        if (this.isClicked) {
             const now = e.screenX;
             const diff = now - this.beforeX;
             this.$target.scrollLeft(this.$target.scrollLeft() - diff * this.opts.step);

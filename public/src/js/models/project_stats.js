@@ -5,9 +5,9 @@ const util = require('../modules/util');
 const moment = require('moment');
 
 class ProjectStats {
-    constructor(opts) {
-        this.project = opts.project;
-        this.stages = opts.stages;
+    constructor({project}) {
+        this.project = project;
+        this.stages = project.stages;
 
         // 全作業時間の合計
         this.totalTime = ko.computed(() => {

@@ -12,6 +12,7 @@ require('../modules/knockout/knockout-sortable');
 require('../modules/knockout/knockout-selectPicker');
 require('../modules/knockout/knockout-bootstrap-switch');
 require('../../scss/kanban.scss');
+// TODO: require knockout-bootstrap
 
 const global = window;
 const ko = require('knockout');
@@ -22,7 +23,7 @@ const Scroller = require('../views/scroller');
 const Alert = require('../viewmodels/alert');
 const AlertHub = require('../viewmodels/alert_hub');
 const MiniMenu = require('../views/mini_menu');
-    
+
 let kanban, project, alertHub, vm;
 
 const projectId = getProjectId();
@@ -45,7 +46,7 @@ Project.fetch(projectId)
         ko.bindingHandlers.sortable.beforeMove = kanban.onBeforeMoveDrag;
 
         vm = kanban;
-        vm.alerts = alerts.alerts;
+        vm.alerts = alert.alerts;
 
         effects.applyBindings(global);
         MiniMenu.applyBindings(global);

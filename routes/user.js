@@ -10,15 +10,15 @@ const path = Promise.promisifyAll(require('path'));
 router.get('/me', function (req, res) {
     const mustLogin = req.params.mustLogin === '1';
     const logined = req.isAuthenticated && req.isAuthenticated();
-    const userName = req.user ? req.user.username : null;
+    const username = req.user ? req.user.username : null;
 
     res.render('user', {
-        title: userName + ' | Tacowasa',
-        displayTitle: userName,
+        title: username + ' | Tacowasa',
+        displayTitle: username,
         user: req.user,
         logined: logined,
         mustLogin: mustLogin,
-        userName: userName
+        username: username
     });
 
 });

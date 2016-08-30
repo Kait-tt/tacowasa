@@ -19,6 +19,7 @@ const ArchiveAllTaskModal = require('../components/archive_all_tasks_modal');
 const ProjectLabelsModal = require('../components/project_labels_modal');
 const ProjectStatsModal = require('../components/project_stats_modal');
 const TaskDetailModal = require('../components/task_detail_modal');
+const ProjectStats = require('../models/project_stats');
 
 
 /**
@@ -44,8 +45,8 @@ class Kanban extends EventEmitter2 {
         this.users = project.users;
         this.tasks = project.tasks;
         this.labels = project.labels;
-        this.stats = project.stats;
         this.stages = project.stages;
+        this.stats = new ProjectStats({project});
 
         this.loginUser = ko.computed(() => this.users().find(user => user.username() === global.username));
 
@@ -68,6 +69,7 @@ class Kanban extends EventEmitter2 {
 
     // 各ステージ、各ユーザ毎にDraggableTaskListを作る
     // ユーザの追加を監視する
+    // TODO: Project.getTasksと同じように
     initDraggableTaskList() {
         this.draggableList = {};
         const _params = {
@@ -98,16 +100,29 @@ class Kanban extends EventEmitter2 {
             } else {
                 list = new DraggableTaskList(params);
             }
+            
+            this.draggableList[stage.name()] = list;
+        });
 
-            list.on('updatedStatus', ({task, stage, user}) => {
+        const lists = [];
+        _.forEach(this.draggableList, x => {
+            if (x instanceof DraggableTaskList) {
+                lists.push(x);
+            } else {
+                _.forEach(x, y => {
+                    lists.push(y);
+                });
+            }
+        });
+
+        lists.forEach(x => {
+            x.on('updatedStatus', ({task, stage, user}) => {
                 // update stage
             });
 
-            list.on('updatedPriority', ({task, afterTask}) => {
+            x.on('updatedPriority', ({task, afterTask}) => {
                 // update task priority
             });
-
-            this.draggableList[stage.name] = list;
         });
     }
 
@@ -223,7 +238,7 @@ class Kanban extends EventEmitter2 {
         this.projectLabelsModal.register();
 
         // projectStatsModal
-        this.projectStatsModal = new ProjectStatsModal({project: this.project});
+        this.projectStatsModal = new ProjectStatsModal({project: this.project, stats: this.stats});
         this.projectStatsModal.register();
 
         // taskDetailModal

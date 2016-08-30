@@ -97,7 +97,7 @@ class TaskDetailModal extends EventEmitter2 {
     }
 
     register() {
-        ko.components.register('archive-all-tasks-modal', {
+        ko.components.register('task-detail-modal', {
             viewModel: () => this,
             template: this.template()
         })
@@ -111,7 +111,7 @@ class TaskDetailModal extends EventEmitter2 {
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="task-detail-modal-label">Task Detail</h4>
             </div>
-          <!-- ko if: $root.selectedIssue() -->
+          <!-- ko if: task -->
             <form class="form">
                 <div class="modal-body">
                     <div class="form-group">
@@ -245,7 +245,7 @@ class TaskDetailModal extends EventEmitter2 {
                                         </select>
                                     </td>
                                     <td>
-                                        <a class="remove-work glyphicon glyphicon-trash" role="button" data-bind="click: removeWork"></a>
+                                        <a class="remove-work glyphicon glyphicon-trash" role="button" data-bind="click: $root.removeWork"></a>
                                     </td>
                                 </tr>
                                 </tbody>

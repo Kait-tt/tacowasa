@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <title><%= title %></title>
     <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,700' rel='stylesheet' type='text/css'>
-    <link rel='stylesheet' href='/stylesheets/kanban.css'/>
-
     <script>window.username = '<%= username %>';</script>
 
     <!-- include javascripts -->
@@ -21,11 +19,11 @@
     <div class="navbar-collapse collapse">
         <h1 class="navbar-text" id="project-name"><%= displayTitle %></h1>
         <div class="btn-group navbar-left" role="group" id="toolbar-btn-group">
-            <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#add-issue-modal" data-bind="tooltip: { title: '新規タスク作成', placement: 'bottom' }">
-                <span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span> <span class="sr-only">Add task</span>
+            <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#create-task-modal" data-bind="tooltip: { title: '新規タスク作成', placement: 'bottom' }">
+                <span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span> <span class="sr-only">Create task</span>
             </button>
-            <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#members-settings-modal" data-bind="tooltip: { title: 'メンバー管理', placement: 'bottom' }">
-                <span class="glyphicon glyphicon-user"></span> <span class="sr-only">Members</span>
+            <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#users-settings-modal" data-bind="tooltip: { title: 'メンバー管理', placement: 'bottom' }">
+                <span class="glyphicon glyphicon-user"></span> <span class="sr-only">Users</span>
             </button>
             <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#project-labels-modal" data-bind="tooltip: { title: 'ラベル管理', placement: 'bottom' }">
                 <span class="glyphicon glyphicon-tags"></span> <span class="sr-only">Labels</span>
@@ -45,19 +43,19 @@
         </div>
         <form class="navbar-form navbar-left search-form" role="search">
             <div class="form-group has-feedback">
-                <input type="text" class="form-control" placeholder="e.g., 'cost:5' , 'bugfix'" data-bind="textInput: searchQuery">
+                <input type="text" class="form-control" placeholder="e.g., 'cost:5 label:bugfix'" data-bind="textInput: searchQuery">
                 <span class="glyphicon glyphicon-search form-control-feedback"></span>
             </div>
         </form>
-        <div class="navbar-text" data-bind="if: loginMember() && loginMember().workingIssues().length">
+        <div class="navbar-text" data-bind="if: loginUser() && loginUser().workingTask()">
             <span class="user-working-message alert alert-success">
                 <span class="glyphicon glyphicon-play-circle"></span> 作業中です。
-                (<span data-bind="text: loginMember().workingTimeFormat()"></span>経過)
+                (<span data-bind="text: loginUser().workingTimeFormat()"></span>経過)
             </span>
         </div>
         <div class="navbar-right" role="group" id="joined-members-group">
             <ul data-bind="foreach: {
-                data: _.uniq(joinedMembers()),
+                data: joinedUsers,
                 afterAdd: view.effects.fadeIn,
                 beforeRemove: view.effects.fadeOut }">
                 <li data-bind="tooltip: { title: username, placement: 'bottom' }">
@@ -72,149 +70,151 @@
 
 <div id="main" class="main" data-bind="visible: true, css: {'compact': viewMode() === 'compact'}" style="display: none">
     <div class="blocks">
-        <ul class="stage-blocks">
-            <% stages.forEach(function (stage) { %>
-                <% if(stage.name == 'todo'){ %>
-                    <li id="three-stage-blocks">
-                        <ul class="inner-stage-blocks">
-                <% } %>
-                <li id="<%= stage.name %>-block" class="stage-block">
-                    <h2 class="stage-title">
-                        <%= stage.displayName %> <span class="badge" data-bind="text: $root.stages.<%= stage.name %>().length"></span>
-                        <% if(stage.name == 'done') { %>
-                        <a href="#" class="all-done-archive-button" data-toggle="modal" data-target="#archive-all-modal">Archive all</a>
-                        <% } %>
-                        <span></span>
-                    </h2>
+        <!-- ko if: false -->
+        <!--<ul class="stage-blocks">-->
+            <!--<% stages.forEach(stage => { %>-->
+                <!--<% if(stage.name == 'todo'){ %>-->
+                    <!--<li id="three-stage-blocks">-->
+                        <!--<ul class="inner-stage-blocks">-->
+                <!--<% } %>-->
+                <!--<li id="<%= stage.name %>-block" class="stage-block">-->
+                    <!--<h2 class="stage-title">-->
+                        <%= stage.displayName %>
+                        <!--<span class="badge" data-bind="text: $root.project.getTasks({name: '<%= stage.name %>'})().length"></span>-->
+                        <!--<% if(stage.name == 'done') { %>-->
+                        <!--<a href="#" class="all-done-archive-button" data-toggle="modal" data-target="#archive-all-task-modal">Archive all</a>-->
+                        <!--<% } %>-->
+                        <!--<span></span>-->
+                    <!--</h2>-->
 
-                    <% if (stage.assigned) { %>
-                        <ul class="cell-block" data-bind="foreach: {
-                            data: members,
-                            afterRender: view.MiniMenu.init,
-                            afterAdd: view.effects.slideDown,
-                            beforeRemove: view.effects.slideUp }">
-                            <li class="dummy-user-cell-block" data-bind="visible: visible"></li>
-                        </ul>
-                    <% } else { %>
-                        <ul class="cell-block" data-bind="
-                        sortable: {
-                            data: $root.draggableList.<%= stage.name %>.issues,
-                            afterRender: view.MiniMenu.init }">
-                            <li class="card" draggable="true" data-bind="visible: visible">
-                                <div class="card-right-wrapper">
-                                    <% include _minimenu %>
-                                    <!-- ko if: cost() >= 1 -->
-                                    <div class="weight-badge" data-bind="text: cost, css: {
-                                        'weight-badge-low'   : cost() === 1,
-                                        'weight-badge-middle': cost() === 3,
-                                        'weight-badge-high'  : cost() === 5 }"></div>
-                                    <!-- /ko -->
-                                </div>
-                                <ul class="card-label-block" data-bind="foreach: { data: labels }">
-                                    <li class="card-label-inner-block">
-                                        <div class="card-label" data-bind="
-                                            style: { 'background-color': '#' + color() },
-                                            tooltip: { title: name, placement: 'right' }"></div>
-                                    </li>
-                                </ul>
+                    <!--<% if (stage.assigned) { %>-->
+                        <!--<ul class="cell-block" data-bind="foreach: {-->
+                            <!--data: users,-->
+                            <!--afterRender: view.MiniMenu.init,-->
+                            <!--afterAdd: view.effects.slideDown,-->
+                            <!--beforeRemove: view.effects.slideUp }">-->
+                            <!--<li class="dummy-user-cell-block" data-bind="visible: isVisible"></li>-->
+                        <!--</ul>-->
+                    <!--<% } else { %>-->
+                        <!--<ul class="cell-block" data-bind="-->
+                        <!--sortable: {-->
+                            <!--data: $root.draggableList.<%= stage.name %>.tasks,-->
+                            <!--afterRender: view.MiniMenu.init }">-->
+                            <!--<li class="card" draggable="true" data-bind="visible: isVisible">-->
+                                <!--<div class="card-right-wrapper">-->
+                                    <!--<% include _minimenu %>-->
+                                    <!--&lt;!&ndash; ko if: cost().value >= 1 &ndash;&gt;-->
+                                    <!--<div class="weight-badge" data-bind="text: cost().name, css: {-->
+                                        <!--'weight-badge-low'   : cost().value === 1,-->
+                                        <!--'weight-badge-middle': cost().value === 3,-->
+                                        <!--'weight-badge-high'  : cost().value === 5 }"></div>-->
+                                    <!--&lt;!&ndash; /ko &ndash;&gt;-->
+                                <!--</div>-->
+                                <!--<ul class="card-label-block" data-bind="foreach: { data: labels }">-->
+                                    <!--<li class="card-label-inner-block">-->
+                                        <!--<div class="card-label" data-bind="-->
+                                            <!--style: { 'background-color': '#' + color() },-->
+                                            <!--tooltip: { title: name, placement: 'right' }"></div>-->
+                                    <!--</li>-->
+                                <!--</ul>-->
 
-                                <div class="card-title-wrap" data-toggle="modal" data-target="#issue-detail-modal" data-bind="click: $root.selectedIssue">
-                                    <span class="card-title" data-bind="text: displayTitle"></span>
-                                </div>
-                            </li>
-                        </ul>
-                    <% } %>
-                </li>
-                <% if(stage.name == 'review'){ %>
-                    </ul>
-                    <div class="user-block-area">
+                                <!--<div class="card-title-wrap" data-toggle="modal" data-target="#task-detail-modal" data-bind="click: $root.selectedIssue">-->
+                                    <!--<span class="card-title" data-bind="text: displayTitle"></span>-->
+                                <!--</div>-->
+                            <!--</li>-->
+                        <!--</ul>-->
+                    <!--<% } %>-->
+                <!--</li>-->
+                <!--<% if(stage.name == 'review'){ %>-->
+                    <!--</ul>-->
+                    <!--<div class="user-block-area">-->
 
-                        <ul class="user-blocks" data-bind="foreach: { data: members, as: 'member' }">
-                            <li class="user-block" data-bind="visible: member.visible">
-                                <div class="user-label-area">
-                                    <span class="user-name">
-                                        <img data-bind="attr: { src: member.avatarUrl }" class="user-avatar" src="" width="24" height="24">
-                                        <b data-bind="text: username"></b>
-                                        <span data-bind="text: '(' + member.wip() + '/' + member.wipLimit() + ')'"></span>
-                                        <a href="#" class="user-settings-button"
-                                           data-toggle="modal" data-target="#user-settings-modal"
-                                           data-bind="click: $root.selectedMember">
-                                            <span class="glyphicon glyphicon-cog" area-hidden="true"></span>
-                                        </a>
-                                    </span>
+                        <!--<ul class="user-blocks" data-bind="foreach: { data: users, as: 'user' }">-->
+                            <!--<li class="user-block" data-bind="visible: member.visible">-->
+                                <!--<div class="user-label-area">-->
+                                    <!--<span class="user-name">-->
+                                        <!--<img data-bind="attr: { src: user.avatarUrl }" class="user-avatar" src="" width="24" height="24">-->
+                                        <!--<b data-bind="text: username"></b>-->
+                                        <!--<span data-bind="text: '(' + user.wip() + '/' + user.wipLimit() + ')'"></span>-->
+                                        <!--<a href="#" class="user-settings-button"-->
+                                           <!--data-toggle="modal" data-target="#user-settings-modal"-->
+                                           <!--data-bind="click: $root.selectedUser">-->
+                                            <!--<span class="glyphicon glyphicon-cog" area-hidden="true"></span>-->
+                                        <!--</a>-->
+                                    <!--</span>-->
 
-                                    <span class="user-working-message alert alert-success" data-bind="visible: member.workingIssues().length">
-                                        <span class="glyphicon glyphicon-play-circle"></span> 作業中です。
-                                        (<span data-bind="text: member.workingTimeFormat()"></span>経過)
-                                    </span>
+                                    <!--<span class="user-working-message alert alert-success" data-bind="visible: user.workingTask()">-->
+                                        <!--<span class="glyphicon glyphicon-play-circle"></span> 作業中です。-->
+                                        <!--(<span data-bind="text: user.workingTimeFormat()"></span>経過)-->
+                                    <!--</span>-->
 
-                                    <span class="wip-limited-message alert alert-warning" data-bind="visible: member.isWipLimited">
-                                        <span class="glyphicon glyphicon-warning-sign"></span> WIP制限に達しています。
-                                    </span>
-                                </div>
+                                    <!--<span class="wip-limited-message alert alert-warning" data-bind="visible: user.isWipLimited">-->
+                                        <!--<span class="glyphicon glyphicon-warning-sign"></span> WIP制限に達しています。-->
+                                    <!--</span>-->
+                                <!--</div>-->
 
-                                <ul class="stage-blocks" data-bind="foreach: { data: <%= assignedStageNamesJSON %>, as: 'stage' }">
-                                    <li class="stage-block">
-                                        <div class="user-cell-block">
-                                            <!-- ko with: $root.draggableList[stage][member._id()] -->
-                                            <ul class="card-list" data-bind="
-                                                    sortable: { data: issues, afterRender: view.MiniMenu.init }">
-                                                <li class="card" draggable="true" data-bind="visible: ($index() < 2 || !$parent.isCollapse()) && visible()">
-                                                    <div class="card-right-wrapper">
-                                                        <% include _minimenu %>
-                                                        <!-- ko if: cost() >= 1 -->
-                                                        <div class="weight-badge" data-bind="text: cost, css: {
-                                                            'weight-badge-low'   : cost() === 1,
-                                                            'weight-badge-middle': cost() === 3,
-                                                            'weight-badge-high'  : cost() === 5 }"></div>
-                                                        <!-- /ko -->
-                                                    </div>
-                                                    <ul class="card-label-block" data-bind="foreach: { data: labels }">
-                                                        <li class="card-label-inner-block">
-                                                            <div class="card-label" data-bind="
-                                                                style: { 'background-color': '#' + color() },
-                                                                tooltip: { title: name, placement: 'right' }"></div>
-                                                        </li>
-                                                    </ul>
-                                                    <div class="card-title-wrap" data-toggle="modal" data-target="#issue-detail-modal" data-bind="click: $root.selectedIssue">
-                                                        <!-- ko if: stage() === 'doing' -->
-                                                        <span class="glyphicon glyphicon-play-circle issue-working-icon" data-bind="
-                                                            click: $root.onClickToggleWorkOnCard,
-                                                            css: {'issue-working-active': isWorking}"></span>
-                                                        <!-- /ko -->
-                                                        <span class="card-title" data-bind="text: displayTitle, css: { 'is-working': stage() === 'doing' }"></span>
-                                                    </div>
-                                                </li>>
-                                            </ul>
+                                <!--<ul class="stage-blocks" data-bind="foreach: { data: stages().filter(x => x.assigned()), as: 'stage' }">-->
+                                    <!--<li class="stage-block">-->
+                                        <!--<div class="user-cell-block">-->
+                                            <!--&lt;!&ndash; ko with: $root.draggableList[stage.name()][user.id()] &ndash;&gt;-->
+                                            <!--<ul class="card-list" data-bind="-->
+                                                    <!--sortable: { data: tasks, afterRender: view.MiniMenu.init }">-->
+                                                <!--<li class="card" draggable="true" data-bind="visible: ($index() < 2 || !$parent.isCollapse()) && isVisible()">-->
+                                                    <!--<div class="card-right-wrapper">-->
+                                                        <!--<% include _minimenu %>-->
+                                                        <!--&lt;!&ndash; ko if: cost() >= 1 &ndash;&gt;-->
+                                                        <!--<div class="weight-badge" data-bind="text: cost().name, css: {-->
+                                                            <!--'weight-badge-low'   : cost().value() === 1,-->
+                                                            <!--'weight-badge-middle': cost().value() === 3,-->
+                                                            <!--'weight-badge-high'  : cost().value() === 5 }"></div>-->
+                                                        <!--&lt;!&ndash; /ko &ndash;&gt;-->
+                                                    <!--</div>-->
+                                                    <!--<ul class="card-label-block" data-bind="foreach: { data: labels }">-->
+                                                        <!--<li class="card-label-inner-block">-->
+                                                            <!--<div class="card-label" data-bind="-->
+                                                                <!--style: { 'background-color': '#' + color() },-->
+                                                                <!--tooltip: { title: name, placement: 'right' }"></div>-->
+                                                        <!--</li>-->
+                                                    <!--</ul>-->
+                                                    <!--<div class="card-title-wrap" data-toggle="modal" data-target="#task-detail-modal" data-bind="click: $root.selectedTask">-->
+                                                        <!--&lt;!&ndash; ko if: stage() === 'doing' &ndash;&gt;-->
+                                                        <!--<span class="glyphicon glyphicon-play-circle issue-working-icon" data-bind="-->
+                                                            <!--click: $root.onClickToggleWorkOnCard,-->
+                                                            <!--css: {'issue-working-active': isWorking}"></span>-->
+                                                        <!--&lt;!&ndash; /ko &ndash;&gt;-->
+                                                        <!--<span class="card-title" data-bind="text: displayTitle, css: { 'is-working': stage().name === 'doing' }"></span>-->
+                                                    <!--</div>-->
+                                                <!--</li>>-->
+                                            <!--</ul>-->
 
-                                            <a href="#" class="each-all-issues-view-button" data-bind="
-                                                    click: toggleCollapse, visible: issues().length > 2">
-                                                <span class="glyphicon" data-bind="css: {
-                                                    'glyphicon-collapse-down': isCollapse(),
-                                                    'glyphicon-collapse-up': !isCollapse()
-                                                }"></span>
-                                                <span data-bind="text: isCollapse() ? 'Expand ' : 'Collapse '"></span>
-                                                <span class="badge" data-bind="text: issues().length"></span>
-                                            </a>
-                                            <!-- /ko -->
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div><!-- .user-block-area -->
-                    </li>
-                <% } %>
-            <% }); %>
-        </ul>
-
+                                            <!--<a href="#" class="each-all-issues-view-button" data-bind="-->
+                                                    <!--click: toggleCollapse, visible: tasks().length > 2">-->
+                                                <!--<span class="glyphicon" data-bind="css: {-->
+                                                    <!--'glyphicon-collapse-down': isCollapse(),-->
+                                                    <!--'glyphicon-collapse-up': !isCollapse()-->
+                                                <!--}"></span>-->
+                                                <!--<span data-bind="text: isCollapse() ? 'Expand ' : 'Collapse '"></span>-->
+                                                <!--<span class="badge" data-bind="text: tasks().length"></span>-->
+                                            <!--</a>-->
+                                            <!--&lt;!&ndash; /ko &ndash;&gt;-->
+                                        <!--</div>-->
+                                    <!--</li>-->
+                                <!--</ul>-->
+                            <!--</li>-->
+                        <!--</ul>-->
+                    <!--</div>&lt;!&ndash; .user-block-area &ndash;&gt;-->
+                    <!--</li>-->
+                <!--<% } %>-->
+            <!--<% }); %>-->
+        <!--</ul>-->
+        <!-- /ko -->
     </div>
 
     <% include alert %>
 
     <div id="activity-wrap">
         <div id="activity" class="scroll-wrap">
-            <ul data-bind="foreach: { data: chatTexts, afterAdd: view.effects.scrollDown }">
+            <ul data-bind="foreach: { data: activitiesTexts, afterAdd: view.effects.scrollDown }">
                 <li data-bind="text: $data"></li>
             </ul>
         </div>

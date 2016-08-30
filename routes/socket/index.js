@@ -17,7 +17,9 @@ class SocketRouter {
 
         // auth
         this.io.use((socket, next) => {
-            next(new Error(`required login: ${socket.id}`));
+            if (!socket.request.session || !socket.request.session.passport || !socket.request.session.passport.user) {
+                next(new Error(`required login: ${socket.id}`));
+            }
         });
 
         this.io.sockets.on('connection', socket => {

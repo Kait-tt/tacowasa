@@ -9,7 +9,7 @@ class CreateTaskModal extends EventEmitter2 {
         this.title = ko.observable();
         this.body = ko.observable();
 
-        this.stages = ko.computed(() => project.stages.filter(x => !x.assigned()));
+        this.stages = ko.computed(() => project.stages().filter(x => !x.assigned()));
         this.stage = project.defaultStage;
 
         this.costs = project.costs;
