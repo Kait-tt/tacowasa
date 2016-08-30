@@ -155,7 +155,7 @@ class Project {
             user.wip(user.wip() + task.cost.value());
         }
 
-        this.issues.unshift(task);
+        this.tasks.unshift(task);
     }
 
     archiveTask(taskOrWhere) {
@@ -191,8 +191,15 @@ class Project {
     updateTaskWorkingState(taskOrWhere, isWorking) {
         const task = this.getTask(taskOrWhere);
         if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
+        const user = task.user();
+        if (!user) { throw new Error(`not assigned task cannot update working state. : ${taskOrWhere}`); }
 
         task.isWorking(isWorking);
+        if (isWorking) {
+            user.workingTask(task);
+        } else {
+            user.workingTask(null);
+        }
     }
 
     updateTaskWorkHistory(taskOrWhere, works) {

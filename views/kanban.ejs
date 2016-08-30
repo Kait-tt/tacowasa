@@ -8,7 +8,7 @@
     <link rel='stylesheet' href='/vendor/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css'/>
     <link rel='stylesheet' href='/vendor/bootstrap-select/dist/css/bootstrap-select.min.css'/>
     <link rel="stylesheet" href='/vendor/bootstrap-markdown/css/bootstrap-markdown.min.css' />
-    <script>window.username = '<%= userName %>';</script>
+    <script>window.username = '<%= username %>';</script>
 </head>
 <body>
 
@@ -131,7 +131,7 @@
                                 <div class="user-label-area">
                                     <span class="user-name">
                                         <img data-bind="attr: { src: member.avatarUrl }" class="user-avatar" src="" width="24" height="24">
-                                        <b data-bind="text: userName"></b>
+                                        <b data-bind="text: username"></b>
                                         <span data-bind="text: '(' + member.wip() + '/' + member.wipLimit() + ')'"></span>
                                         <a href="#" class="user-settings-button"
                                            data-toggle="modal" data-target="#user-settings-modal"
@@ -231,14 +231,10 @@
 <project-stats-modal></project-stats-modal>
 
 <!-- include javascripts -->
-<script src="/vendor/jquery/dist/jquery.min.js"></script>
 <script src="/vendor/jquery-ui/jquery-ui.min.js"></script>
 <script src="/vendor/jquery.easing/js/jquery.easing.min.js"></script>
 <script src="/vendor/marked/marked.min.js"></script>
-<script src="/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="/vendor/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
-<script src="/vendor/lodash/lodash.min.js"></script>
-<script src="/vendor/knockoutjs/dist/knockout.js"></script>
 <script src="/vendor/knockout-sortable/build/knockout-sortable.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/vendor/eventemitter2/lib/eventemitter2.js"></script>
