@@ -2,6 +2,8 @@
 @import "mini-menu";
 @import "variables";
 @import "loader";
+@import "~bootstrap-select/sass/bootstrap-select";
+@import "~bootstrap-markdown/css/bootstrap-markdown.min.css";
 
 $card_width: 300px;
 $card_height: 50px;

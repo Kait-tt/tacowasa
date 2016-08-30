@@ -1,7 +1,18 @@
 'use strict';
-require('bootstrap');
-require('../../scss/kanban.scss');
+// require('bootstrap');
 require('babel-polyfill');
+require('jquery-ui');
+require('jquery.easing');
+require('marked');
+require('bootstrap-select');
+require('bootstrap-markdown/js/bootstrap-markdown');
+require('bootstrap-markdown/locale/bootstrap-markdown.ja.js');
+require('knockout');
+require('../modules/knockout/knockout-sortable');
+require('../modules/knockout/knockout-selectPicker');
+require('../modules/knockout/knockout-bootstrap-switch');
+require('../../scss/kanban.scss');
+
 const global = window;
 const ko = require('knockout');
 const Kanban = require('../viewmodels/kanban');
@@ -11,7 +22,7 @@ const Scroller = require('../views/scroller');
 const Alert = require('../viewmodels/alert');
 const AlertHub = require('../viewmodels/alert_hub');
 const MiniMenu = require('../views/mini_menu');
-
+    
 let kanban, project, alertHub, vm;
 
 const projectId = getProjectId();

@@ -5,10 +5,13 @@
     <title><%= title %></title>
     <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,700' rel='stylesheet' type='text/css'>
     <link rel='stylesheet' href='/stylesheets/kanban.css'/>
-    <link rel='stylesheet' href='/vendor/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css'/>
-    <link rel='stylesheet' href='/vendor/bootstrap-select/dist/css/bootstrap-select.min.css'/>
-    <link rel="stylesheet" href='/vendor/bootstrap-markdown/css/bootstrap-markdown.min.css' />
+
     <script>window.username = '<%= username %>';</script>
+
+    <!-- include javascripts -->
+    <script src="/common.js"></script>
+    <script src="/kanban.js"></script>
+
 </head>
 <body>
 
@@ -229,42 +232,6 @@
 <archive-all-tasks-modal></archive-all-tasks-modal>
 <project-labels-modal></project-labels-modal>
 <project-stats-modal></project-stats-modal>
-
-<!-- include javascripts -->
-<script src="/vendor/jquery-ui/jquery-ui.min.js"></script>
-<script src="/vendor/jquery.easing/js/jquery.easing.min.js"></script>
-<script src="/vendor/marked/marked.min.js"></script>
-<script src="/vendor/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
-<script src="/vendor/knockout-sortable/build/knockout-sortable.min.js"></script>
-<script src="/socket.io/socket.io.js"></script>
-<script src="/vendor/eventemitter2/lib/eventemitter2.js"></script>
-<script src="/vendor/knockout-bootstrap/build/knockout-bootstrap.min.js"></script>
-<script src="/vendor/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
-<script src="/vendor/bootstrap-markdown/js/bootstrap-markdown.js"></script>
-<script src="/vendor/bootstrap-markdown/locale/bootstrap-markdown.ja.js"></script>
-<script src="/vendor/moment/moment.js"></script>
-
-<script src="/javascripts/module/knockout/knockout-selectPicker.js"></script>
-<script src="/javascripts/module/knockout/knockout-bootstrap-switch.js"></script>
-<script src="/javascripts/module/util.js"></script>
-<script src="/javascripts/module/localStorage.js"></script>
-<script src="/javascripts/model/Socket.js"></script>
-<script src="/javascripts/model/stageTypes.js"></script>
-<script src="/javascripts/model/Label.js"></script>
-<script src="/javascripts/model/Issue.js"></script>
-<script src="/javascripts/model/Work.js"></script>
-<script src="/javascripts/model/User.js"></script>
-<script src="/javascripts/model/Project.js"></script>
-<script src="/javascripts/model/Projects.js"></script>
-<script src="/javascripts/model/ProjectStats.js"></script>
-<script src="/javascripts/view/effects.js"></script>
-<script src="/javascripts/view/miniMenu.js"></script>
-<script src="/javascripts/view/scroller.js"></script>
-<script src="/javascripts/viewmodel/DraggableIssueList.js"></script>
-<script src="/javascripts/viewmodel/Alert.js"></script>
-<script src="/javascripts/viewmodel/Kanban.js"></script>
-<script src="/javascripts/viewmodel/AlertHub.js"></script>
-<script src="/javascripts/roots/kanban.js"></script>
 
 </body>
 </html>
