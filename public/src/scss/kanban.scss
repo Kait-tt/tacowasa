@@ -3,74 +3,12 @@
 @import "mini-menu";
 @import "variables";
 @import "loader";
+@import "toolbar";
 @import "~bootstrap-select/sass/bootstrap-select";
 @import "~bootstrap-markdown/css/bootstrap-markdown.min.css";
 
-html, body{
-  height: 100%;
-}
-
 body{
   background-color: $body-bg-color;
-}
-
-#toolbar{
-  @extend .navbar;
-  background: $toolbar-bg-color;
-  box-shadow: none;
-  position: fixed;
-  top: 50px;
-  z-index: 2;
-  width: 100%;
-
-  .user-working-message {
-    font-size: 90%;
-    margin-left: 1rem;
-    padding: 4px 4px 4px 6px;
-  }
-}
-
-#project-name{
-  @extend .navbar-text;
-  margin-top: 0;
-  margin-bottom: 0;
-  font-weight: bold;
-  font-size: 2.5rem;
-  line-height: 50px;
-  height: 50px;
-  a{
-    color: #fff;
-    display: block;
-  }
-}
-
-#toolbar-btn-group{
-  margin-right: 15px;
-  button{
-    background-color: transparent;
-    border-color: #fff;
-    color: #fff;
-    .glyphicon{
-      vertical-align: -1px;
-    }
-    &:hover{
-      background-color: rgba(#fff, .3);
-    }
-  }
-}
-
-#joined-members-group {
-  ul {
-    margin: 8px 30px;
-
-    li {
-      display: inline-block;
-    }
-  }
-  .user-avatar {
-    width: 34px;
-    height: 34px;
-  }
 }
 
 #main{
@@ -144,14 +82,12 @@ body{
   float: left;
   width: $block-width;
   padding: 0;
-  max-height: 100%;
+  height: 100%;
   margin: 0 $stage-block-horizontal-margin;
   overflow: visible;
   background-color: #fefefe;
   box-shadow: 0 0 10px #c0c0c0;
-  &#issue-block, &#backlog-block, &#done-block, &#archive-block{
-    height: 100%;
-  }
+
   .stage-title {
     position: relative;
     font-size: 2rem;
@@ -162,37 +98,15 @@ body{
     text-shadow: 0 0 1px #fff;
     font-family: 'Titillium Web', sans-serif;
     font-weight: bold;
+
     .badge {
       vertical-align: 3px;
-    }
-  }
-
-  &#name-block {
-    width: $name-block-width - $name-block-padding-left - $name-block-padding-right;
-    margin: 0 $name-block-padding-right 0 $name-block-padding-left;
-
-    .stage-title {
-      padding-top: 6px;
-      font-size: 18px;
-      color: #222;
     }
   }
 
   &#issue-block {
     transition: margin-left .2s ease-in-out;
     margin-left: $stage-block-horizontal-margin * 2;
-  }
-
-  &#backlog-block {
-  }
-
-  &#todo-block {
-  }
-
-  &#review-block {
-  }
-
-  &#done-block {
   }
 
   &#archive-block {
@@ -207,6 +121,7 @@ body{
     height: calc(100% - 60px);
     overflow: auto;
     position: static;
+
     .dummy-user-cell-block {
       height: $user-height + 14;
       margin-bottom: $user-margin-bottom;
@@ -221,22 +136,16 @@ body{
   }
 }
 
-div.user-block-area {
+.user-block-area {
   $offset: 10px;
   position: absolute;
   top: 70px;
-  // width: 1000px;
+  left: $block-width * 2 + $stage-block-horizontal-margin * 4;
   width: $block-width * 3 + $stage-block-horizontal-margin * 6;
   overflow: auto;
-  // overflow: visible;
   height: calc(100% - 70px);
   margin: 0 ($stage-block-horizontal-margin - $offset);
   padding: 0 $offset;
-  .user-area-header {
-    height: 40px;
-    margin: 0 20px;
-    padding: 0 50px;
-  }
 
   ul.user-blocks {
     position: relative;
@@ -246,11 +155,14 @@ div.user-block-area {
       width: $block-width * 3 + $stage-block-horizontal-margin * 4;
       min-height: 175px;
       z-index: 5;
+      list-style: none;
+
       &::after{
         clear: both;
         display: table-cell;
         content: '';
       }
+
       .user-label-area {
         font-size: 1.2rem;
         background-color: $ribbon-bg-color;
@@ -260,6 +172,7 @@ div.user-block-area {
         box-shadow: 0 1px 1px #ccc;
         $ribbon-size: 10px;
         $ribbon-offset: 20px;
+
         &::before{
           content: '';
           width: 0;
@@ -270,6 +183,7 @@ div.user-block-area {
           right: $ribbon-offset;
           bottom: -($ribbon-size * 2);
         }
+
         .user-name {
           .user-avatar {
             width: 24px;
@@ -353,103 +267,10 @@ div.user-block-area {
   }
 }
 
-
-// description, title, etc...
-.container {
-  margin-left: 20px;
-}
-
-.block-header {
-  margin-top: 10px;
-  margin-bottom: 10px;
-  height: 40px;
-}
-
-// project
-
-.project-meta {
-  margin: 0 0 2px 20px;
-
-  .project-name {
-    font-size: 24px;
-    margin: 0 5px 0 0;
-    display: inline-block;
-    vertical-align: bottom;
-  }
-
-  .sync-status {
-    margin: 0 10px 0 0;
-    display: inline-block
-  }
-
-  .project-settings-button {
-    display: inline-block;
-  }
-}
-
-.issue-labels-view {
+.task-labels-view {
   margin-top: 6px;
   li {
     display: inline-block;
-  }
-}
-
-#issue-detail-modal {
-  #issue-detail-cost {
-    display: inline-block;
-    width: 220px;
-  }
-
-  .issue-detail-is-working-wrapper {
-    display: inline-block;
-    margin-left: 10px;
-  }
-
-  .issue-detail-all-work-time-wrapper {
-    display: inline-block;
-    margin-left: 10px;
-    padding: 2px 6px;
-  }
-
-  .issue-detail-cost-wrap .text-danger {
-    font-size: 85%;
-  }
-
-  .edit-work-history {
-    padding: 2px 6px
-  }
-
-  .add-work {
-
-  }
-
-  #issue-detail-work-history {
-    table {
-      margin: 0;
-    }
-
-    td {
-      vertical-align: middle;
-    }
-
-    .add-work {
-      margin-left: 8px;
-    }
-
-    .remove-work {
-      font-size: 14px;
-      color: #BD2C00;
-      cursor: pointer;
-      margin-left: 6px;
-    }
-  }
-}
-
-#project-labels-modal {
-  ul.project-labels {
-    li {
-      margin: 5px 0;
-    }
   }
 }
 

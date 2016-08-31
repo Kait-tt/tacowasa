@@ -1,0 +1,61 @@
+@charset "UTF-8";
+@import "variables";
+
+#toolbar{
+  @extend .navbar;
+  background: $toolbar-bg-color;
+  box-shadow: none;
+  position: fixed;
+  top: 50px;
+  z-index: 2;
+  width: 100%;
+
+  .user-working-message {
+    font-size: 90%;
+    margin-left: 1rem;
+    padding: 4px 4px 4px 6px;
+  }
+}
+
+#project-name{
+  @extend .navbar-text;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-weight: bold;
+  font-size: 2.5rem;
+  line-height: 50px;
+  height: 50px;
+  a{
+    color: #fff;
+    display: block;
+  }
+}
+
+#toolbar-btn-group{
+  margin-right: 15px;
+  button{
+    background-color: transparent;
+    border-color: #fff;
+    color: #fff;
+    .glyphicon{
+      vertical-align: -1px;
+    }
+    &:hover{
+      background-color: rgba(#fff, .3);
+    }
+  }
+}
+
+#joined-members-group {
+  ul {
+    margin: 8px 30px;
+
+    li {
+      display: inline-block;
+    }
+  }
+  .user-avatar {
+    width: 34px;
+    height: 34px;
+  }
+}
