@@ -14,8 +14,7 @@ class UserLabel extends EventEmitter2 {
     register() {
         const userLabel = this;
         ko.components.register('user-label', {
-            viewModel: () => ({user}) => {
-                'use strict';
+            viewModel: function({user}) {
                 this.user = user;
                 this.clickUserSettings = userLabel.clickUserSettings.bind(userLabel, {user});
             },

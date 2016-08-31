@@ -26,7 +26,7 @@ class AssignTaskModal extends EventEmitter2 {
     }
 
     template() {
-        return `div class="modal fade" id="assign-task-modal" tabindex="-1" role="dialog" aria-labelledby="assign-task-modal-label" aria-hidden="true">
+        return `<div class="modal fade" id="assign-task-modal" tabindex="-1" role="dialog" aria-labelledby="assign-task-modal-label" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

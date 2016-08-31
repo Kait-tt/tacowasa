@@ -70,48 +70,38 @@
 
 <div id="main" class="main" data-bind="visible: true, css: {'compact': viewMode() === 'compact'}" style="display: none">
     <div class="blocks">
-        <!-- ko if: false -->
-        <ul class="stage-blocks">
-            <% stages.forEach(function(stage) { %>
-                <% if(stage.name == 'todo'){ %>
-                    <li id="three-stage-blocks">
-                        <ul class="inner-stage-blocks">
-                <% } %>
-                <li id="<%= stage.name %>-block" class="stage-block">
-                    <h2 class="stage-title">
-                        <span data-bind="text: stage.displayName"></span>
-                        <span class="badge" data-bind="text: tasks().length"></span>
-                        <!-- ko if: stage.name() === 'done' -->
-                        <a href="#" class="all-done-archive-button" data-toggle="modal" data-target="#archive-all-task-modal">Archive all</a>
-                        <!-- /ko -->
-                        <span></span>
-                    </h2>
+        <ul class="stage-blocks" data-bind="foreach: {data: stages, as: 'stage'}">
+            <li class="stage-block" data-bind="attr: {id: stage.name}">
+                <h2 class="stage-title">
+                    <span data-bind="text: stage.displayName"></span>
+                    <span class="badge" data-bind="text: $root.project.getTasks({stageOrWhere: stage}).length"></span>
+                    <!--ko if: stage.name() === 'done' -->
+                    <a href="#" class="all-done-archive-button" data-toggle="modal" data-target="#archive-all-task-modal">Archive all</a>
+                     <!--/ko -->
+                    <span></span>
+                </h2>
 
-                    <task-card-list params="stage: stages().find(x => x.name() === '<%= stage.name %>', user: null"></task-card-list>
-                </li>
-                <% if(stage.name == 'review'){ %>
-                    </ul>
-                    <div class="user-block-area">
-
-                        <ul class="user-blocks" data-bind="foreach: { data: users, as: 'user' }">
-                            <li class="user-block" data-bind="visible: member.visible">
-                                <user-label params="user"></user-label>
-
-                                <ul class="stage-blocks" data-bind="foreach: { data: stages().filter(x => x.assigned()), as: 'stage' }">
-                                    <li class="stage-block">
-                                        <div class="user-cell-block">
-                                            <task-card-list params="stage: stage, user: user"></task-card-list>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div><!-- .user-block-area -->
-                    </li>
-                <% } %>
-            <% }); %>
+                <!--<task-card-list params="stage: stage, user: null"></task-card-list>-->
+            </li>
         </ul>
-        <!-- /ko -->
+
+        <!-- user-block-area -->
+        <div class="user-block-area">
+            <ul class="user-blocks" data-bind="foreach: { data: users, as: 'user' }">
+                <li class="user-block" data-bind="visible: user.visible">
+                    <user-label params="user: user"></user-label>
+
+                    <ul class="stage-blocks" data-bind="foreach: { data: $root.stages().filter(x => x.assigned()), as: 'stage' }">
+                        <li class="stage-block">
+                            <div class="user-cell-block">
+                                <!--<task-card-list params="stage: stage, user: user"></task-card-list>-->
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <!-- user-block-area -->
     </div>
 
     <% include alert %>
