@@ -4,6 +4,7 @@ require('babel-polyfill');
 require('jquery-ui');
 require('jquery.easing');
 require('marked');
+require('bootstrap');
 require('bootstrap-select');
 require('bootstrap-markdown/js/bootstrap-markdown');
 require('bootstrap-markdown/locale/bootstrap-markdown.ja.js');

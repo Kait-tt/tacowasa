@@ -22,9 +22,10 @@ const UsersSettingsModal = require('../../components/users_settings_modal');
 const UserSettingsModal = require('../../components/user_settings_modal');
 const RemoveUserModal = require('../../components/remove_user_modal');
 const ArchiveAllTaskModal = require('../../components/archive_all_tasks_modal');
-const ProjectLabelsModal = require('../../components/project_labels_modal/project_labels_modal');
+const ProjectSettingsModal = require('../../components/project_settings_modal');
+const ProjectLabelsModal = require('../../components/project_labels_modal');
 const ProjectStatsModal = require('../../components/project_stats_modal');
-const TaskDetailModal = require('../../components/task_detail_modal/task_detail_modal');
+const TaskDetailModal = require('../../components/task_detail_modal');
 const TaskCard = require('../../components/task_card');
 const TaskCardList = require('../../components/task_card_list');
 const UserLabel = require('../../components/user_label');
@@ -176,6 +177,10 @@ class Kanban extends EventEmitter2 {
             });
         });
         this.archiveAllTaskModal.register();
+
+        // projectSettingsModal
+        this.projectSettingsModal = new ProjectSettingsModal({project: this.project});
+        this.projectSettingsModal.register();
 
         // projectLabelsModal
         this.projectLabelsModal = new ProjectLabelsModal({project: this.project});
