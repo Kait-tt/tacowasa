@@ -92,7 +92,7 @@ class Task {
             }
         };
 
-        this.workHistory.subscribe(() => {
+        this.works.subscribe(() => {
             this.allWorkTime(this.calcAllWorkTime());
             this.lastWorkTime(this.calcLastWorkTime());
         });

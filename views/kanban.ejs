@@ -81,7 +81,7 @@
                     <span></span>
                 </h2>
 
-                <!--<task-card-list params="stage: stage, user: null"></task-card-list>-->
+                <task-card-list params="stage: stage, user: null"></task-card-list>
             </li>
         </ul>
 
@@ -104,7 +104,7 @@
 
     <% include alert %>
 
-    <div id="activity-wrap">
+    <div id="activity-wrap" class="activity-wrap">
         <div id="activity" class="scroll-wrap">
             <ul data-bind="foreach: { data: activitiesTexts, afterAdd: view.effects.scrollDown }">
                 <li data-bind="text: $data"></li>

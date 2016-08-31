@@ -26,7 +26,7 @@ class TaskCardList extends EventEmitter2 {
                 this.stage = stage;
                 this.user = user;
                 this.users = project.users;
-                this.isDummy = stage.assigned() && !user;
+                this.showTasks = user || !stage.assigned();
                 this.draggableTaskList = this.isDummy && new DraggableTaskList({
                     masterTasks: project.tasks,
                     stage,

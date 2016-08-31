@@ -1,13 +1,4 @@
-<!-- ko if: isDummy -->
-<ul class="cell-block" data-bind="foreach: {
-                            data: users,
-                            afterAdd: view.effects.slideDown,
-                            beforeRemove: view.effects.slideUp }">
-  <li class="dummy-user-cell-block" data-bind="visible: isVisible"></li>
-</ul>
-<!-- /ko -->
-
-<!-- ko ifnot: isDummy -->
+<!-- ko ifnot: showTasks -->
 <ul class="cell-block" data-bind="sortable: {
                             data: tasks,
                             afterRender: view.MiniMenu.init }">

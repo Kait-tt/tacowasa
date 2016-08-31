@@ -10,10 +10,10 @@ class CreateTaskModal extends EventEmitter2 {
         this.body = ko.observable();
 
         this.stages = ko.computed(() => project.stages().filter(x => !x.assigned()));
-        this.stage = project.defaultStage;
+        this.stage = ko.observable(project.defaultStage());
 
         this.costs = project.costs;
-        this.cost = project.defaultCost;
+        this.cost = ko.observable(project.defaultCost());
 
         this.labels = project.labels;
         this.selectedLabels = ko.observableArray();
@@ -77,7 +77,7 @@ class CreateTaskModal extends EventEmitter2 {
                         <label for="cost" class="control-label">
                             <span class="glyphicon glyphicon-scissors"></span> Cost
                         </label>
-                        <select id="cost" class="form-control" data-bind="options: costs, optionstext: 'name', value: cost">
+                        <select id="cost" class="form-control" data-bind="options: costs, optionsText: 'name', value: cost">
                         </select>
                     </div>
 
