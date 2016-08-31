@@ -9,9 +9,6 @@ const moment = require('moment');
 const util = require('../modules/util');
 const localStorage = require('../modules/localStorage');
 
-// viewmodels
-const DraggableTaskList = require('./draggable_task_list');
-
 // models
 const Socket = require('../models/socket');
 const ProjectStats = require('../models/project_stats');
@@ -29,6 +26,7 @@ const ProjectLabelsModal = require('../components/project_labels_modal');
 const ProjectStatsModal = require('../components/project_stats_modal');
 const TaskDetailModal = require('../components/task_detail_modal');
 const TaskCard = require('../components/task_card');
+const TaskCardList = require('../components/task_card_list');
 
 
 /**
@@ -64,75 +62,11 @@ class Kanban extends EventEmitter2 {
         this.selectedTask = ko.observable();
         this.selectedUser = ko.observable();
 
-        // that.draggableList[stage] = DraggableTaskList
-        // that.draggableList[stage][userId] = DraggableTaskList
-        this.draggableList = null;
-        this.initDraggableTaskList();
-
         this.socket = null;
         this.socketSerializer = null;
         this.initSocket();
 
         this.initModals();
-    }
-
-    // 各ステージ、各ユーザ毎にDraggableTaskListを作る
-    // ユーザの追加を監視する
-    // TODO: Project.getTasksと同じように
-    initDraggableTaskList() {
-        this.draggableList = {};
-        const _params = {
-            masterTasks: this.tasks,
-            // onUpdatedStage: this.updateStage,
-            // onUpdatedPriority: that.updateIssuePriority
-        };
-
-        this.stages().forEach(stage => {
-            const params = _.assign(_.clone(_params), {stage: stage, user: null});
-            let list;
-
-            if (stage.assigned()) {
-                list = {};
-                this.users().forEach(user => {
-                    list[user.id()] = new DraggableTaskList(_.assign(_.clone(params), {assignee: user.id()}));
-                });
-                this.users.subscribe(changes => {
-                    _.chain(changes)
-                        .find({status: 'added'})
-                        .map('value')
-                        .filter(user =>!list[user.id()])
-                        .forEach(user => {
-                            list[user.id()] = new DraggableTaskList(_.extend(_.clone(params), {assignee: user.id()}));
-                        })
-                        .value(); // value method is exec
-                }, this, 'arrayChange');
-            } else {
-                list = new DraggableTaskList(params);
-            }
-            
-            this.draggableList[stage.name()] = list;
-        });
-
-        const lists = [];
-        _.forEach(this.draggableList, x => {
-            if (x instanceof DraggableTaskList) {
-                lists.push(x);
-            } else {
-                _.forEach(x, y => {
-                    lists.push(y);
-                });
-            }
-        });
-
-        lists.forEach(x => {
-            x.on('updatedStatus', ({task, stage, user}) => {
-                // update stage
-            });
-
-            x.on('updatedPriority', ({task, afterTask}) => {
-                // update task priority
-            });
-        });
     }
 
     initSocket() {
@@ -292,14 +226,29 @@ class Kanban extends EventEmitter2 {
             this.selectedTask(task);
         });
         this.taskCard.on('clickWork', ({task}) => {
-            this.emit('updateTaskWorkingState', {
+            this.socket.emit('updateTaskWorkingState', {
                 taskId: task.id(),
                 isWorking: !task.isWorking()
             });
         });
         this.taskCard.register();
+
+        // taskCardList
+        this.taskCardList = new TaskCardList({project: this.project});
+        this.taskCardList.on('updateTaskStatus', ({task, stage, user}) => {
+            this.socket.emit('updateTaskStatus', {
+                taskId: task.id(),
+                stageId: stage && stage.id(),
+                userId: user && user.id()
+            });
+        });
+        this.taskCardList.on('updateTaskOrder', ({task, afterTask}) => {
+            // TODO: updateTaskOrder
+        });
+        this.taskCardList.register();
     }
 
+    // TODO: move to TaskCardList
     onBeforeMoveDrag(arg) {
         const list = arg.targetParent.parent;
         const task = arg.item;

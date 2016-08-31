@@ -124,15 +124,17 @@ class Project {
         });
     }
 
-    getTasks({userOrWhere=null, stageOrWhere=null}) {
+    getTasks({userOrWhere=null, stageOrWhere=null}={}) {
         const user = this.getUser(userOrWhere);
         const stage = this.getStage(stageOrWhere);
         const userKey = user ? user.id() : '(none)';
         const stageKey = stage ? stage.id() : '(none)';
-        const key = `${userKey}_${stageKey}`;
+        const key = `${userKey}__${stageKey}`;
         if (!this.memoGetTasks[key]) {
             this.memoGetTasks[key] = ko.computed(() => {
-                return this.tasks().filter(task => task.user() === user && task.stage === stage);
+                return this.tasks().filter(task => {
+                    return (!user || task.user() === user) && (!stage || task.stage === stage);
+                });
             });
         }
         return this.memoGetTasks[key];

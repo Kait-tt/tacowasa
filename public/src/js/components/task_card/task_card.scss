@@ -1,10 +1,5 @@
 @charset "UTF-8";
-
-// defined
-$task-card-width: 300px;
-$task-card-height: 50px;
-$task-card-padding: 6px;
-
+@import "../../../scss/variables";
 
 .task-card {
   width: $task-card-width;

@@ -38,6 +38,7 @@ class DraggableTaskList extends EventEmitter2 {
         this.id = _.uniqueId();
 
         // リストを畳み込むか
+        // TODO: move to TaskCardList
         this.isCollapse = ko.observable(true);
 
         // task の監視プロパティ名と、subscriptionを格納するプロパティ名（重複して監視しないようにするため）

@@ -1,0 +1,29 @@
+<!-- ko if: isDummy -->
+<ul class="cell-block" data-bind="foreach: {
+                            data: users,
+                            afterAdd: view.effects.slideDown,
+                            beforeRemove: view.effects.slideUp }">
+  <li class="dummy-user-cell-block" data-bind="visible: isVisible"></li>
+</ul>
+<!-- /ko -->
+
+<!-- ko ifnot: isDummy -->
+<ul class="cell-block" data-bind="sortable: {
+                            data: tasks,
+                            afterRender: view.MiniMenu.init }">
+  <li class="task-card-wrap" draggable="true" data-bind="visible: ($index() < 2 || !$parent.isCollapse()) && isVisible()">
+    <task-card params="task: $this"></task-card>
+  </li>
+</ul>
+<!-- /ko -->
+
+<!-- ko if: user -->
+<a href="#" class="each-all-issues-view-button" data-bind="click: toggleCollapse, visible: tasks().length > 2">
+  <span class="glyphicon" data-bind="css: {
+      'glyphicon-collapse-down': isCollapse(),
+      'glyphicon-collapse-up': !isCollapse()
+  }"></span>
+  <span data-bind="text: isCollapse() ? 'Hide ' : 'View all '"></span>
+  <span class="badge" data-bind="text: tasks().length"></span>
+</a>
+<!-- /ko -->
