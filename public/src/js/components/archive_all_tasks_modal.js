@@ -15,7 +15,7 @@ class ArchiveAllTaskModal extends EventEmitter2 {
         ko.components.register('archive-all-tasks-modal', {
             viewModel: () => this,
             template: this.template()
-        })
+        });
     }
 
     template() {

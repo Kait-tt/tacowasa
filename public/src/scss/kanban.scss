@@ -1,3 +1,4 @@
+@charset "UTF-8";
 @import "basic";
 @import "mini-menu";
 @import "variables";
@@ -5,24 +6,25 @@
 @import "~bootstrap-select/sass/bootstrap-select";
 @import "~bootstrap-markdown/css/bootstrap-markdown.min.css";
 
-$card_width: 300px;
-$card_height: 50px;
-$card_padding: 6px;
+// defined on the other
+$task-card-width: 300px;
+$task-card-height: 50px;
+$task-card-padding: 6px;
 
-$block_width: 300px;
-$block_padding: 10px;
+$block-width: 300px;
+$block-padding: 10px;
 
-$name-block_width: 240px;
-$name-block_padding-left: 60px;
-$name-block_padding-right: 10px;
+$name-block-width: 240px;
+$name-block-padding-left: 60px;
+$name-block-padding-right: 10px;
 
-$user_height: $card_height * 2 + 45;
-$user_padding-height: 20px;
-$user_margin-bottom: 30px;
+$user-height: $task-card-height * 2 + 45;
+$user-padding-height: 20px;
+$user-margin-bottom: 30px;
 
-$user-height: $user_height + 15;
+$user-height: $user-height + 15;
 
-$issue-block_right-margin: 60px;
+$issue-block-right-margin: 60px;
 
 $three-stage-blocks-padding: 40px;
 
@@ -100,11 +102,11 @@ body{
   position: relative;
   z-index: 1;
   transition: width .2s ease-in-out;
-  width: ($block_width + $stage-block-horizontal-margin * 2) * 7 + $stage-block-horizontal-margin * 2;
+  width: ($block-width + $stage-block-horizontal-margin * 2) * 7 + $stage-block-horizontal-margin * 2;
 }
 
 #main.compact {
-  width: ($block_width + $stage-block-horizontal-margin * 2) * 5 + $stage-block-horizontal-margin * 2;
+  width: ($block-width + $stage-block-horizontal-margin * 2) * 5 + $stage-block-horizontal-margin * 2;
 
   .blocks {
     height: 100%;
@@ -115,7 +117,7 @@ body{
   }
 
   #issue-block {
-    margin-left: -$block_width;
+    margin-left: -$block-width;
     overflow: hidden;
   }
 
@@ -164,7 +166,7 @@ body{
 
 .stage-block {
   float: left;
-  width: $block_width;
+  width: $block-width;
   padding: 0;
   max-height: 100%;
   margin: 0 $stage-block-horizontal-margin;
@@ -190,8 +192,8 @@ body{
   }
 
   &#name-block {
-    width: $name-block_width - $name-block_padding-left - $name-block_padding-right;
-    margin: 0 $name-block_padding-right 0 $name-block_padding-left;
+    width: $name-block-width - $name-block-padding-left - $name-block-padding-right;
+    margin: 0 $name-block-padding-right 0 $name-block-padding-left;
 
     .stage-title {
       padding-top: 6px;
@@ -231,13 +233,13 @@ body{
     position: static;
     .dummy-user-cell-block {
       height: $user-height + 14;
-      margin-bottom: $user_margin-bottom;
-      padding-top: $user_padding-height;
-      padding-bottom: $user_padding-height;
+      margin-bottom: $user-margin-bottom;
+      padding-top: $user-padding-height;
+      padding-bottom: $user-padding-height;
       position: relative;
 
       &:last-child {
-        margin-bottom: $user_margin-bottom;
+        margin-bottom: $user-margin-bottom;
       }
     }
   }
@@ -248,7 +250,7 @@ div.user-block-area {
   position: absolute;
   top: 70px;
   // width: 1000px;
-  width: $block_width * 3 + $stage-block-horizontal-margin * 6;
+  width: $block-width * 3 + $stage-block-horizontal-margin * 6;
   overflow: auto;
   // overflow: visible;
   height: calc(100% - 70px);
@@ -265,7 +267,7 @@ div.user-block-area {
 
     li.user-block {
       position: relative;
-      width: $block_width * 3 + $stage-block-horizontal-margin * 4;
+      width: $block-width * 3 + $stage-block-horizontal-margin * 4;
       min-height: 175px;
       z-index: 5;
       &::after{
@@ -344,13 +346,13 @@ div.user-block-area {
 }
 
 .user-cell-block {
-  margin-bottom: $user_margin-bottom;
-  padding-top: $user_padding-height;
-  padding-bottom: $user_padding-height;
+  margin-bottom: $user-margin-bottom;
+  padding-top: $user-padding-height;
+  padding-bottom: $user-padding-height;
   position: relative;
 
   .card-list {
-    min-height: $card_height * 2 + $card_padding * 4;
+    min-height: $task-card-height * 2 + $task-card-padding * 4;
     list-style-type: none;
     height: 100%;
     overflow: visible;
@@ -375,120 +377,6 @@ div.user-block-area {
   }
 }
 
-.card {
-  width: $card_width;
-  height: $card_height - $card_padding * 2 + 16;
-  margin: 0 auto 10px;
-  padding: $card_padding;
-  background-color: #fefefe;
-  box-shadow: 2px 2px 1px 0 rgba(#000, .1);
-  overflow: visible;
-  cursor: pointer;
-  display: block;
-  border-top: 1px solid #f0f0f0;
-
-  .card-label-block {
-    float: left;
-    position: relative;
-    display: table;
-    table-layout: fixed;
-    top: 0;
-    left: 0;
-    height: $card_height - $card_padding * 2 + 16;
-    width: 15px;
-    margin: $card_padding * -1;
-    border-right: 1px solid #e0e0e0;
-
-    .card-label-inner-block {
-      display: table-row;
-
-      .card-label {
-        display: table-cell;
-        width: 15px;
-      }
-    }
-  }
-
-  .card-title-wrap {
-    display: inline-block;
-    margin: 2px 2px 2px 12px;
-    padding: 0;
-    overflow: hidden;
-    width: $card-width - $card-padding * 2 - 23 - 15;
-    height: $card_height - $card_padding * 2 + 16 - 15;
-
-    .card-title {
-      display: inline-block;
-      padding: 0;
-      margin: 0;
-      overflow: hidden;
-      width: $card-width - $card-padding * 2 - 28 - 15;
-      height: $card_height - $card_padding * 2 + 16 - 15;
-
-      &.is-working {
-        margin: 0 0 0 8px;
-        width: $card-width - $card-padding * 2 - 73 - 15;
-      }
-    }
-
-    .issue-working-icon {
-      float: left;
-      display: inline-block;
-      font-size: 240%;
-      color: #a3a3a3;
-      margin: 2px 0 0 0;
-
-      &:hover {
-        color: #6ea37c;
-      }
-
-      &.issue-working-active {
-        color: #27ae60;
-
-        &:hover {
-          color: #1d723c;
-        }
-      }
-    }
-  }
-
-  .card-right-wrapper {
-    position: static;
-    display: inline-block;
-    margin: 0 0 0 0;
-    font-size: 18px;
-    float: right;
-    width: 20px;
-
-    .weight-badge {
-      position: static;
-      display: block;
-      margin: 6px 0 0;
-      padding-top: 3px;
-      font-size: 12px;
-      line-height: 12px;
-      text-align: center;
-      font-weight: bold;
-      background-color: rgb(119, 119, 119);
-      color: #fff;
-      height: 18px;
-      width: 18px;
-      border-radius: 10px;
-
-      &.weight-badge-low {
-        background-color: #16a085;
-      }
-
-      &.weight-badge-middle {
-        background-color: #2980b9;
-      }
-
-      &.weight-badge-high {
-        background-color: #c0392b;
-      }
-    }
-  }
-}
 
 // description, title, etc...
 .container {

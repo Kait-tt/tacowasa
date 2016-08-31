@@ -4,11 +4,20 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 const _ = require('lodash');
 const moment = require('moment');
+
+// modules
 const util = require('../modules/util');
 const localStorage = require('../modules/localStorage');
+
+// viewmodels
 const DraggableTaskList = require('./draggable_task_list');
+
+// models
 const Socket = require('../models/socket');
+const ProjectStats = require('../models/project_stats');
 const SocketSerializer = require('../models/socket_serializer');
+
+// components
 const CreateTaskModel = require('../components/create_task_modal');
 const AssignTaskModal = require('../components/assign_task_modal');
 const ArchiveTaskModal = require('../components/archive_task_modal');
@@ -19,7 +28,7 @@ const ArchiveAllTaskModal = require('../components/archive_all_tasks_modal');
 const ProjectLabelsModal = require('../components/project_labels_modal');
 const ProjectStatsModal = require('../components/project_stats_modal');
 const TaskDetailModal = require('../components/task_detail_modal');
-const ProjectStats = require('../models/project_stats');
+const TaskCard = require('../components/task_card');
 
 
 /**
@@ -276,6 +285,19 @@ class Kanban extends EventEmitter2 {
         });
         this.selectedTask.subscribe(x => this.taskDetailModal.task(x));
         this.taskDetailModal.register();
+
+        // taskCard
+        this.taskCard = new TaskCard();
+        this.taskCard.on('clickTaskCard', ({task}) => {
+            this.selectedTask(task);
+        });
+        this.taskCard.on('clickWork', ({task}) => {
+            this.emit('updateTaskWorkingState', {
+                taskId: task.id(),
+                isWorking: !task.isWorking()
+            });
+        });
+        this.taskCard.register();
     }
 
     onBeforeMoveDrag(arg) {

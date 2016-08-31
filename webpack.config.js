@@ -16,6 +16,7 @@ const webpackConfig = {
     },
     module: {
         loaders: [
+            // html loaderの設定をここに定義するとscssの読込がバグるのでやらないこと
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
@@ -42,6 +43,9 @@ const webpackConfig = {
                 loader: "url?limit=10000&mimetype=image/svg+xml"
             }
         ],
+    },
+    htmlLoader: {
+        attrs: ['minimize']
     },
     sassLoader: {
         includePaths: [__dirname + '/public/src/scss']

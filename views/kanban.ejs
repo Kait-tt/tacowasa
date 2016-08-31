@@ -101,26 +101,7 @@
                             <!--data: $root.draggableList.<%= stage.name %>.tasks,-->
                             <!--afterRender: view.MiniMenu.init }">-->
                             <!--<li class="card" draggable="true" data-bind="visible: isVisible">-->
-                                <!--<div class="card-right-wrapper">-->
-                                    <!--<% include _minimenu %>-->
-                                    <!--&lt;!&ndash; ko if: cost().value >= 1 &ndash;&gt;-->
-                                    <!--<div class="weight-badge" data-bind="text: cost().name, css: {-->
-                                        <!--'weight-badge-low'   : cost().value === 1,-->
-                                        <!--'weight-badge-middle': cost().value === 3,-->
-                                        <!--'weight-badge-high'  : cost().value === 5 }"></div>-->
-                                    <!--&lt;!&ndash; /ko &ndash;&gt;-->
-                                <!--</div>-->
-                                <!--<ul class="card-label-block" data-bind="foreach: { data: labels }">-->
-                                    <!--<li class="card-label-inner-block">-->
-                                        <!--<div class="card-label" data-bind="-->
-                                            <!--style: { 'background-color': '#' + color() },-->
-                                            <!--tooltip: { title: name, placement: 'right' }"></div>-->
-                                    <!--</li>-->
-                                <!--</ul>-->
-
-                                <!--<div class="card-title-wrap" data-toggle="modal" data-target="#task-detail-modal" data-bind="click: $root.selectedIssue">-->
-                                    <!--<span class="card-title" data-bind="text: displayTitle"></span>-->
-                                <!--</div>-->
+                                <!--<task-card params="task: $this"></task-card>-->
                             <!--</li>-->
                         <!--</ul>-->
                     <!--<% } %>-->
@@ -160,30 +141,7 @@
                                             <!--<ul class="card-list" data-bind="-->
                                                     <!--sortable: { data: tasks, afterRender: view.MiniMenu.init }">-->
                                                 <!--<li class="card" draggable="true" data-bind="visible: ($index() < 2 || !$parent.isCollapse()) && isVisible()">-->
-                                                    <!--<div class="card-right-wrapper">-->
-                                                        <!--<% include _minimenu %>-->
-                                                        <!--&lt;!&ndash; ko if: cost() >= 1 &ndash;&gt;-->
-                                                        <!--<div class="weight-badge" data-bind="text: cost().name, css: {-->
-                                                            <!--'weight-badge-low'   : cost().value() === 1,-->
-                                                            <!--'weight-badge-middle': cost().value() === 3,-->
-                                                            <!--'weight-badge-high'  : cost().value() === 5 }"></div>-->
-                                                        <!--&lt;!&ndash; /ko &ndash;&gt;-->
-                                                    <!--</div>-->
-                                                    <!--<ul class="card-label-block" data-bind="foreach: { data: labels }">-->
-                                                        <!--<li class="card-label-inner-block">-->
-                                                            <!--<div class="card-label" data-bind="-->
-                                                                <!--style: { 'background-color': '#' + color() },-->
-                                                                <!--tooltip: { title: name, placement: 'right' }"></div>-->
-                                                        <!--</li>-->
-                                                    <!--</ul>-->
-                                                    <!--<div class="card-title-wrap" data-toggle="modal" data-target="#task-detail-modal" data-bind="click: $root.selectedTask">-->
-                                                        <!--&lt;!&ndash; ko if: stage() === 'doing' &ndash;&gt;-->
-                                                        <!--<span class="glyphicon glyphicon-play-circle issue-working-icon" data-bind="-->
-                                                            <!--click: $root.onClickToggleWorkOnCard,-->
-                                                            <!--css: {'issue-working-active': isWorking}"></span>-->
-                                                        <!--&lt;!&ndash; /ko &ndash;&gt;-->
-                                                        <!--<span class="card-title" data-bind="text: displayTitle, css: { 'is-working': stage().name === 'doing' }"></span>-->
-                                                    <!--</div>-->
+                                                    <!--<task-card params="task: $this"></task-card>-->
                                                 <!--</li>>-->
                                             <!--</ul>-->
 

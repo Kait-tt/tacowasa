@@ -1,0 +1,122 @@
+@charset "UTF-8";
+
+// defined
+$task-card-width: 300px;
+$task-card-height: 50px;
+$task-card-padding: 6px;
+
+
+.task-card {
+  width: $task-card-width;
+  height: $task-card-height - $task-card-padding * 2 + 16;
+  margin: 0 auto 10px;
+  padding: $task-card-padding;
+  background-color: #fefefe;
+  box-shadow: 2px 2px 1px 0 rgba(#000, .1);
+  overflow: visible;
+  cursor: pointer;
+  display: block;
+  border-top: 1px solid #f0f0f0;
+
+  .task-card-label-block {
+    float: left;
+    position: relative;
+    display: table;
+    table-layout: fixed;
+    top: 0;
+    left: 0;
+    height: $task-card-height - $task-card-padding * 2 + 16;
+    width: 15px;
+    margin: $task-card-padding * -1;
+    border-right: 1px solid #e0e0e0;
+
+    .task-card-label-inner-block {
+      display: table-row;
+
+      .task-card-label {
+        display: table-cell;
+        width: 15px;
+      }
+    }
+  }
+
+  .task-card-title-wrap {
+    display: inline-block;
+    margin: 2px 2px 2px 12px;
+    padding: 0;
+    overflow: hidden;
+    width: $task-card-width - $task-card-padding * 2 - 23 - 15;
+    height: $task-card-height - $task-card-padding * 2 + 16 - 15;
+
+    .task-card-title {
+      display: inline-block;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+      width: $task-card-width - $task-card-padding * 2 - 28 - 15;
+      height: $task-card-height - $task-card-padding * 2 + 16 - 15;
+
+      &.is-working {
+        margin: 0 0 0 8px;
+        width: $task-card-width - $task-card-padding * 2 - 73 - 15;
+      }
+    }
+
+    .task-working-icon {
+      float: left;
+      display: inline-block;
+      font-size: 240%;
+      color: #a3a3a3;
+      margin: 2px 0 0 0;
+
+      &:hover {
+        color: #6ea37c;
+      }
+
+      &.task-working-active {
+        color: #27ae60;
+
+        &:hover {
+          color: #1d723c;
+        }
+      }
+    }
+  }
+
+  .task-card-right-wrapper {
+    position: static;
+    display: inline-block;
+    margin: 0 0 0 0;
+    font-size: 18px;
+    float: right;
+    width: 20px;
+
+    .task-weight-badge {
+      position: static;
+      display: block;
+      margin: 6px 0 0;
+      padding-top: 3px;
+      font-size: 12px;
+      line-height: 12px;
+      text-align: center;
+      font-weight: bold;
+      background-color: rgb(119, 119, 119);
+      color: #fff;
+      height: 18px;
+      width: 18px;
+      border-radius: 10px;
+
+      &.weight-badge-low {
+        background-color: #16a085;
+      }
+
+      &.weight-badge-medium {
+        background-color: #2980b9;
+      }
+
+      &.weight-badge-high {
+        background-color: #c0392b;
+      }
+    }
+  }
+}
