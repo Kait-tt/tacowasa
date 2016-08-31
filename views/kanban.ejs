@@ -69,7 +69,7 @@
 <div class="loader" data-bind="visible: false" style="display: block"></div>
 
 <div id="main" class="main" data-bind="visible: true, css: {'compact': viewMode() === 'compact'}" style="display: none">
-    <div class="blocks">
+    <div class="task-board">
         <ul class="stage-blocks" data-bind="foreach: {data: stages, as: 'stage'}">
             <li class="stage-block" data-bind="attr: {id: stage.name}">
                 <h2 class="stage-title">
@@ -85,7 +85,6 @@
             </li>
         </ul>
 
-        <!-- user-block-area -->
         <div class="user-block-area">
             <ul class="user-blocks" data-bind="foreach: { data: users, as: 'user' }">
                 <li class="user-block" data-bind="visible: user.isVisible">
@@ -101,7 +100,6 @@
                 </li>
             </ul>
         </div>
-        <!-- user-block-area -->
     </div>
 
     <% include alert %>

@@ -16,13 +16,13 @@ body{
   position: relative;
   z-index: 1;
   transition: width .2s ease-in-out;
-  width: ($block-width + $stage-block-horizontal-margin * 2) * 7 + $stage-block-horizontal-margin * 2;
+  width: ($stage-block-width + $stage-block-horizontal-margin * 2) * 7 + $stage-block-horizontal-margin * 2;
 }
 
 #main.compact {
-  width: ($block-width + $stage-block-horizontal-margin * 2) * 5 + $stage-block-horizontal-margin * 2;
+  width: ($stage-block-width + $stage-block-horizontal-margin * 2) * 5 + $stage-block-horizontal-margin * 2;
 
-  .blocks {
+  .task-board {
     height: 100%;
   }
 
@@ -31,7 +31,7 @@ body{
   }
 
   #issue-block {
-    margin-left: -$block-width;
+    margin-left: -$stage-block-width;
     overflow: hidden;
   }
 
@@ -40,7 +40,7 @@ body{
   }
 }
 
-.blocks {
+.task-board {
   transition: all .3s ease-in-out;
   position: relative;
   float: left;
@@ -80,7 +80,7 @@ body{
 
 .stage-block {
   float: left;
-  width: $block-width;
+  width: $stage-block-width;
   padding: 0;
   height: 100%;
   margin: 0 $stage-block-horizontal-margin;
@@ -140,8 +140,8 @@ body{
   $offset: 10px;
   position: absolute;
   top: 70px;
-  left: $block-width * 2 + $stage-block-horizontal-margin * 4;
-  width: $block-width * 3 + $stage-block-horizontal-margin * 6;
+  left: $stage-block-width * 2 + $stage-block-horizontal-margin * 4;
+  width: $stage-block-width * 3 + $stage-block-horizontal-margin * 6;
   overflow: auto;
   height: calc(100% - 70px);
   margin: 0 ($stage-block-horizontal-margin - $offset);
@@ -152,7 +152,7 @@ body{
 
     li.user-block {
       position: relative;
-      width: $block-width * 3 + $stage-block-horizontal-margin * 4;
+      width: $stage-block-width * 3 + $stage-block-horizontal-margin * 4;
       min-height: 175px;
       z-index: 5;
       list-style: none;
