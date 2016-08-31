@@ -59,25 +59,6 @@ body{
   }
 }
 
-#three-stage-blocks{
-  float: left;
-  vertical-align: top;
-  overflow: auto;
-  max-height: 100%;
-  overflow: hidden;
-  height: 100%;
-  .inner-stage-blocks{
-    overflow: hidden;
-    height: 100%;
-    > .stage-block{
-      height: 100%;
-      .cell-block{
-        overflow: visible;
-      }
-    }
-  }
-}
-
 .stage-block {
   float: left;
   width: $stage-block-width;
@@ -146,6 +127,7 @@ body{
   height: calc(100% - 70px);
   margin: 0 ($stage-block-horizontal-margin - $offset);
   padding: 0 $offset;
+  overflow-x: hidden;
 
   ul.user-blocks {
     position: relative;
