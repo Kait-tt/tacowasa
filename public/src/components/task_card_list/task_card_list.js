@@ -19,23 +19,24 @@ class TaskCardList extends EventEmitter2 {
 
     register() {
         const taskCardList = this;
-        const {project} = this.project;
-        ko.components.register('task_card_list', {
-            viewModel: () => ({stage, user}) => {
-                'use strict';
+        const project = this.project;
+        ko.components.register('task-card-list', {
+            viewModel: function({stage, user}) {
                 this.stage = stage;
                 this.user = user;
                 this.users = project.users;
                 this.showTasks = user || !stage.assigned();
-                this.draggableTaskList = this.isDummy && new DraggableTaskList({
-                    masterTasks: project.tasks,
-                    stage,
-                    user
-                });
-                this.tasks = this.draggableTaskList.tasks;
+                if (this.showTasks) {
+                    this.draggableTaskList = new DraggableTaskList({
+                            masterTasks: project.tasks,
+                            stage,
+                            user
+                        });
+                    this.tasks = this.draggableTaskList.tasks;
 
-                this.draggableTaskList.on('updatedStatus', taskCardList.updateTaskStatus.bind(taskCardList));
-                this.draggableTaskList.on('updatePriority', taskCardList.updateTaskOrder.bind(taskCardList));
+                    this.draggableTaskList.on('updatedStatus', taskCardList.updateTaskStatus.bind(taskCardList));
+                    this.draggableTaskList.on('updatePriority', taskCardList.updateTaskOrder.bind(taskCardList));
+                }
             },
             template: require('html!./task_card_list.html')
         });

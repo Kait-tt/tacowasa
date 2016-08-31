@@ -1,11 +1,10 @@
-<div class="task-card" draggable="true" data-bind="visible: isVisible">
+<div class="task-card" draggable="true" data-bind="visible: task.isVisible">
   <div class="task-card-right-wrapper">
-    <% include _minimenu %>
-    <taskcard-minimenu params="task: task"></taskcard-minimenu>
+    <!--<task-card-minimenu params="task: task"></task-card-minimenu>-->
     <div class="task-weight-badge" data-bind="text: task.cost().value, css: {
-            'weight-badge-low'   : cost().value === 1,
-            'weight-badge-medium': cost().value === 3,
-            'weight-badge-high'  : cost().value === 5 }"></div>
+            'weight-badge-low'   : task.cost().value === 1,
+            'weight-badge-medium': task.cost().value === 3,
+            'weight-badge-high'  : task.cost().value === 5 }"></div>
   </div>
   <ul class="task-card-label-block" data-bind="foreach: task.labels">
     <li class="task-card-label-inner-block">
@@ -21,6 +20,6 @@
             click: onClickWork,
             css: {'task-working-active': task.isWorking}"></span>
     <!-- /ko -->
-    <span class="card-title" data-bind="text: displayTitle, css: { 'is-working': stage().canWork }"></span>
+    <span class="card-title" data-bind="text: task.displayTitle, css: { 'is-working': task.stage().canWork }"></span>
   </div>
 </div>

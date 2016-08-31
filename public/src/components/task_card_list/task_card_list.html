@@ -1,9 +1,9 @@
-<!-- ko ifnot: showTasks -->
+<!-- ko if: showTasks -->
 <ul class="cell-block" data-bind="sortable: {
                             data: tasks,
                             afterRender: view.MiniMenu.init }">
   <li class="task-card-wrap" draggable="true" data-bind="visible: ($index() < 2 || !$parent.isCollapse()) && isVisible()">
-    <task-card params="task: $this"></task-card>
+    <task-card params="task: $data"></task-card>
   </li>
 </ul>
 <!-- /ko -->

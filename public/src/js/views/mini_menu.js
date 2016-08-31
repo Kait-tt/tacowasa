@@ -47,7 +47,7 @@ class MiniMenu {
     };
 
     // to knockout
-    static applyBindings(global, oopts) {
+    static applyBindings(global, opts) {
         if (!global.view) { global.view = {}; }
 
         if (!global.view.MiniMenu) {
