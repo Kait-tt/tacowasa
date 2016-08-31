@@ -1,7 +1,7 @@
 'use strict';
 const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
-const Work = require('../models/work');
+const Work = require('../js/models/work');
 
 class TaskDetailModal extends EventEmitter2 {
     constructor({eventEmitterOptions={}, project}) {

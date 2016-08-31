@@ -15,18 +15,18 @@ const ProjectStats = require('../models/project_stats');
 const SocketSerializer = require('../models/socket_serializer');
 
 // components
-const CreateTaskModel = require('../components/create_task_modal');
-const AssignTaskModal = require('../components/assign_task_modal');
-const ArchiveTaskModal = require('../components/archive_task_modal');
-const UsersSettingsModal = require('../components/users_settings_modal');
-const UserSettingsModal = require('../components/user_settings_modal');
-const RemoveUserModal = require('../components/remove_user_modal');
-const ArchiveAllTaskModal = require('../components/archive_all_tasks_modal');
-const ProjectLabelsModal = require('../components/project_labels_modal');
-const ProjectStatsModal = require('../components/project_stats_modal');
-const TaskDetailModal = require('../components/task_detail_modal');
-const TaskCard = require('../components/task_card');
-const TaskCardList = require('../components/task_card_list');
+const CreateTaskModel = require('../../components/create_task_modal');
+const AssignTaskModal = require('../../components/assign_task_modal');
+const ArchiveTaskModal = require('../../components/archive_task_modal');
+const UsersSettingsModal = require('../../components/users_settings_modal');
+const UserSettingsModal = require('../../components/user_settings_modal');
+const RemoveUserModal = require('../../components/remove_user_modal');
+const ArchiveAllTaskModal = require('../../components/archive_all_tasks_modal');
+const ProjectLabelsModal = require('../../components/project_labels_modal');
+const ProjectStatsModal = require('../../components/project_stats_modal');
+const TaskDetailModal = require('../../components/task_detail_modal');
+const TaskCard = require('../../components/task_card');
+const TaskCardList = require('../../components/task_card_list');
 
 
 /**

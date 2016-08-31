@@ -8,7 +8,6 @@ require('bootstrap-select');
 require('bootstrap-markdown/js/bootstrap-markdown');
 require('bootstrap-markdown/locale/bootstrap-markdown.ja.js');
 require('knockout');
-require('../modules/knockout/knockout-sortable');
 require('../modules/knockout/knockout-selectPicker');
 require('../modules/knockout/knockout-bootstrap-switch');
 require('../../scss/kanban.scss');

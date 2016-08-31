@@ -1,7 +1,7 @@
 'use strict';
 const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
-const DraggableTaskList = require('../../viewmodels/draggable_task_list');
+const DraggableTaskList = require('./draggable_task_list');
 
 class TaskCardList extends EventEmitter2 {
     constructor({eventEmitterOptions={}, project}) {
