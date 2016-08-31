@@ -30,8 +30,8 @@ const projectId = getProjectId();
 const alert = new Alert();
 
 const scroller = new Scroller({
-    selectors: ['body', '.main', '.stage-block'],
-    cancelSelectors: ['.card', '#activity-wrap']
+    selector: ['body', '.main', '.stage-block'].join(','),
+    cancelSelector: ['.card', '#activity-wrap'].join(',')
 });
 
 Project.fetch(projectId)

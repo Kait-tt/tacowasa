@@ -5,26 +5,19 @@ const _ = require('lodash');
 class Scroller {
     constructor(opts={}) {
         this.opts = _.defaults(opts, Scroller.defaultOptions);
-        this.$contexts = this.opts.selectors.map(selector => $(selector));
         this.$target = $(this.opts.target);
 
         this.isClicked = false;
         this.beforeX = null;
 
         // scroll event
-        this.opts.selectors.forEach(selector => {
-            $('body').delegate(selector, 'mousedown', this.onMousedown.bind(this));
-        });
-
-        // cancel
-        this.opts.cancelSelectors.forEach(selector => {
-            $('body').delegate(selector, 'mousedown', this.cancel.bind(this));
-        });
+        $('html,body')
+            .on('mousedown', this.opts.selector, this.onMousedown.bind(this))
+            .on('mousedown', this.opts.cancelSelector, this.cancel.bind(this));
 
         // move event
         $(window).mousemove(this.onMousemove.bind(this));
-
-        $(window).mouseup(this.cancel.bind(this));
+        $(window).mouseup(this.onMouseup.bind(this));
     }
 
     cancel(e) {
@@ -57,8 +50,8 @@ class Scroller {
 
     static get defaultOptions() {
         return {
-            selectors: [],
-            cancelSelectors: [],
+            selector: '',
+            cancelSelector: '',
             target: window,
             step: 1
         };
