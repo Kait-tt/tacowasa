@@ -68,6 +68,7 @@ class SocketRouter {
 
             projectSocket.joinRoom(user);
             user.projectId = projectId;
+            user.socket.join(projectId);
 
             return projectSocket;
         });

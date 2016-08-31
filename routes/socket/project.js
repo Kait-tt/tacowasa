@@ -80,7 +80,7 @@ class SocketProject {
 
     leaveRoom(user) {
         this.emits('leaveRoom', {username: user.username});
-        return this.notifyText(projectId, username, 'left room');
+        return this.notifyText(this.projectId, username, 'left room');
     }
 
     addUser(user, {username}) {

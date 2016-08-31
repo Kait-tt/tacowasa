@@ -12,6 +12,7 @@ function Socket() {
     that.initSocketDebugMode = () => {
         // debug on event
         Object.keys(that._callbacks)
+            .map(x => x.replace(/\$/g, ''))
             .filter(key => !_.includes(['ping', 'pong'], key))
             .forEach(key => {
                 that.on(key, res => {
@@ -24,9 +25,9 @@ function Socket() {
             'use strict';
             const context = this;
             const enableDebug = !_.includes(['ping', 'pong'], key);
-            enableDebug && console.log('emit: ' + key, req);
+            enableDebug && console.debug('emit: ' + key, req);
             emit(key, req, res =>  {
-                enableDebug && console.log('callback: ' + key, res);
+                enableDebug && console.debug('callback: ' + key, res);
                 fn && fn.apply(context, arguments);
             });
         });
