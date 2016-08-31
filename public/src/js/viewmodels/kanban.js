@@ -27,6 +27,7 @@ const ProjectStatsModal = require('../../components/project_stats_modal');
 const TaskDetailModal = require('../../components/task_detail_modal');
 const TaskCard = require('../../components/task_card');
 const TaskCardList = require('../../components/task_card_list');
+const UserLabel = require('../../components/user_label');
 
 
 /**
@@ -246,6 +247,13 @@ class Kanban extends EventEmitter2 {
             // TODO: updateTaskOrder
         });
         this.taskCardList.register();
+
+        // UserLabel
+        this.userLabel = new UserLabel();
+        this.userLabel.on('clickUserSettings', ({user}) => {
+            this.selectedUser(user);
+        });
+        this.userLabel.register();
     }
 
     // TODO: move to TaskCardList

@@ -39,6 +39,35 @@ class TaskCardList extends EventEmitter2 {
             },
             template: require('html!./task_card_list.html')
         });
+
+        // knockout sortable option
+        ko.bindingHandlers.sortable.options.scroll = false;
+        ko.bindingHandlers.sortable.beforeMove = TaskCardList.onBeforeMoveDrag;
+    }
+
+    static onBeforeMoveDrag(arg) {
+        const list = arg.targetParent.parent;
+        const task = arg.item;
+
+        if (!(list instanceof DraggableTaskList)) {
+            return;
+        }
+
+        // 作業中か
+        if (task.isWorking()) {
+            arg.cancelDrop = true;
+            this.emit('workingTaskDropped', arg, task);
+        }
+
+        // WIPLimitに達するか
+        if (task.user !== list.user) {
+            const user = list.user;
+            const cost = task.cost();
+            if (user.willBeOverWipLimit(cost.value())) {
+                arg.cancelDrop = true;
+                this.emit('overWIPLimitDropped', arg, user, list);
+            }
+        }
     }
 }
 

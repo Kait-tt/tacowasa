@@ -1,0 +1,21 @@
+<div class="user-label-area">
+  <span class="user-name">
+    <img data-bind="attr: { src: user.avatarUrl }" class="user-avatar" src="" width="24" height="24">
+    <b data-bind="text: user.username"></b>
+    <span data-bind="text: '(' + user.wip() + '/' + user.wipLimit() + ')'"></span>
+    <a href="#" class="user-settings-button"
+       data-toggle="modal" data-target="#user-settings-modal"
+       data-bind="click: clickUserSettings">
+       <span class="glyphicon glyphicon-cog" area-hidden="true"></span>
+    </a>
+  </span>
+
+  <span class="user-working-message alert alert-success" data-bind="visible: user.workingTask()">
+    <span class="glyphicon glyphicon-play-circle"></span> 作業中です。
+    (<span data-bind="text: user.workingTimeFormat()"></span>経過)
+  </span>
+
+  <span class="wip-limited-message alert alert-warning" data-bind="visible: user.isWipLimited">
+    <span class="glyphicon glyphicon-warning-sign"></span> WIP制限に達しています。
+  </span>
+</div>
