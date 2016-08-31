@@ -29,7 +29,7 @@ class SocketProject {
     }
 
     leaveProjectRoom(user) {
-        this.leaveRoom(user);
+        return this.leaveRoom(user);
     }
 
     bindSocketUser(user) {
@@ -80,7 +80,7 @@ class SocketProject {
 
     leaveRoom(user) {
         this.emits('leaveRoom', {username: user.username});
-        return this.notifyText(this.projectId, user.username, 'left room');
+        return this.notifyText(user.username, 'left room');
     }
 
     addUser(user, {username}) {
