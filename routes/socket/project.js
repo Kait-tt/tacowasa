@@ -10,17 +10,21 @@ class SocketProject {
         this.projectId = projectId;
         this.users = {};
         this.io = io;
-        this.emits = this.io.to(this.projectId).emit.bind(this.io);
+    }
+
+    emits(key, params) {
+        this.io.to(this.projectId).emit(key, params);
     }
 
     joinProjectRoom(user) {
+        const that = this;
         return co(function* () {
-            this.users[user.id] = user;
+            that.users[user.id] = user;
 
-            yield this.sendInitActivityLogs(user);
-            yield this.sendInitJoinedUsers(user);
-            yield this.joinRoom(user);
-            this.bindSocketUser(user);
+            yield that.sendInitActivityLogs(user);
+            yield that.sendInitJoinedUsers(user);
+            yield that.joinRoom(user);
+            that.bindSocketUser(user);
         }).catch(err => console.error(err));
     }
 
@@ -128,13 +132,14 @@ class SocketProject {
     }
 
     updateTaskStatus(user, {taskId, updateParams: {userId, stageId}}) {
+        const that = this;
         return co(function* () {
-            const updatedTask = yield Task.updateStatus(this.projectId, taskId, {userId, stageId});
-            const assignedUser = userId && (yield Member.findByUserId(this.projectId, userId));
+            const updatedTask = yield Task.updateStatus(that.projectId, taskId, {userId, stageId});
+            const assignedUser = userId && (yield Member.findByUserId(that.projectId, userId));
             const assignedUsername = assignedUser && assignedUser.username;
             const stage = yield Stage.findById(projectId, stageId);
-            this.emits('updateTaskStatus', {task: updatedTask});
-            return yield this.notifyText(user.username, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}`)
+            that.emits('updateTaskStatus', {task: updatedTask});
+            return yield that.notifyText(user.username, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}`)
         });
     }
 

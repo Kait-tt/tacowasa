@@ -78,6 +78,7 @@ class Kanban extends EventEmitter2 {
 
         let joined = false;
         this.socket.on('connect', () => {
+            console.log('connect');
             if (!joined) {
                 joined = true;
                 this.socket.emit('joinProjectRoom', {projectId: this.project.id()});
@@ -85,6 +86,7 @@ class Kanban extends EventEmitter2 {
         });
 
         if (this.socket.connected) {
+            console.log('connected');
             if (!joined) {
                 joined = true;
                 this.socket.emit('joinProjectRoom', {projectId: this.project.id()});

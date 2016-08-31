@@ -19,6 +19,8 @@ class SocketRouter {
         this.io.use((socket, next) => {
             if (!socket.request.session || !socket.request.session.passport || !socket.request.session.passport.user) {
                 next(new Error(`required login: ${socket.id}`));
+            } else {
+                next();
             }
         });
 
@@ -29,40 +31,42 @@ class SocketRouter {
             this.users[socket.id] = user;
             console.log(`new connected: ${socket.id}`);
 
+            const that = this;
             socket.on('joinProjectRoom', ({projectId}) => co(function* () {
-                projectSocket = yield this.joinProjectRoom(user, projectId);
+                projectSocket = yield that.joinProjectRoom(user, projectId);
                 yield projectSocket.joinProjectRoom(user);
             }).catch(err => console.error(err)));
 
             socket.on('leaveProjectRoom', () => co(function* () {
-                yield this.leaveProjectRoom(user);
+                yield that.leaveProjectRoom(user);
                 yield projectSocket.leaveProjectRoom(user);
             }).catch(err => console.error(err)));
 
             socket.on('disconnect', () => co(function* () {
                 if (user.projectId) {
-                    yield this.leaveProjectRoom(user);
+                    yield that.leaveProjectRoom(user);
                     yield projectSocket.leaveProjectRoom(user);
                 }
                 console.log(`disconnect: ${socket.id}`);
                 user.active = false;
-                delete this.users[socket.id];
+                delete that.users[socket.id];
             }).catch(err => console.error(err)));
         });
     }
 
     joinProjectRoom(user, projectId) {
+        const that = this;
         return co(function* () {
             const project = yield Project.findById(projectId, {include: []});
             if (!project) throw new Error(`invalid project id: ${projectId}`);
 
-            if (!this.projects[projectId]) {
-                this.projects[projectId] = new SocketProject(this.io, projectId);
+            if (!that.projects[projectId]) {
+                that.projects[projectId] = new SocketProject(that.io, projectId);
             }
 
-            const projectSocket = this.projects[projectId];
+            const projectSocket = that.projects[projectId];
 
-            projectSocket.joinUser(user);
+            projectSocket.joinRoom(user);
             user.projectId = projectId;
 
             return projectSocket;
