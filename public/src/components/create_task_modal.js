@@ -61,7 +61,7 @@ class CreateTaskModal extends EventEmitter2 {
                         <label for="body" class="control-label">
                             <span class="glyphicon glyphicon-align-left" aria-hidden="true"></span> 説明
                         </label>
-                        <textarea class="form-control" rows="15" id="body" placeholder="Body"
+                        <textarea class="form-control task-body" rows="15" id="body" placeholder="Body"
                                   data-bind="value: body"></textarea>
                     </div>
 

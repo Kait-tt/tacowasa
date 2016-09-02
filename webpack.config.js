@@ -59,7 +59,13 @@ const webpackConfig = {
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery'
-        })
+        }),
+        function() {
+            this.plugin('watch-run', (watching, callback) => {
+                console.log('Begin compile at ' + new Date());
+                callback();
+            })
+        }
     ],
 };
 

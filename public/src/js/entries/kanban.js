@@ -63,7 +63,7 @@ Project.fetch(projectId)
 // TODO: components化 or components.TaskDetailModal に移動
 function initIssueMarkDown() {
     let markDownEle;
-    const $content = $('#task-detail-modal>.body, #add-issue-body');
+    const $content = $('.task-body');
     let body = kanban.taskDetailModal.body;
 
     $.fn.markdown.messages['en'] = {
@@ -78,10 +78,12 @@ function initIssueMarkDown() {
     });
 
     body.subscribe(function () {
-        markDownEle.hidePreview();
-        setTimeout(function () {
-            markDownEle.showPreview();
-        }, 300);
+        if (markDownEle) {
+            markDownEle.hidePreview();
+            setTimeout(function () {
+                markDownEle.showPreview();
+            }, 300);
+        }
     });
 }
 

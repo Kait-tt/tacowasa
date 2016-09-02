@@ -23,7 +23,7 @@ class TaskDetailModal extends EventEmitter2 {
             this.title(task.title());
             this.body(task.body());
             this.cost(task.cost());
-            this.works(task.works.map(x => x.clone()));
+            this.works(task.works().map(x => x.clone()));
 
             this.selectedLabels.removeAll();
             task.labels().map(x => {this.selectedLabels.push(x);});
@@ -65,7 +65,7 @@ class TaskDetailModal extends EventEmitter2 {
     }
 
     cancelWorkHistory() {
-        this.works(this.task.works.map(x => x.clone()));
+        this.works(this.task().works().map(x => x.clone()));
         this.editWorkHistoryMode('view');
     }
 
@@ -74,12 +74,14 @@ class TaskDetailModal extends EventEmitter2 {
     }
 
     addWork() {
-        this.works.push(new Work({
+        const user = this.task().user;
+        const work = new Work({
             isEnded: true,
             startTime: new Date(),
             endTime: new Date(),
-            user: this.task.user
-        }));
+            user: user && user()
+        });
+        this.works.push(work);
     }
 
     update() {
