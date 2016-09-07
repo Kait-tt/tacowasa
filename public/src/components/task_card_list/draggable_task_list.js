@@ -37,10 +37,6 @@ class DraggableTaskList extends EventEmitter2 {
         this.user = user;
         this.id = _.uniqueId();
 
-        // リストを畳み込むか
-        // TODO: move to TaskCardList
-        this.isCollapse = ko.observable(true);
-
         // task の監視プロパティ名と、subscriptionを格納するプロパティ名（重複して監視しないようにするため）
         this.taskSubscriptionParams = [
             {targetProperty: 'stage', subscriptionName: `_draggableTaskList_subscriptionStage_${this.id}`},
@@ -169,11 +165,6 @@ class DraggableTaskList extends EventEmitter2 {
         // 3 and 4
         const beforeIdx = master.indexOf(slave[slaveIdx - 1]);
         return beforeIdx + 1 < master.length ? master[beforeIdx + 1] : null;
-    };
-
-    // リストの畳み込みフラグを切り替える
-    toggleCollapse() {
-        this.isCollapse(!this.isCollapse());
     };
 
     // taskが指定されたフィルター条件に合うか
