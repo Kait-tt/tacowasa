@@ -1,18 +1,16 @@
 'use strict';
-// require('bootstrap');
 require('babel-polyfill');
 require('jquery-ui');
 require('jquery.easing');
 require('marked');
 require('bootstrap');
 require('bootstrap-select');
-require('bootstrap-markdown/js/bootstrap-markdown');
-require('bootstrap-markdown/locale/bootstrap-markdown.ja.js');
 require('knockout');
 require('../modules/knockout/knockout-selectPicker');
 require('../modules/knockout/knockout-bootstrap-switch');
 require('../../scss/kanban.scss');
 // TODO: require knockout-bootstrap
+// TODO: require and init markdown
 
 const global = window;
 const ko = require('knockout');
@@ -53,39 +51,11 @@ Project.fetch(projectId)
         MiniMenu.init(null);
         ko.applyBindings(vm);
 
-        initIssueMarkDown();
         setConfirmTransition();
 
         // 統計モーダルを開いたら統計を計算
         $('#project-stats-modal').on('show.bs.modal', () => project.stats.calcIterationWorkTime());
     });
-
-// TODO: components化 or components.TaskDetailModal に移動
-function initIssueMarkDown() {
-    let markDownEle;
-    const $content = $('.task-body');
-    let body = kanban.taskDetailModal.body;
-
-    $.fn.markdown.messages['en'] = {
-        'Preview': 'Preview/Edit'
-    };
-
-    $content.markdown({
-        resize: 'both',
-        onShow: function (e) {
-            markDownEle = e;
-        }
-    });
-
-    body.subscribe(function () {
-        if (markDownEle) {
-            markDownEle.hidePreview();
-            setTimeout(function () {
-                markDownEle.showPreview();
-            }, 300);
-        }
-    });
-}
 
 // 作業中で画面遷移しようとしたら確認ダイアログを表示する
 function setConfirmTransition() {
