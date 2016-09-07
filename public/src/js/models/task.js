@@ -50,6 +50,7 @@ class Task {
 
     static get columnKeys() {
         return [
+            'id',
             'title',
             'body',
             'isWorking',

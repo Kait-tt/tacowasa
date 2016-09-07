@@ -1,0 +1,11 @@
+@charset "UTF-8";
+
+#create-task-modal {
+  .task-labels-view {
+    margin-top: 6px;
+    list-style: none;
+    li {
+      display: inline-block;
+    }
+  }
+}

@@ -89,7 +89,7 @@ class DraggableTaskList extends EventEmitter2 {
     subscribeMasterTasks(masterTasks) {
         masterTasks.subscribe(changes => {
             // deleted は後で必ず added が行われるので無視する
-            const tasks = _.chain(changes).find({status: 'added'}).map('value').value();
+            const tasks = _.chain(changes).filter({status: 'added'}).map('value').value();
 
             // 新しいTaskを監視する
             tasks.forEach(this.subscribeTask.bind(this));
