@@ -74,7 +74,7 @@
             <li class="stage-block" data-bind="attr: {id: stage.name}">
                 <h2 class="stage-title">
                     <span data-bind="text: stage.displayName"></span>
-                    <span class="badge" data-bind="text: $root.project.getTasks({stageOrWhere: stage}).length"></span>
+                    <span class="badge" data-bind="text: $root.project.getTasks({stageOrWhere: stage})().length"></span>
                     <!--ko if: stage.name() === 'done' -->
                     <a href="#" class="all-done-archive-button" data-toggle="modal" data-target="#archive-all-task-modal">Archive all</a>
                      <!--/ko -->
