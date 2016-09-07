@@ -80,6 +80,7 @@ describe('models', () => {
                 }
             }));
 
+            // TODO: n=3
             let n = 5;
             _.times(n, from => {
                 _.times(n, to => {
