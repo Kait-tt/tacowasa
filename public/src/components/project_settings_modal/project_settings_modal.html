@@ -1,0 +1,35 @@
+<div class="modal fade" id="project-settings-modal" tabindex="-1" role="dialog" aria-labelledby="project-settings-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="project-settings-modal-label">Project settings</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form">
+          <div class="form-group">
+            <label for="name" class="control-label">
+              <span class="glyphicon glyphicon-blackboard"> Name</span>
+            </label>
+            <p class="form-control-static" id="name" data-bind="text: project.name"></p>
+          </div>
+
+          <!-- TODO: github -->
+          <!-- ko if: false && github() -->
+          <div class="form-group">
+            <label for="github-link" class="control-label">
+              <span class="glyphicon glyphicon-link"> GitHub</span>
+            </label>
+            <p><a class="form-control-static" id="github-link" target="_blank" data-bind="
+                            text: github().userName() + '/' + github().repoName(),
+                            attr: { href: github().url } "></a></p>
+          </div>
+          <!-- /ko -->
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
