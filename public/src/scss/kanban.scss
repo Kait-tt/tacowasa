@@ -144,57 +144,6 @@ body{
         content: '';
       }
 
-      .user-label-area {
-        font-size: 1.2rem;
-        background-color: $ribbon-bg-color;
-        color: #fff;
-        padding: 7px 8px 6px;
-        position: relative;
-        box-shadow: 0 1px 1px #ccc;
-        $ribbon-size: 10px;
-        $ribbon-offset: 20px;
-
-        &::before{
-          content: '';
-          width: 0;
-          height: 0;
-          border: $ribbon-size solid transparent;
-          border-top-color: darken($ribbon-bg-color, 0%);
-          position: absolute;
-          right: $ribbon-offset;
-          bottom: -($ribbon-size * 2);
-        }
-
-        .user-name {
-          .user-avatar {
-            width: 24px;
-            height: 24px;
-          }
-          .close {
-            font-size: 14px;
-            float: none;
-          }
-          .user-settings-button {
-            color: #fff;
-            text-decoration: none;
-            &:hover {
-              color: #ccc;
-            }
-          }
-        }
-        .alert {
-          padding: 4px 4px 4px 6px;
-        }
-        .wip-limited-message{
-          font-size: 90%;
-          margin-left: 1rem;
-        }
-        .user-working-message {
-          font-size: 90%;
-          margin-left: 1rem;
-        }
-      }
-
       .stage-blocks {
         margin:20px (-$stage-block-horizontal-margin);
         &::after{
@@ -222,7 +171,7 @@ body{
   padding-bottom: $user-padding-height;
   position: relative;
 
-  .card-list {
+  .task-card-list {
     min-height: $task-card-height * 2 + $task-card-padding * 4;
     list-style-type: none;
     height: 100%;
