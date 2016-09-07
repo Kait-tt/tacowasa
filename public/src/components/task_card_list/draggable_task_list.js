@@ -61,7 +61,7 @@ class DraggableTaskList extends EventEmitter2 {
     subscribeSlaveTasks(slaveTasks) {
         slaveTasks.subscribe(changes => {
             // deleted の後に必ず added が来るはずなので、deleted は無視する
-            _.find(changes, {status: 'added'}).forEach(change => {
+            _.filter(changes, {status: 'added'}).forEach(change => {
                 const task = change.value;
 
                 // stage, user の変更
@@ -115,7 +115,7 @@ class DraggableTaskList extends EventEmitter2 {
     // slave task list で監視している task が存在する または
     // stage, assignee が match する task が存在する
     isRelatedTask(task) {
-        return this.existsId(task.id()) || this.matchCondition(task);
+        return this.existsTask(task) || this.matchCondition(task);
     };
 
     // slave task list を作り直す
@@ -173,8 +173,9 @@ class DraggableTaskList extends EventEmitter2 {
     };
 
     // IDが一致するtaskが存在するか
-    existsId(needleTaskId) {
-        return !!_.find(this.tasks(), task => task.id() === needleTaskId);
+    existsTask(task) {
+        const id = task.id();
+        return !!_.find(this.tasks(), x => x.id() === id);
     }
 
 }
