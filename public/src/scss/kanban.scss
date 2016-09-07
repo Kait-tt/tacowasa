@@ -93,7 +93,7 @@ body{
     transition: margin-left .2s ease-in-out;
   }
 
-  .cell-block {
+  .task-card-list {
     $offset: 1px;
     padding: $stage-block-horizontal-margin + 10px $stage-block-horizontal-margin + $offset 1em;
     margin: -$stage-block-horizontal-margin + 10px (-$stage-block-horizontal-margin - $offset) 0;
@@ -101,31 +101,18 @@ body{
     height: calc(100% - 60px);
     overflow: auto;
     position: static;
-
-    .dummy-user-cell-block {
-      height: $user-height + 14;
-      margin-bottom: $user-margin-bottom;
-      padding-top: $user-padding-height;
-      padding-bottom: $user-padding-height;
-      position: relative;
-
-      &:last-child {
-        margin-bottom: $user-margin-bottom;
-      }
-    }
   }
 }
 
 .user-block-area {
-  $offset: 10px;
   position: absolute;
   top: 70px;
   left: $stage-block-width * 2 + $stage-block-horizontal-margin * 4;
   width: $stage-block-width * 3 + $stage-block-horizontal-margin * 6;
   overflow: auto;
   height: calc(100% - 70px);
-  margin: 0 ($stage-block-horizontal-margin - $offset);
-  padding: 0 $offset;
+  margin: 0 $stage-block-horizontal-margin;
+  padding: 0;
   overflow-x: hidden;
 
   ul.user-blocks {
@@ -145,19 +132,26 @@ body{
       }
 
       .stage-blocks {
-        margin:20px (-$stage-block-horizontal-margin);
+        margin: 20px (-$stage-block-horizontal-margin - 10px);
+
         &::after{
           clear: both;
           display: block;
           content: '';
         }
+
         .stage-block {
           background-color: inherit;
           box-shadow: none;
-          margin: 0 $stage-block-horizontal-margin;
-          .user-cell-block {
+          margin: 0 $stage-block-horizontal-margin * 2 0 0;
+          min-height: $user-height;
+
+          &:last-child {
             margin: 0;
-            padding: 0;
+          }
+
+          .task-card-list {
+            height: 100%;
           }
         }
       }
@@ -165,44 +159,6 @@ body{
   }
 }
 
-.user-cell-block {
-  margin-bottom: $user-margin-bottom;
-  padding-top: $user-padding-height;
-  padding-bottom: $user-padding-height;
-  position: relative;
-
-  .task-card-list {
-    min-height: $task-card-height * 2 + $task-card-padding * 4;
-    list-style-type: none;
-    height: 100%;
-    overflow: visible;
-  }
-
-  .each-all-issues-view-button {
-    display: block;
-    text-align: center;
-    padding: 1rem 0;
-    text-decoration: none;
-    box-shadow: 0 0 10px #ccc;
-    border: 1px solid #fff;
-    background-color: #fff;
-    transition: all .2s ease;
-    &:hover{
-      background-color: #f0f0f0;
-    }
-    .glyphicon {
-      font-size: 18px;
-      vertical-align: text-top;
-    }
-  }
-}
-
-.task-labels-view {
-  margin-top: 6px;
-  li {
-    display: inline-block;
-  }
-}
 
 .all-done-archive-button {
   display: block;

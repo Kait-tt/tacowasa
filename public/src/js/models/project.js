@@ -154,7 +154,7 @@ class Project {
         const user = task.user();
         if (user) {
             user.workingTask(task);
-            user.wip(user.wip() + task.cost.value());
+            user.wip(user.wip() + task.cost().value());
         }
 
         this.tasks.unshift(task);
