@@ -174,8 +174,9 @@ class Project {
         const user = userOrWhere && this.getUser(userOrWhere);
         if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
         if (!stage) { throw new Error(`stage was not found. : ${stageOrWhere}`); }
+        if (userOrWhere && !user) { throw new Error(`user was not found. : ${userOrWhere}`); }
 
-        task.stage(task);
+        task.stage(stage);
         task.user(user);
     }
 

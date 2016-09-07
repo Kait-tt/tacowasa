@@ -137,7 +137,7 @@ class SocketProject {
             const updatedTask = yield Task.updateStatus(that.projectId, taskId, {userId, stageId});
             const assignedUser = userId && (yield Member.findByUserId(that.projectId, userId));
             const assignedUsername = assignedUser && assignedUser.username;
-            const stage = yield Stage.findById(projectId, stageId);
+            const stage = yield Stage.findById(that.projectId, stageId);
             that.emits('updateTaskStatus', {task: updatedTask});
             return yield that.notifyText(user.username, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}`)
         });

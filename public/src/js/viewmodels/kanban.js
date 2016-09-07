@@ -14,6 +14,9 @@ const Socket = require('../models/socket');
 const ProjectStats = require('../models/project_stats');
 const SocketSerializer = require('../models/socket_serializer');
 
+// viewmodels
+const DraggableTaskList = require('../../components/task_card_list/draggable_task_list');
+
 // components
 const CreateTaskModel = require('../../components/create_task_modal');
 const AssignTaskModal = require('../../components/assign_task_modal');
@@ -244,8 +247,10 @@ class Kanban extends EventEmitter2 {
         this.taskCardList.on('updateTaskStatus', ({task, stage, user}) => {
             this.socket.emit('updateTaskStatus', {
                 taskId: task.id(),
-                stageId: stage && stage.id(),
-                userId: user && user.id()
+                updateParams: {
+                    stageId: stage && stage.id(),
+                    userId: user && user.id()
+                }
             });
         });
         this.taskCardList.on('updateTaskOrder', ({task, afterTask}) => {
@@ -277,7 +282,7 @@ class Kanban extends EventEmitter2 {
         }
 
         // WIPLimitに達するか
-        if (task.user !== list.user) {
+        if (list.user && task.user() !== list.user) {
             const user = list.user;
             const cost = task.cost();
             if (user.willBeOverWipLimit(cost.value())) {
