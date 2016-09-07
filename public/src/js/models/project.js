@@ -44,8 +44,8 @@ class Project {
         (opts.stages || []).forEach(x => this.addStage(x));
         (opts.costs || []).forEach(x => this.addCost(x));
         (opts.labels || []).forEach(x => this.addLabel(x));
-        (opts.users || []).forEach(x => this.addUser(x));
-        (opts.tasks || []).forEach(x => this.addTask(x));
+        _.reverse(opts.users || []).forEach(x => this.addUser(x));
+        _.reverse(opts.tasks || []).forEach(x => this.addTask(x));
 
         // defaultValue init
         this.defaultStage = ko.computed(() => this.stages().find(x => x.id() === opts.defaultStage.id));

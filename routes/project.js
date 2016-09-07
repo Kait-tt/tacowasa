@@ -21,7 +21,7 @@ router.get('/:projectId/:projectName', function (req, res, next) {
             logined: true,
             username: username
         }))
-        .catch(err => next(new Error(err)));
+        .catch(err => next(err));
 });
 
 module.exports = router;
