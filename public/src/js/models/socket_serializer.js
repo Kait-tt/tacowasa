@@ -61,7 +61,7 @@ class SocketSerializer {
     }
 
     onUpdateUserOrder({username, beforeUsername}) {
-        this.project.updateUserOrder({username}, {username: beforeUsername});
+        this.project.updateUserOrder({username}, beforeUsername && {username: beforeUsername});
     }
 
     onCreateTask({task}) {

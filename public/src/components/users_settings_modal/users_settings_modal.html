@@ -24,10 +24,10 @@
             <td data-bind="text: wip() + '/' + wipLimit()"></td>
             <td>
               <div class="btn-group" role="group">
-                <button type="button" class="btn btn-xs btn-default" data-bind="click: $root.orderUp">
+                <button type="button" class="btn btn-xs btn-default" data-bind="click: $parent.orderUp.bind($parent)">
                   <span class="glyphicon glyphicon-triangle-top"></span>
                 </button>
-                <button type="button" class="btn btn-xs btn-default" data-bind="click: $root.orderDown">
+                <button type="button" class="btn btn-xs btn-default" data-bind="click: $parent.orderDown.bind($parent)">
                   <span class="glyphicon glyphicon-triangle-bottom"></span>
                 </button>
               </div>

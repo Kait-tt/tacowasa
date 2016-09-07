@@ -139,7 +139,7 @@ class Kanban extends EventEmitter2 {
         this.usersSettingsModal.on('updateOrder', ({user, beforeUser}) => {
             this.socket.emit('updateUserOrder', {
                 username: user.username(),
-                beforeUsername: beforeUser.username()
+                beforeUsername: beforeUser && beforeUser.username()
             });
         });
         this.usersSettingsModal.on('visible', ({user, isVisible}) => {
