@@ -30,7 +30,7 @@ const alert = new Alert();
 
 const scroller = new Scroller({
     selector: ['.task-board'].join(','),
-    cancelSelector: ['.card', '.activity-wrap', '.modal'].join(',')
+    cancelSelector: ['.task-card', '.activity-wrap', '.modal'].join(',')
 });
 
 Project.fetch(projectId)
