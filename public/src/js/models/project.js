@@ -153,7 +153,7 @@ class Project {
 
         // update user#workingTask and user#wip
         const user = task.user();
-        if (user) {
+        if (user && task.isWorking()) {
             user.workingTask(task);
             user.wip(user.wip() + task.cost().value());
         }

@@ -11,8 +11,10 @@ class TaskCard extends EventEmitter2 {
         this.emit('clickTaskCard', {task});
     }
 
-    onClickWork(task) {
+    onClickWork(task, vm, ele) {
         this.emit('clickWork', {task});
+        ele.stopPropagation();
+        return false;
     }
 
     register() {

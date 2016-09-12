@@ -8,7 +8,7 @@ class User {
         User.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
         User.memberColumnKeys.forEach(key => this[key] = ko.observable(opts.member[key]));
 
-        this.workingTask = ko.observable();
+        this.workingTask = ko.observable(false);
 
         // 作業開始からどのくらいの時間がたっているか
         this.workingTime = ko.computed(() => {
