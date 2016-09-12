@@ -35,7 +35,7 @@ class ProjectStats {
                 }
             });
 
-            return _.map(res, (name, time) => {
+            return _.map(res, (time, name) => {
                 return {name, time, format: util.dateFormatHM(time)};
             });
         }, this);
@@ -52,8 +52,8 @@ class ProjectStats {
     get _works() {
         const res = [];
 
-        this.project.issues().forEach(issue => {
-            issue.workHistory().forEach(work => {
+        this.project.tasks().forEach(task => {
+            task.works().forEach(work => {
                 res.push(work);
             });
         });

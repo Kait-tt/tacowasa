@@ -52,9 +52,6 @@ Project.fetch(projectId)
         ko.applyBindings(vm);
 
         setConfirmTransition();
-
-        // 統計モーダルを開いたら統計を計算
-        $('#project-stats-modal').on('show.bs.modal', () => project.stats.calcIterationWorkTime());
     });
 
 // 作業中で画面遷移しようとしたら確認ダイアログを表示する
