@@ -1,7 +1,11 @@
 'use strict';
 const ko = require('knockout');
+require('jquery-ui');
+require('./knockout-sortable');
 const EventEmitter2 = require('eventemitter2');
 const _ = require ('lodash');
+
+const instances = [];
 
 /**
  * DraggableUI 用の TaskList
@@ -54,29 +58,8 @@ class DraggableTaskList extends EventEmitter2 {
         // subscribe
         this.subscribeMasterTasks(this.masterTasks);
         this.masterTasks().forEach(this.subscribeTask.bind(this));
-        this.subscribeSlaveTasks(this.tasks);
-    }
 
-    // slave task list の変更を監視する
-    subscribeSlaveTasks(slaveTasks) {
-        slaveTasks.subscribe(changes => {
-            // deleted の後に必ず added が来るはずなので、deleted は無視する
-            _.filter(changes, {status: 'added'}).forEach(change => {
-                const task = change.value;
-
-                // stage, user の変更
-                if (!this.matchCondition(task)) {
-                    this.emit('updatedStatus', {task, stage: this.stage, user: this.user});
-                }
-
-                // priority の変更
-                if (!this.needUpdatePriority(task, this.masterTasks, this.tasks)) {
-                    const beforeTask = this.getTaskInsertBeforeOf(task, this.masterTasks, this.tasks);
-                    this.emit('updatedOrder', {task, beforeTask});
-                }
-            }, this);
-
-        }, this, 'arrayChange');
+        instances.push(this);
     }
 
     // master task list の変更を監視する
@@ -113,14 +96,13 @@ class DraggableTaskList extends EventEmitter2 {
     // slave task list で監視している task が存在する または
     // stage, assignee が match する task が存在する
     isRelatedTask(task) {
-        return this.existsTask(task) || this.matchCondition(task);
+        return this.existsTask(task) || this.matchCondition({stage: task.stage(), user: task.user()});
     };
 
     // slave task list を作り直す
     // ただし、observableArrayは別で利用されている場合があるので、arrayの中身だけ入れ替える
     allUpdateTasks(masterTasks) {
-        const match = this.matchCondition.bind(this);
-        const nextTasks = masterTasks().filter(match);
+        const nextTasks = masterTasks().filter(x => this.matchCondition({stage: x.stage(), user: x.user()}));
 
         // pushやremoveを使うとうまい具合に通知してくれない
         const args = nextTasks;
@@ -166,8 +148,8 @@ class DraggableTaskList extends EventEmitter2 {
     };
 
     // taskが指定されたフィルター条件に合うか
-    matchCondition(task) {
-        return task.stage() === this.stage && task.user() === this.user;
+    matchCondition({stage, user}) {
+        return stage === this.stage && user === this.user;
     };
 
     // IDが一致するtaskが存在するか
@@ -176,7 +158,28 @@ class DraggableTaskList extends EventEmitter2 {
         return !!_.find(this.tasks(), x => x.id() === id);
     }
 
+    static afterMove({item: task}) {
+        instances
+            .filter(taskList => taskList.isRelatedTask(task))
+            .forEach(taskList => {
+                // stage, user の変更
+                if (!taskList.matchCondition({user: task.user(), stage: task.stage()})) {
+                    taskList.emit('updatedStatus', {task, stage: taskList.stage, user: taskList.user});
+                }
+
+                // priority の変更
+                if (taskList.existsTask(task) && !taskList.needUpdatePriority(task, taskList.masterTasks, taskList.tasks)) {
+                    const beforeTask = taskList.getTaskInsertBeforeOf(task, taskList.masterTasks, taskList.tasks);
+                    taskList.emit('updatedOrder', {task, beforeTask});
+                }
+            });
+    }
+
+    static get instances() {
+        return instances;
+    }
 }
 
+ko.bindingHandlers.sortable.afterMove = DraggableTaskList.afterMove;
 
 module.exports = DraggableTaskList;
