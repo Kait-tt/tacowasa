@@ -93,6 +93,10 @@ class Kanban extends EventEmitter2 {
                 this.socket.emit('joinProjectRoom', {projectId: this.project.id()});
             }
         }
+
+        this.socket.on('disconnect', () => {
+            joined = false;
+        });
     }
 
     initModals() {
