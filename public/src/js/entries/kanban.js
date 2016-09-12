@@ -41,7 +41,7 @@ Project.fetch(projectId)
 
         // knockout sortable option
         ko.bindingHandlers.sortable.options.scroll = false;
-        ko.bindingHandlers.sortable.beforeMove = kanban.onBeforeMoveDrag;
+        ko.bindingHandlers.sortable.beforeMove = kanban.onBeforeMoveDrag.bind(kanban);
 
         vm = kanban;
         vm.alerts = alert.alerts;

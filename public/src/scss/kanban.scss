@@ -121,7 +121,7 @@ body{
     li.user-block {
       position: relative;
       width: $stage-block-width * 3 + $stage-block-horizontal-margin * 4;
-      min-height: 200px;
+      min-height: 140px;
       z-index: 5;
       list-style: none;
 
@@ -132,7 +132,7 @@ body{
       }
 
       .stage-blocks {
-        margin: 0 (-$stage-block-horizontal-margin - 10px) 20px;
+        margin: 0 (-$stage-block-horizontal-margin - 10px);
 
         &::after{
           clear: both;
@@ -151,7 +151,7 @@ body{
           }
 
           .task-card-list {
-            height: 200px;
+            min-height: 175px;
             overflow: hidden;
             margin-bottom: 0;
           }
@@ -179,6 +179,7 @@ body{
   position: fixed;
   z-index: 101;
   bottom: 0;
+
   #activity {
     margin-top: 10px;
     padding-top: 6px;

@@ -1,2 +1,23 @@
 @charset "UTF-8";
 @import "../../scss/variables";
+
+.expand-collapse-task-list-button {
+  display: block;
+  text-align: center;
+  padding: 1rem 0;
+  text-decoration: none;
+  box-shadow: 0 0 10px #ccc;
+  border: 1px solid #fff;
+  background-color: #fff;
+  transition: all .2s ease;
+  margin: -10px 0 10px;
+
+  &:hover{
+    text-decoration: none;
+    background-color: #f0f0f0;
+  }
+
+  .badge {
+    vertical-align: top;
+  }
+}

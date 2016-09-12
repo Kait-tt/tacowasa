@@ -9,12 +9,12 @@
 <!-- /ko -->
 
 <!-- ko if: user -->
-<a href="#" class="each-all-issues-view-button" data-bind="click: toggleCollapse, visible: tasks().length > 2">
+<a href="#" class="expand-collapse-task-list-button" data-bind="click: toggleCollapse, visible: tasks().length > 2">
   <span class="glyphicon" data-bind="css: {
       'glyphicon-collapse-down': isCollapse(),
       'glyphicon-collapse-up': !isCollapse()
   }"></span>
-  <span data-bind="text: isCollapse() ? 'Hide ' : 'View all '"></span>
+  <span data-bind="text: isCollapse() ? 'View ' : 'Hide '"></span>
   <span class="badge" data-bind="text: tasks().length"></span>
 </a>
 <!-- /ko -->
