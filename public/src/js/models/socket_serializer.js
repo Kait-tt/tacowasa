@@ -85,7 +85,7 @@ class SocketSerializer {
     }
 
     onUpdateTaskWorkHistory({task, works}) {
-        this.project.updateWorkHistory({id: task.id}, works);
+        this.project.updateTaskWorkHistory({id: task.id}, works);
     }
 
     onUpdateTaskOrder({task, beforeTask}) {

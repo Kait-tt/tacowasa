@@ -6,7 +6,7 @@ const moment = require('moment');
 
 class Work {
     constructor(opts) {
-        Work.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
+        Work.columnKeys.forEach(key => this[key] = ko.isObservable(opts[key]) ? opts[key] : ko.observable(opts[key]));
 
         // isEndedの修正... // TODO: databaseを直す
         if (!opts.isEnded && opts.userId && opts.endTime) {
@@ -48,7 +48,7 @@ class Work {
         this.username = ko.computed(() => {
             const user = this.user();
             return user && user.username();
-        });
+        }, this);
     }
 
     static get columnKeys() {
@@ -119,15 +119,6 @@ class Work {
         if (start < end) { return end - start; }
         else if (start > end) { return -(start - end); } // TODO: start > end ってなんだ...？
         else { return 0; }
-    }
-
-    // TODO: いる？
-    toMinimumObject() {
-        const res = {};
-        Work.columnKeys.forEach(key => {
-            res[key] =  this[key]();
-        });
-        return res;
     }
 }
 

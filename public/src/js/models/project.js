@@ -146,7 +146,8 @@ class Project {
         taskParams.cost = taskParams.cost && this.getCost({id: taskParams.cost.id});
         taskParams.stage = taskParams.stage && this.getStage({id: taskParams.stage.id});
         taskParams.works = (taskParams.works || []).map(workParams => {
-            return workParams.user && this.getUser({id: workParams.user.id});
+            workParams.user = workParams.user && this.getUser({id: workParams.user.id});
+            return new Work(workParams);
         });
         const task = new Task(taskParams);
 
@@ -211,6 +212,7 @@ class Project {
 
         const workInstances = works.map(work => {
             work.user = work.user && this.getUser({id: work.user.id});
+            console.log(work.user);
             return new Work(work);
         });
         task.works(workInstances);

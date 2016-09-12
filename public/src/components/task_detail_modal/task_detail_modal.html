@@ -113,7 +113,7 @@
                   <td data-bind="text: startTimeFormat"></td>
                   <td data-bind="text: endTimeFormat"></td>
                   <td data-bind="text: duration"></td>
-                  <td data-bind="text: userName"></td>
+                  <td data-bind="text: username"></td>
                 </tr>
                 </tbody>
                 <!-- /ko -->
@@ -133,9 +133,9 @@
                   <td data-bind="css: { 'has-error': !isValidUser() } ">
                     <select class="form-control"
                             data-bind="options: $root.users,
-                                                optionsText: 'username',
-                                                optionsValue: 'username',
-                                                optionsCaption: '(no assignee)'" required>
+                                       optionsText: 'username',
+                                       value: user,
+                                       optionsCaption: '(no assignee)'" required>
                     </select>
                   </td>
                   <td>

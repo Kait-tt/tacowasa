@@ -221,9 +221,10 @@ class Kanban extends EventEmitter2 {
             })
         });
         this.taskDetailModal.on('saveWorkHistory', ({task, works}) => {
-            this.socket.emit('updateTaskHistory', {
-                taskId: task.id,
-                works: works.map(x => x.deserialize())
+            const taskId = task.id();
+            this.socket.emit('updateTaskWorkHistory', {
+                taskId: taskId,
+                works: works.map(x => _.assign(x.deserialize(), {taskId: taskId}))
             });
         });
         this.selectedTask.subscribe(x => this.taskDetailModal.task(x));

@@ -162,7 +162,7 @@ class SocketProject {
     updateTaskWorkHistory(user, {taskId, works}) {
         return Task.updateWorkHistory(this.projectId, taskId, works)
             .then(task => {
-                this.emits('updateTaskWorkHistory', {task, works});
+                this.emits('updateTaskWorkHistory', {task, works: task.works});
                 return this.notifyText(user.username, `updated work history: ${task.title}`);
             })
     }
