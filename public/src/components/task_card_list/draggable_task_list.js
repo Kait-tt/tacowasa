@@ -27,7 +27,7 @@ const _ = require ('lodash');
  * @param {model.Stage} o.stage   Stage
  * @param {ko.observableArray} o.masterTasks   Master task list
  * @event updatedStatus(task, stage, user)
- * @event updatedOrder(task, afterTask)
+ * @event updatedOrder(task, beforeTask)
  */
 class DraggableTaskList extends EventEmitter2 {
     constructor({eventEmitterOptions={}, masterTasks, stage, user}) {
@@ -71,10 +71,8 @@ class DraggableTaskList extends EventEmitter2 {
 
                 // priority の変更
                 if (!this.needUpdatePriority(task, this.masterTasks, this.tasks)) {
-                    const afterTask = this.getTaskInsertBeforeOf(task, this.masterTasks, this.tasks);
-                    if (afterTask) {
-                        this.emit('updatedOrder', {task, afterTask});
-                    }
+                    const beforeTask = this.getTaskInsertBeforeOf(task, this.masterTasks, this.tasks);
+                    this.emit('updatedOrder', {task, beforeTask});
                 }
             }, this);
 

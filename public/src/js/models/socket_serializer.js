@@ -90,7 +90,7 @@ class SocketSerializer {
     }
 
     onUpdateTaskOrder({task, beforeTask}) {
-        this.project.updateTaskOrder({id: task.id}, {id: beforeTask.id});
+        this.project.updateTaskOrder({id: task.id}, beforeTask && {id: beforeTask.id});
     }
 
     onAttachLabel({task, label}) {

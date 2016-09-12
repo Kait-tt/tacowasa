@@ -207,7 +207,11 @@ describe('models', () => {
                             }));
 
                             it(`should be ordered`, () => Task.getAllSorted(project.id).then(tasks => {
-                                expect(_.map(tasks, 'id')).to.eql(ids);
+                                tasks.forEach(({id, prevTaskId, nextTaskId}, idx) => {
+                                    expect(id).to.equal(ids[idx]);
+                                    expect(prevTaskId).to.equal(idx ? ids[idx - 1] : null);
+                                    expect(nextTaskId).to.equal(idx + 1 < 5 ? ids[idx + 1] : null);
+                                });
                             }));
                         });
                     });
@@ -221,7 +225,11 @@ describe('models', () => {
                         }));
 
                         it(`should ordered`, () => Task.getAllSorted(project.id).then(tasks => {
-                            expect(_.map(tasks, 'id')).to.eql(ids);
+                            tasks.forEach(({id, prevTaskId, nextTaskId}, idx) => {
+                                expect(id).to.equal(ids[idx]);
+                                expect(prevTaskId).to.equal(idx ? ids[idx - 1] : null);
+                                expect(nextTaskId).to.equal(idx + 1 < 5 ? ids[idx + 1] : null);
+                            });
                         }));
                     });
                 });
