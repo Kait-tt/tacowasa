@@ -153,9 +153,11 @@ class Project {
 
         // update user#workingTask and user#wip
         const user = task.user();
-        if (user && task.isWorking()) {
-            user.workingTask(task);
+        if (user) {
             user.wip(user.wip() + task.cost().value());
+            if (task.isWorking()) {
+                user.workingTask(task);
+            }
         }
 
         this.tasks.unshift(task);
@@ -177,8 +179,21 @@ class Project {
         if (!stage) { throw new Error(`stage was not found. : ${stageOrWhere}`); }
         if (userOrWhere && !user) { throw new Error(`user was not found. : ${userOrWhere}`); }
 
+        const oldUser = task.user();
+
         task.stage(stage);
         task.user(user);
+
+        // update wip
+        if (oldUser !== user) {
+            if (oldUser) {
+                oldUser.wip(oldUser.wip() - task.cost().value());
+            }
+
+            if (user) {
+                user.wip(user.wip() + task.cost().value());
+            }
+        }
     }
 
     updateTaskContent(taskOrWhere, title, body, costOrWhere) {
