@@ -304,7 +304,7 @@ class Project {
         const label = this.getLabel(labelOrWhere);
         if (!label) { throw new Error(`label was not found. : ${labelOrWhere}`); }
 
-        task.attachLabel(label); // TODO: task#attachLabel
+        task.labels.push(label);
     }
 
     detachLabel(taskOrWhere, labelOrWhere) {
@@ -313,7 +313,7 @@ class Project {
         const label = this.getLabel(labelOrWhere);
         if (!label) { throw new Error(`label was not found. : ${labelOrWhere}`); }
 
-        task.detachLabel(label);  // TODO: task#detachLabel
+        task.labels.remove(label);
     }
 
     replaceLabelAll(newLabels, newTasks) {

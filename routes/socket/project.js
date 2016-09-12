@@ -177,7 +177,7 @@ class SocketProject {
 
     attachLabel(user, {taskId, labelId}) {
         return Label.attach(this.projectId, labelId, taskId)
-            .then((task, label) => {
+            .then(({task, label}) => {
                 this.emits('attachLabel', {task, label});
                 return this.notifyText(user.username, `attached label: {label: ${label.name}, task: ${task.name}}`);
             });
@@ -185,7 +185,7 @@ class SocketProject {
 
     detachLabel(user, {taskId, labelId}) {
         return Label.detach(this.projectId, labelId, taskId)
-            .then((task, label) => {
+            .then(({task, label}) => {
                 this.emits('detachLabel', {task, label});
                 return this.notifyText(user.username, `detached label: {label: ${label.name}, task: ${task.name}}`);
             });

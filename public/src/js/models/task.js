@@ -7,7 +7,7 @@ class Task {
     constructor(opts) {
         Task.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
 
-        this.labels = ko.observable(opts.labels);
+        this.labels = ko.observableArray(opts.labels);
         this.works = ko.observableArray(opts.works || []);
 
         this.isVisible = ko.observable(true); // local

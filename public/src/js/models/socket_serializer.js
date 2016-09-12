@@ -93,11 +93,11 @@ class SocketSerializer {
     }
 
     onAttachLabel({task, label}) {
-        this.attachLabel({id: task.id}, {id: label.id});
+        this.project.attachLabel({id: task.id}, {id: label.id});
     }
 
     onDetachLabel({task, label}) {
-        this.detachLabel({id: task.id}, {id: label.id});
+        this.project.detachLabel({id: task.id}, {id: label.id});
     }
 
 

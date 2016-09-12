@@ -201,20 +201,20 @@ class Kanban extends EventEmitter2 {
                 updateParams: {
                     title,
                     body,
-                    cost: cost.id()
+                    costId: cost.id()
                 }
             });
 
             const attachLabels = _.difference(labels, task.labels());
-            const detachLabels = _.difference(task.labels(), labels());
+            const detachLabels = _.difference(task.labels(), labels);
             attachLabels.forEach(label => {
-                this.socket.emit('attackLabel', {
+                this.socket.emit('attachLabel', {
                     taskId: task.id(),
                     labelId: label.id()
                 })
             });
             detachLabels.forEach(label => {
-                this.socket.emit('detachLabels', {
+                this.socket.emit('detachLabel', {
                     taskId: task.id(),
                     labelId: label.id()
                 });
