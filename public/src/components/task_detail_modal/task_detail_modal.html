@@ -139,7 +139,7 @@
                     </select>
                   </td>
                   <td>
-                    <a class="remove-work glyphicon glyphicon-trash" role="button" data-bind="click: $root.removeWork"></a>
+                    <a class="remove-work glyphicon glyphicon-trash" role="button" data-bind="click: $parent.removeWork.bind($parent, $data)"></a>
                   </td>
                 </tr>
                 </tbody>
