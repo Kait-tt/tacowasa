@@ -107,7 +107,7 @@ class SocketProject {
             });
     }
 
-    updateUserOrder(user, {username, beforeUsername=null}) {
+    updateUserOrder(user, {username, beforeUsername}) {
         return Member.updateOrder(this.projectId, username, beforeUsername)
             .then(() => {
                 this.emits('updateUserOrder', {username, beforeUsername});
@@ -167,9 +167,10 @@ class SocketProject {
             });
     }
 
-    updateTaskOrder(user, {taskId, beforeTaskId=null}) {
+    updateTaskOrder(user, {taskId, beforeTaskId}) {
         return Task.updateOrder(this.projectId, taskId, beforeTaskId)
-            .then(({task, beforeTask}) => {
+            .then(({task, beforeTask, updated}) => {
+                if (!updated) { return Promise.resolve(); }
                 this.emits('updateTaskOrder', {task, beforeTask});
                 return this.notifyText(user.username, `update task order: insert ${taskId} before ${beforeTaskId}`);
             });
