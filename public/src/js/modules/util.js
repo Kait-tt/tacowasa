@@ -69,6 +69,15 @@ const util = {
     },
 
     moveToBefore: (ary, target, beforeOf) => {
+        const pos = ary.indexOf(target);
+        if (pos === -1) { return; }
+
+        const unwrappedArray = ko.unwrap(ary);
+        const currentBeforeOf = pos + 1 < unwrappedArray.length ? unwrappedArray[pos + 1] : null;
+
+        if (currentBeforeOf && beforeOf) { return; }
+        if (!currentBeforeOf && !beforeOf) { return; }
+
         // remove
         ary.splice(ary.indexOf(target), 1);
 

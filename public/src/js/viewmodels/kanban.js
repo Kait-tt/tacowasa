@@ -261,7 +261,7 @@ class Kanban extends EventEmitter2 {
         this.taskCardList.on('updateTaskOrder', ({task, beforeTask}) => {
             this.socket.emit('updateTaskOrder', {
                 taskId: task.id(),
-                beforeTaskId: beforeTask && beforeTask.id()
+                beforeTaskId: beforeTask ? beforeTask.id() : null
             });
         });
         this.taskCardList.register();
