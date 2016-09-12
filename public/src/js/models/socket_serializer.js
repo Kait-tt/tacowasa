@@ -19,8 +19,8 @@ class SocketSerializer {
 
     /*** on events ***/
 
-    onNotifyText({text}) {
-        this.kanban.activitiesTexts.push(text);
+    onNotifyText(activity) {
+        this.kanban.addActivity(activity);
     }
 
     onJoinRoom({username}) {

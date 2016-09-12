@@ -69,7 +69,8 @@ class SocketProject {
     /// events
 
     notifyText(username, text) {
-        // TODO: this is stub
+        // TODO: save activity on db
+        this.emits('notifyText', {sender: username, content: text});
         return Promise.resolve();
     }
 
@@ -172,7 +173,7 @@ class SocketProject {
             .then(({task, beforeTask, updated}) => {
                 if (!updated) { return Promise.resolve(); }
                 this.emits('updateTaskOrder', {task, beforeTask});
-                return this.notifyText(user.username, `update task order: insert ${taskId} before ${beforeTaskId}`);
+                return this.notifyText(user.username, `update task order: insert ${task.title} before ${beforeTask ? beforeTask.title : null}`);
             });
     }
 

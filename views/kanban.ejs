@@ -71,7 +71,7 @@
 <div id="main" class="main" data-bind="visible: true, css: {'compact': viewMode() === 'compact'}" style="display: none">
     <div class="task-board">
         <ul class="stage-blocks" data-bind="foreach: {data: stages, as: 'stage'}">
-            <li class="stage-block" data-bind="attr: {id: stage.name}">
+            <li class="stage-block" data-bind="attr: {'data-stage-name': stage.name}">
                 <h2 class="stage-title">
                     <span data-bind="text: stage.displayName"></span>
                     <span class="badge" data-bind="text: $root.project.getTasks({stageOrWhere: stage})().length"></span>
@@ -104,8 +104,8 @@
 
     <div id="activity-wrap" class="activity-wrap">
         <div id="activity" class="scroll-wrap">
-            <ul data-bind="foreach: { data: activitiesTexts, afterAdd: view.effects.scrollDown }">
-                <li data-bind="text: $data"></li>
+            <ul data-bind="foreach: { data: activities, afterAdd: view.effects.scrollDown }">
+                <li data-bind="text: displayText"></li>
             </ul>
         </div>
     </div>

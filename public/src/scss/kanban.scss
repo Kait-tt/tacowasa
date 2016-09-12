@@ -29,13 +29,17 @@ body{
     height: 0;
   }
 
-  #issue-block {
-    margin-left: -$stage-block-width;
+  .stage-block[data-stage-name="issue"] {
+    margin-left: -$stage-block-width - $stage-block-horizontal-margin * 2;
     overflow: hidden;
   }
 
-  #archive-block {
+  .stage-block[data-stage-name="archive"] {
     overflow: hidden;
+  }
+
+  .user-block-area {
+    left: $stage-block-width * 1 + $stage-block-horizontal-margin * 2;
   }
 }
 
@@ -45,11 +49,14 @@ body{
   float: left;
   height: 100% - $activity-wrap-height;
   overflow: hidden;
+  margin-left: -10px;
+
   &::after{
     clear: both;
     display: table-cell;
     content: '';
   }
+
   .stage-blocks {
     position: relative;
     list-style-type: none;
@@ -67,6 +74,7 @@ body{
   overflow: visible;
   background-color: #fefefe;
   box-shadow: 0 0 10px #c0c0c0;
+  transition: margin-left .2s ease-in-out;
 
   .stage-title {
     position: relative;
@@ -82,15 +90,6 @@ body{
     .badge {
       vertical-align: 3px;
     }
-  }
-
-  &#issue-block {
-    transition: margin-left .2s ease-in-out;
-    margin-left: $stage-block-horizontal-margin * 2;
-  }
-
-  &#archive-block {
-    transition: margin-left .2s ease-in-out;
   }
 
   .task-card-list {
@@ -114,6 +113,7 @@ body{
   margin: 0 $stage-block-horizontal-margin;
   padding: 0;
   overflow-x: hidden;
+  transition: left .2s ease-in-out;
 
   ul.user-blocks {
     position: relative;
@@ -191,5 +191,10 @@ body{
     height: 100%;
     overflow-y: auto;
     word-wrap: break-word;
+
+    ul {
+      list-style: none;
+      margin-left: -40px;
+    }
   }
 }

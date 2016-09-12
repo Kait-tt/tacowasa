@@ -13,6 +13,7 @@ const localStorage = require('../modules/localStorage');
 const Socket = require('../models/socket');
 const ProjectStats = require('../models/project_stats');
 const SocketSerializer = require('../models/socket_serializer');
+const Activity = require('../models/activity');
 
 // viewmodels
 const DraggableTaskList = require('../../components/task_card_list/draggable_task_list');
@@ -45,7 +46,7 @@ class Kanban extends EventEmitter2 {
         super(eventEmitterOptions);
 
         this.joinedUsers = ko.observableArray();
-        this.activitiesTexts = ko.observableArray();
+        this.activities = ko.observableArray();
 
         this.searchQuery = ko.observable();
         this.searchQuery.subscribe(_.debounce(this.searchTasks, 500));
@@ -393,6 +394,10 @@ class Kanban extends EventEmitter2 {
     //     var time = moment(chat.created_at).format('MM/DD HH:mm:ss');
     //     that.chatTexts.push('[' + time + '] (' + chat.sender + ') ' + chat.content);
     // };
+
+    addActivity(activity) {
+        this.activities.push(new Activity(activity));
+    }
 }
 
 module.exports = Kanban;
