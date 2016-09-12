@@ -15,7 +15,7 @@ class Task {
         this.displayTitle = ko.computed(() => this.title());
 
         // 合計作業時間 (ms)
-        this.allWorkTime = ko.observable(this.calcAllWorkTime());
+        this.allWorkTime = ko.observable(0);
 
         // 合計作業時間 (h時間m分)
         this.allWorkTimeFormat = ko.computed(() => {
@@ -45,7 +45,27 @@ class Task {
             return res.join(' ');
         });
 
-        this.startCalcWorkTimeInterval()
+        this.updateWorkTimes();
+
+        this.works.subscribe(() => this.updateWorkTimes());
+        this.isWorking.subscribe(() => this.updateWorkTimes());
+
+        // interval calc working time
+
+        this.calcWorkTimeIntervalId = null;
+        this.isRunningCalcWorkTimeInterval = false;
+
+        this.isWorking.subscribe(isWorking => {
+            if (isWorking && !this.isRunningCalcWorkTimeInterval) {
+                this.startCalcWorkTimeInterval();
+            } else if (!isWorking && this.isRunningCalcWorkTimeInterval) {
+                this.stopCalcWorkTimeInterval();
+            }
+        });
+
+        if (this.isWorking()) {
+            setTimeout(() => this.startCalcWorkTimeInterval(), _.random(1, 500));
+        }
     }
 
     static get columnKeys() {
@@ -77,35 +97,26 @@ class Task {
         return works.length ? works[works.length - 1].calcDuration(true) : 0;
     }
 
+    updateWorkTimes() {
+        this.allWorkTime(this.calcAllWorkTime());
+        this.lastWorkTime(this.calcLastWorkTime());
+    }
+
     // 作業時間を一定期間おきに計算
-    // ただし、いくつものTaskが同時に計算しないように最初にランダムにwaitを入れる
     startCalcWorkTimeInterval() {
-        let timeoutId = null;
-        const calcAllWorkTimeIntervalFunc = () => {
-            this.allWorkTime(this.calcAllWorkTime());
-            this.lastWorkTime(this.calcLastWorkTime());
+        if (this.isRunningCalcWorkTimeInterval || this.calcWorkTimeIntervalId) { return; }
+        this.isRunningCalcWorkTimeInterval = true;
 
-            if (this.isWorking()) {
-                timeoutId = setTimeout(calcAllWorkTimeIntervalFunc, Task.calcAllWorkingIntervalTime + _.random(-5000, 5000));
-            } else if (timeoutId) {
-                clearTimeout(timeoutId);
-                timeoutId = null;
-            }
-        };
+        this.calcWorkTimeIntervalId = setInterval(() => this.updateWorkTimes(), this.calcAllWorkTime);
+    }
 
-        this.works.subscribe(() => {
-            this.allWorkTime(this.calcAllWorkTime());
-            this.lastWorkTime(this.calcLastWorkTime());
-        });
-
-        this.isWorking.subscribe(() => {
-            this.allWorkTime(this.calcAllWorkTime());
-            this.lastWorkTime(this.calcLastWorkTime());
-        });
-
-        if (this.isWorking()) {
-            timeoutId = setTimeout(calcAllWorkTimeIntervalFunc, Task.calcAllWorkingIntervalTime + _.random(-5000, 5000));
+    stopCalcWorkTimeInterval() {
+        if (this.calcWorkTimeIntervalId) {
+            clearInterval(this.calcWorkTimeIntervalId);
         }
+
+        if (!this.isRunningCalcWorkTimeInterval) { return; }
+        this.isRunningCalcWorkTimeInterval = false;
     }
 }
 

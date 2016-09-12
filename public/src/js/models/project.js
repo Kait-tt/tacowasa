@@ -212,7 +212,6 @@ class Project {
 
         const workInstances = works.map(work => {
             work.user = work.user && this.getUser({id: work.user.id});
-            console.log(work.user);
             return new Work(work);
         });
         task.works(workInstances);

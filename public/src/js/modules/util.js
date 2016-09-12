@@ -85,13 +85,13 @@ const util = {
     dateFormatHM: time => {
         time = new Date(time);
         const hour = Math.floor(time / 60 / 60 / 1000);
-        const minute = Math.round((time - hour * 60 * 60 * 1000) / 60 / 1000);
+        const minute = Math.floor((time - hour * 60 * 60 * 1000) / 60 / 1000);
         return hour ? (hour + '時間' + minute + '分') : minute + '分';
     },
 
     secondsFormatHM: seconds => {
         const hour = Math.floor(seconds / 60 / 60);
-        const minute = Math.round((seconds - hour * 60 * 60) / 60);
+        const minute = Math.floor((seconds - hour * 60 * 60) / 60);
         return hour ? (hour + '時間' + minute + '分') : minute + '分';
     },
 
