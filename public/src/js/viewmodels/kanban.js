@@ -182,8 +182,8 @@ class Kanban extends EventEmitter2 {
 
         // archiveAllTaskModal
         this.archiveAllTaskModal = new ArchiveAllTaskModal({project: this.project});
-        this.archiveAllTaskModal.on('archiveAll', ({}) => {
-            this.project.getTasks({stageOrWhere: 'done'}).forEach(task => {
+        this.archiveAllTaskModal.on('archiveAll', () => {
+            this.project.getTasks({stageOrWhere: 'done'})().forEach(task => {
                 this.socket.emit('archiveTask', {taskId: task.id()});
             });
         });
