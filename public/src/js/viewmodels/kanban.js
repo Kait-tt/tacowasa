@@ -126,15 +126,15 @@ class Kanban extends EventEmitter2 {
                 }
             }));
         });
-        this.assignTaskModal.task.subscribe(x => this.selectedTask(x));
+        this.selectedTask.subscribe(x => this.assignTaskModal.task(x));
         this.assignTaskModal.register();
 
         // archiveTaskModal
         this.archiveTaskModal = new ArchiveTaskModal({project: this.project});
-        this.archiveTaskModal.on('', ({task}) => {
+        this.archiveTaskModal.on('archive', ({task}) => {
             this.socket.emit('archiveTask', {taskId: task.id()});
         });
-        this.archiveTaskModal.task.subscribe(x => this.selectedTask(x));
+        this.selectedTask.subscribe(x => this.archiveTaskModal.task(x));
         this.archiveTaskModal.register();
 
         // removeUserModal
@@ -142,7 +142,7 @@ class Kanban extends EventEmitter2 {
         this.removeUserModal.on('remove', ({}) => {
             this.socket.emit('remove', {username: user.username()});
         });
-        this.removeUserModal.user.subscribe(x => this.selectedUser(x));
+        this.selectedUser.subscribe(x => this.removeUserModal.user(x))
         this.removeUserModal.register();
 
         // usersSettingsModal
@@ -177,7 +177,7 @@ class Kanban extends EventEmitter2 {
                 updateParams: {wipLimit}
             });
         });
-        this.userSettingsModal.user.subscribe(x => this.selectedUser(x));
+        this.selectedUser.subscribe(x => this.userSettingsModal.user(x));
         this.userSettingsModal.register();
 
         // archiveAllTaskModal

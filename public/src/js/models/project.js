@@ -164,11 +164,18 @@ class Project {
     }
 
     archiveTask(taskOrWhere) {
-        const task = this.resolveTask(taskOrWhere);
+        const task = this.getTask(taskOrWhere);
         const stage = this.getStage({name: 'archive'});
         if (!stage) { throw new Error('archive stage was not found.'); }
 
+        const oldUser = task.user();
+
         task.stage(stage);
+
+        // update wip
+        if (oldUser) {
+            oldUser.wip(oldUser.wip() - task.cost().value());
+        }
     }
 
     updateTaskStatus(taskOrWhere, stageOrWhere, userOrWhere) {

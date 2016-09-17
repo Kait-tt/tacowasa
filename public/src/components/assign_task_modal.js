@@ -8,14 +8,26 @@ class AssignTaskModal extends EventEmitter2 {
 
         this.task = ko.observable();
         this.user = ko.observable();
+        this.task.subscribe(task => {
+            if (task.user()) {
+                this.user(task.user());
+            }
+        });
+
         this.canAssignUsers = ko.computed(() => project.users().filter(user => !user.isWipLimited()));
     }
 
     assign() {
-        this.emit('assign', {
-            task: this.task(),
-            user: this.user()
-        });
+        if (this.task().user() !== this.user()) {
+            this.emit('assign', {
+                task: this.task(),
+                user: this.user()
+            });
+        }
+    }
+
+    canAssign() {
+        return this.user();
     }
 
     showModal() {
@@ -71,7 +83,7 @@ class AssignTaskModal extends EventEmitter2 {
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-success" data-dismiss="modal"
-                            data-bind="click: assign">Assign</button>
+                            data-bind="click: assign, enabled: canAssign">Assign</button>
                 </div>
             </form>
 
