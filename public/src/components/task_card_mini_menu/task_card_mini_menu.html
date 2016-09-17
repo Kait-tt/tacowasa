@@ -5,8 +5,7 @@
     </button>
   </div>
   <ul class="mini-menu-list">
-    <li data-toggle="modal" data-target="#task-detail-modal"
-        data-bind="click: onClickTaskDetail,
+    <li data-bind="click: onClickTaskDetail,
                         tooltip: { title: 'Detail', placement:'left', delay: { show: 200, hide: 100 } }">
       <button type="button" class="btn btn-sm btn-default">
         <span class="glyphicon glyphicon-th" aria-hidden="true"></span>
@@ -20,32 +19,19 @@
       </button>
     </li>
 
-    <li data-toggle="modal" data-target="#archive-task-modal"
-        data-bind="click: onClickTaskArchive,
+    <li data-bind="click: onClickTaskArchive,
                         tooltip: { title: 'Archive', placement:'right', delay: { show: 200, hide: 100 } }">
       <button type="button" class="btn btn-sm btn-default">
         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
       </button>
     </li>
 
-    <li data-toggle="modal" data-target="#assign-task-modal"
-        data-bind="click: onClickTaskAssign,
+    <li data-bind="click: onClickTaskAssign,
                         tooltip: { title: 'Assign', placement:'right', delay: { show: 200, hide: 100 } }">
       <button type="button" class="btn btn-sm btn-default">
         <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
       </button>
     </li>
-
-    <!-- ko if: task.stage().name() === 'doing' && user === $root.loginUser -->
-    <li data-bind="click: task.isWorking() ? onClickStopWork : onClickStartWork,
-                        tooltip: { title: isWorking() ? 'Stop to work' : 'Start to work',
-                        placement:'left', delay: { show: 200, hide: 100 } }">
-      <button type="button" class="btn btn-sm btn-default">
-                <span class="glyphicon glyphicon-play" aria-hidden="true" data-bind="
-                    css: { 'glyphicon-play' : !task.isWorking(), 'glyphicon-stop': task.isWorking() }"></span>
-      </button>
-    </li>
-    <!-- /ko -->
 
     <!-- TODO: github -->
     <!-- ko if: false -->

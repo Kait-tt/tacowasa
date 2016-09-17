@@ -15,6 +15,10 @@ class ArchiveTaskModal extends EventEmitter2 {
         });
     }
 
+    showModal() {
+        $('#archive-task-modal').modal('show');
+    }
+
     register() {
         ko.components.register('archive-task-modal', {
             viewModel: () => this,

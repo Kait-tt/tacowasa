@@ -120,8 +120,10 @@ class Kanban extends EventEmitter2 {
         this.assignTaskModal.on('assign', ({task, user}) => {
             this.socket.emit('updateTaskStatus', ({
                 taskId: task.id(),
-                userId: user.id(),
-                stageId: this.stages().find(x => x.name() === 'todo').id()
+                updateParams: {
+                    userId: user.id(),
+                    stageId: this.stages().find(x => x.name() === 'todo').id()
+                }
             }));
         });
         this.assignTaskModal.task.subscribe(x => this.selectedTask(x));
@@ -278,7 +280,50 @@ class Kanban extends EventEmitter2 {
         // TaskCardMiniMenu
         this.taskCardMiniMenu = new TaskCardMiniMenu();
         this.taskCardMiniMenu.register();
+        this.taskCardMiniMenu.on('clickTaskDetail', ({task}) => {
+            this.selectedTask(task);
+            this.taskDetailModal.showModal();
+        });
+        this.taskCardMiniMenu.on('clickTaskArchive', ({task}) => {
+            this.selectedTask(task);
+            this.archiveTaskModal.showModal();
+        });
+        this.taskCardMiniMenu.on('clickTaskAssign', ({task}) => {
+            this.selectedTask(task);
+            this.assignTaskModal.showModal();
+        });
+        this.taskCardMiniMenu.on('clickTaskPrevStage', ({task}) => {
+            const stages = this.stages();
+            const stage = task.stage();
+            const pos = stages.indexOf(stage);
+            if (!pos) { throw new Error(`cannot move to prev stage from ${stage.name()}`); }
 
+            const prevStage = stages[pos - 1];
+            const user = ko.unwrap(task.user);
+            this.socket.emit('updateTaskStatus', ({
+                taskId: task.id(),
+                updateParams: {
+                    userId: (prevStage.assigned() && user) ? user.id() : null,
+                    stageId: prevStage.id()
+                }
+            }));
+        });
+        this.taskCardMiniMenu.on('clickTaskNextStage', ({task}) => {
+            const stages = this.stages();
+            const stage = task.stage();
+            const pos = stages.indexOf(stage);
+            if (pos + 1 > stages.length) { throw new Error(`cannot move to next stage from ${stage.name()}`); }
+
+            const nextStage = stages[pos + 1];
+            const user = ko.unwrap(task.user);
+            this.socket.emit('updateTaskStatus', ({
+                taskId: task.id(),
+                updateParams: {
+                    userId: (nextStage.assigned() && user) ? user.id() : null,
+                    stageId: nextStage.id()
+                }
+            }));
+        });
     }
 
     // TODO: move to TaskCardList
@@ -323,83 +368,6 @@ class Kanban extends EventEmitter2 {
             });
         }
     }
-
-    /*** minimenu ***/
-    // that.onClickIssueDetail = function (issue, e) {
-    //     that.selectedIssue(issue);
-    //     var $ele = $(e.target.parentElement);
-    //     if ($ele.attr('data-toggle') !== 'modal') {
-    //         $ele = $ele.parents('li[data-toggle=modal]');
-    //     }
-    //     $($ele.attr('data-target')).modal('show');
-    //     return util.cancelBubble(e);
-    // };
-    //
-    // that.onClickIssueNextStage = function (issue, e) {
-    //     that.nextStage(issue);
-    //     return util.cancelBubble(e);
-    // };
-    //
-    // that.onClickIssuePrevStage = function (issue, e) {
-    //     that.prevStage(issue);
-    //     return util.cancelBubble(e);
-    // };
-    //
-    // that.onClickIssueArchive = function (issue, e) {
-    //     that.selectedIssue(issue);
-    //     var $ele = $(e.target.parentElement);
-    //     if ($ele.attr('data-toggle') !== 'modal') {
-    //         $ele = $ele.parents('li[data-toggle=modal]');
-    //     }
-    //     $($ele.attr('data-target')).modal('show');
-    //     return util.cancelBubble(e);
-    // };
-    //
-    // that.onClickIssueAssign = function (issue, e) {
-    //     that.selectedIssue(issue);
-    //     var $ele = $(e.target.parentElement);
-    //     if ($ele.attr('data-toggle') !== 'modal') {
-    //         $ele = $ele.parents('li[data-toggle=modal]');
-    //     }
-    //     $($ele.attr('data-target')).modal('show');
-    //     return util.cancelBubble(e);
-    // };
-    //
-    // that.onClickDeleteMember = function () {
-    //     $('*').modal('hide');
-    //     return true;
-    // };
-
-    /*** work button ***/
-    // that.onClickStartToWork = function (issue) {
-    //     that.socket.emit('update-issue-working-state', {
-    //         issueId: issue._id(),
-    //         isWorking: true
-    //     }, _.noop());
-    // };
-    //
-    // that.onClickStopToWork = function (issue) {
-    //     that.socket.emit('update-issue-working-state', {
-    //         issueId: issue._id(),
-    //         isWorking: false
-    //     }, _.noop());
-    // };
-    //
-    // that.onClickToggleWorkOnCard = function (issue, e) {
-    //     that.socket.emit('update-issue-working-state', {
-    //         issueId: issue._id(),
-    //         isWorking: !issue.isWorking()
-    //     }, _.noop());
-    //     util.cancelBubble(e);
-    //     return false;
-    // };
-
-
-    /*** activity ***/
-    // that.addChatText = function (chat) {
-    //     var time = moment(chat.created_at).format('MM/DD HH:mm:ss');
-    //     that.chatTexts.push('[' + time + '] (' + chat.sender + ') ' + chat.content);
-    // };
 
     addActivity(activity) {
         this.activities.push(new Activity(activity));

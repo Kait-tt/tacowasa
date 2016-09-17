@@ -18,6 +18,10 @@ class AssignTaskModal extends EventEmitter2 {
         });
     }
 
+    showModal() {
+        $('#assign-task-modal').modal('show');
+    }
+
     register() {
         ko.components.register('assign-task-modal', {
             viewModel: () => this,

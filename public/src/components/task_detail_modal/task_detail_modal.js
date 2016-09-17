@@ -84,6 +84,10 @@ class TaskDetailModal extends EventEmitter2 {
         this.works.push(work);
     }
 
+    showModal() {
+        $('#task-detail-modal').modal('show');
+    }
+
     update() {
         if (this.editWorkHistoryMode() === 'edit') {
             this.saveWorkHistory();
