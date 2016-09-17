@@ -1,6 +1,6 @@
 <div class="task-card" draggable="true" data-bind="visible: task.isVisible">
   <div class="task-card-right-wrapper">
-    <!--<task-card-minimenu params="task: task"></task-card-minimenu>-->
+    <task-card-mini-menu params="task: task, element: $element"></task-card-mini-menu>
     <div class="task-weight-badge" data-bind="text: task.cost().value, css: {
             'weight-badge-low'   : task.cost().value() === 1,
             'weight-badge-medium': task.cost().value() === 3,

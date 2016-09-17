@@ -1,3 +1,4 @@
+@charset "UTF-8";
 $mini-menu-size: 70px;
 $icon-size: 14px;
 
@@ -42,6 +43,7 @@ $icon-size: 14px;
     height: $mini-menu-size;
     background-color: rgba(240, 240, 240, 0.8);
     border-radius: $mini-menu-size / 2;
+    list-style: none;
 
     li {
       position: absolute;

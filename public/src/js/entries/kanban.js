@@ -20,7 +20,6 @@ const effects = require('../views/effects');
 const Scroller = require('../views/scroller');
 const Alert = require('../viewmodels/alert');
 const AlertHub = require('../viewmodels/alert_hub');
-const MiniMenu = require('../views/mini_menu');
 
 let kanban, project, alertHub, vm;
 
@@ -47,8 +46,6 @@ Project.fetch(projectId)
         vm.alerts = alert.alerts;
 
         effects.applyBindings(global);
-        MiniMenu.applyBindings(global);
-        MiniMenu.init(null);
         ko.applyBindings(vm);
 
         setConfirmTransition();

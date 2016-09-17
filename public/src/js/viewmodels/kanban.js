@@ -33,6 +33,7 @@ const TaskDetailModal = require('../../components/task_detail_modal');
 const TaskCard = require('../../components/task_card');
 const TaskCardList = require('../../components/task_card_list');
 const UserLabel = require('../../components/user_label');
+const TaskCardMiniMenu = require('../../components/task_card_mini_menu');
 
 
 /**
@@ -273,6 +274,11 @@ class Kanban extends EventEmitter2 {
             this.selectedUser(user);
         });
         this.userLabel.register();
+
+        // TaskCardMiniMenu
+        this.taskCardMiniMenu = new TaskCardMiniMenu();
+        this.taskCardMiniMenu.register();
+
     }
 
     // TODO: move to TaskCardList
