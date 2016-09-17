@@ -15,6 +15,8 @@ class AssignTaskModal extends EventEmitter2 {
         });
 
         this.canAssignUsers = ko.computed(() => project.users().filter(user => !user.isWipLimited()));
+
+        this.canAssign = ko.computed(() => this.user());
     }
 
     assign() {
@@ -24,10 +26,6 @@ class AssignTaskModal extends EventEmitter2 {
                 user: this.user()
             });
         }
-    }
-
-    canAssign() {
-        return this.user();
     }
 
     showModal() {
@@ -83,7 +81,7 @@ class AssignTaskModal extends EventEmitter2 {
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-success" data-dismiss="modal"
-                            data-bind="click: assign, enabled: canAssign">Assign</button>
+                            data-bind="click: assign, enable: canAssign">Assign</button>
                 </div>
             </form>
 

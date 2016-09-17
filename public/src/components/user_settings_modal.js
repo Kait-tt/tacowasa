@@ -11,6 +11,9 @@ class UserSettingsModal extends EventEmitter2 {
         this.user.subscribe(user => {
             this.wipLimit(user.wipLimit());
         });
+
+        this.canRemove = ko.computed(() => this.user() && this.user().wip() === 0);
+        this.canUpdate = ko.computed(() => this.user() && this.user().wip() <= this.wipLimit());
     }
 
     remove() {
@@ -71,7 +74,7 @@ class UserSettingsModal extends EventEmitter2 {
 
                     <div class="form-group">
                         <button type="button" class="btn btn-danger remove-member-button"
-                                data-bind="attr: { disabled: user().wip() > 0 }, click: remove">
+                                data-bind="click: remove, enable: canRemove, attr: { disabled: !canRemove() }">
                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Remove
                         </button>
                     </div>
@@ -79,10 +82,7 @@ class UserSettingsModal extends EventEmitter2 {
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-success" data-dismiss="modal" data-bind="
-                    click: update,
-                    enable: user()wip() <= wipLimit()">
-                        Update
-                    </button>
+                    click: update, enable: canUpdate, attr: { disabled: !canUpdate() }">Update</button>
                 </div>
             </form>
             <!-- /ko -->
