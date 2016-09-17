@@ -15,6 +15,10 @@ class RemoveUserModal extends EventEmitter2 {
         });
     }
 
+    showModal() {
+        $('#remove-user-modal').modal('show');
+    }
+
     register() {
         ko.components.register('remove-user-modal', {
             viewModel: () => this,

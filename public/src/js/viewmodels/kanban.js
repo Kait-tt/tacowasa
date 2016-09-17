@@ -139,10 +139,10 @@ class Kanban extends EventEmitter2 {
 
         // removeUserModal
         this.removeUserModal = new RemoveUserModal({project: this.project});
-        this.removeUserModal.on('remove', ({}) => {
-            this.socket.emit('remove', {username: user.username()});
+        this.removeUserModal.on('remove', ({user}) => {
+            this.socket.emit('removeUser', {username: user.username()});
         });
-        this.selectedUser.subscribe(x => this.removeUserModal.user(x))
+        this.selectedUser.subscribe(x => this.removeUserModal.user(x));
         this.removeUserModal.register();
 
         // usersSettingsModal
@@ -167,9 +167,9 @@ class Kanban extends EventEmitter2 {
         // userSettingsModal
         this.userSettingsModal = new UserSettingsModal({project: this.project});
         this.userSettingsModal.on('remove', ({user}) => {
-            this.removeUserModal.user = user;
-            $('#user-settings-modal').modal('hide');
-            $('#remove-user-modal').modal('show');
+            this.removeUserModal.user(user);
+            this.userSettingsModal.hideModal();
+            this.removeUserModal.showModal();
         });
         this.userSettingsModal.on('update', ({user, wipLimit}) => {
             this.socket.emit('updateUser', {

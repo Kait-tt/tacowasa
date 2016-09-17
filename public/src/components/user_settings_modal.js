@@ -24,6 +24,10 @@ class UserSettingsModal extends EventEmitter2 {
         this.emit('update', {user: this.user(), wipLimit: this.wipLimit()})
     }
 
+    hideModal() {
+        $('#user-settings-modal').modal('hide');
+    }
+
     register() {
         ko.components.register('user-settings-modal', {
             viewModel: () => this,
