@@ -6,6 +6,7 @@ const Project = require('../lib/models/project');
 // var logger = new (require('../lib/model/loggerAPI'));
 // TODO: logging
 
+const addon = require('../addons');
 
 // Get Projects
 router.get('/projects', (req, res) => {

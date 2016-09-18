@@ -5,6 +5,7 @@ const Task = require('../../lib/models/task');
 const Stage = require('../../lib/models/stage');
 const Label = require('../../lib/models/label');
 const Activity = require('../../lib/models/activity');
+const addon = require('../../addons');
 
 class SocketProject {
     constructor(io, projectId) {
@@ -13,8 +14,9 @@ class SocketProject {
         this.io = io;
     }
 
-    emits(key, params) {
-        this.io.to(this.projectId).emit(key, params);
+    emits(user, key, params) {
+        addon.callAddons('SocketEmit', key, {projectId: this.projectId, user, params, socketProject: this})
+            .then(({params}) => this.io.to(this.projectId).emit(key, params));
     }
 
     joinProjectRoom(user) {
@@ -36,10 +38,13 @@ class SocketProject {
     bindSocketUser(user) {
         SocketProject.socketEventKeys.forEach(key => {
             user.socket.on(key, req => {
-                this[key](user, req)
-                    .catch(err => {
-                        user.socket.emit('operationError', {error: err, message: err.message});
-                        console.error(err);
+                addon.callAddons('SocketOn', key, {projectId: this.projectId, user, req, socketProject: this})
+                    .then(({req}) => {
+                        this[key](user, req)
+                            .catch(err => {
+                                user.socket.emit('operationError', {error: err, message: err.message});
+                                console.error(err);
+                            });
                     });
             });
         });
@@ -67,25 +72,25 @@ class SocketProject {
 
     /// events
 
-    notifyText(username, text) {
-        return Activity.add(this.projectId, username, text)
-            .then(x => this.emits('notifyText', x));
+    notifyText(user, text) {
+        return Activity.add(this.projectId, user ? user.username : null, text)
+            .then(x => this.emits(user, 'notifyText', x));
     }
 
     joinRoom(user) {
-        this.emits('joinRoom', {username: user.username});
+        this.emits(user, 'joinRoom', {username: user.username});
         return this.notifyText(user.username, 'joined room');
     }
 
     leaveRoom(user) {
-        this.emits('leaveRoom', {username: user.username});
+        this.emits(user, 'leaveRoom', {username: user.username});
         return this.notifyText(user.username, 'left room');
     }
 
     addUser(user, {username}) {
         return Member.add(this.projectId, username)
             .then(addedUser => {
-                this.emits('addUser', {username, user: addedUser});
+                this.emits(user, 'addUser', {username, user: addedUser});
                 return this.notifyText(user.username, `added user: "${username}"`);
             });
     }
@@ -93,7 +98,7 @@ class SocketProject {
     removeUser(user, {username}) {
         return Member.remove(this.projectId, username)
             .then(() => {
-                this.emits('removeUser', {username});
+                this.emits(user, 'removeUser', {username});
                 return this.notifyText(user.username, `removed user: "${username}"`);
             });
     }
@@ -101,7 +106,7 @@ class SocketProject {
     updateUser(user, {username, updateParams}) {
         return Member.update(this.projectId, username, updateParams)
             .then(updatedUser => {
-                this.emits('updateUser', {username, user: updatedUser});
+                this.emits(user, 'updateUser', {username, user: updatedUser});
                 return this.notifyText(user.username, `updated user: "${username}"`);
             });
     }
@@ -109,7 +114,7 @@ class SocketProject {
     updateUserOrder(user, {username, beforeUsername}) {
         return Member.updateOrder(this.projectId, username, beforeUsername)
             .then(() => {
-                this.emits('updateUserOrder', {username, beforeUsername});
+                this.emits(user, 'updateUserOrder', {username, beforeUsername});
                 return this.notifyText(user.username, `update user order: insert ${username} before ${beforeUsername}`);
             });
     }
@@ -117,7 +122,7 @@ class SocketProject {
     createTask(user, taskParams) {
         return Task.create(this.projectId, taskParams)
             .then(newTask => {
-                this.emits('createTask', {task: newTask});
+                this.emits(user, 'createTask', {task: newTask});
                 return this.notifyText(user.username, `created new task: ${newTask.title}`);
             });
     }
@@ -125,7 +130,7 @@ class SocketProject {
     archiveTask(user, {taskId}) {
         return Task.archive(this.projectId, taskId)
             .then(archivedTask => {
-                this.emits('archiveTask', {task: archivedTask});
+                this.emits(user, 'archiveTask', {task: archivedTask});
                 return this.notifyText(user.username, `archived task: ${archivedTask.title}`);
             });
     }
@@ -137,7 +142,7 @@ class SocketProject {
             const assignedUser = userId && (yield Member.findByUserId(that.projectId, userId));
             const assignedUsername = assignedUser && assignedUser.username;
             const stage = yield Stage.findById(that.projectId, stageId);
-            that.emits('updateTaskStatus', {task: updatedTask});
+            that.emits(user, 'updateTaskStatus', {task: updatedTask});
             return yield that.notifyText(user.username, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}`)
         });
     }
@@ -145,7 +150,7 @@ class SocketProject {
     updateTaskContent(user, {taskId, updateParams: {title, body, costId}}) {
         return Task.updateContent(this.projectId, taskId, {title, body, costId})
             .then(updatedTask => {
-                this.emits('updateTaskContent', {task: updatedTask});
+                this.emits(user, 'updateTaskContent', {task: updatedTask});
                 return this.notifyText(user.username, `updateTask: {task: ${updatedTask.title}`);
             });
     }
@@ -153,7 +158,7 @@ class SocketProject {
     updateTaskWorkingState(user, {taskId, isWorking}) {
         return Task.updateWorkingState(this.projectId, taskId, isWorking)
             .then(task => {
-                this.emits('updateTaskWorkingState', {task, isWorking});
+                this.emits(user, 'updateTaskWorkingState', {task, isWorking});
                 return this.notifyText(user.username, `${isWorking ? 'start' : 'stop'} to work: ${task.title}`);
             });
     }
@@ -161,7 +166,7 @@ class SocketProject {
     updateTaskWorkHistory(user, {taskId, works}) {
         return Task.updateWorkHistory(this.projectId, taskId, works)
             .then(task => {
-                this.emits('updateTaskWorkHistory', {task, works: task.works});
+                this.emits(user, 'updateTaskWorkHistory', {task, works: task.works});
                 return this.notifyText(user.username, `updated work history: ${task.title}`);
             });
     }
@@ -170,7 +175,7 @@ class SocketProject {
         return Task.updateOrder(this.projectId, taskId, beforeTaskId)
             .then(({task, beforeTask, updated}) => {
                 if (!updated) { return Promise.resolve(); }
-                this.emits('updateTaskOrder', {task, beforeTask});
+                this.emits(user, 'updateTaskOrder', {task, beforeTask});
                 return this.notifyText(user.username, `update task order: insert ${task.title} before ${beforeTask ? beforeTask.title : null}`);
             });
     }
@@ -178,7 +183,7 @@ class SocketProject {
     attachLabel(user, {taskId, labelId}) {
         return Label.attach(this.projectId, labelId, taskId)
             .then(({task, label}) => {
-                this.emits('attachLabel', {task, label});
+                this.emits(user, 'attachLabel', {task, label});
                 return this.notifyText(user.username, `attached label: {label: ${label.name}, task: ${task.name}}`);
             });
     }
@@ -186,7 +191,7 @@ class SocketProject {
     detachLabel(user, {taskId, labelId}) {
         return Label.detach(this.projectId, labelId, taskId)
             .then(({task, label}) => {
-                this.emits('detachLabel', {task, label});
+                this.emits(user, 'detachLabel', {task, label});
                 return this.notifyText(user.username, `detached label: {label: ${label.name}, task: ${task.name}}`);
             });
     }
