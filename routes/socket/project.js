@@ -16,7 +16,8 @@ class SocketProject {
 
     emits(user, key, params) {
         addon.callAddons('SocketEmit', key, {projectId: this.projectId, user, params, socketProject: this})
-            .then(({params}) => this.io.to(this.projectId).emit(key, params));
+            .then(({params}) => this.io.to(this.projectId).emit(key, params))
+            .catch(err => console.error(err));
     }
 
     joinProjectRoom(user) {

@@ -65,11 +65,10 @@ const routes = {
 app.use('/', routes.index);
 app.use('/auth', routes.auth);
 app.use('/api', routes.api);
-app.use('/github', routes.github);
 app.use('/users', routes.auth.ensureAuthenticated, routes.user);
 app.use('/users/:user/projects', routes.auth.ensureAuthenticated, routes.project);
 
-addon.callAddons('Router', 'setRouter', {app});
+addon.callAddons('Router', 'setRouter', {app}, {sync: true});
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

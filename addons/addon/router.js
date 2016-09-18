@@ -3,14 +3,14 @@ const express = require('express');
 
 class AddonRouter {
     static setRouter({app}) {
-        app.use(this.root, this.createRouter());
+        const router = express.Router();
+        this.initRouter(router);
+        app.use(this.root, router);
         return {app};
     }
 
-    static createRouter() {
-        const router = express.Router();
+    static initRouter(router) {
         //router.get('/path', (req, res) => { ... })
-        return router
     }
 
     static get root() {
