@@ -4,6 +4,7 @@ const Member = require('../../lib/models/member');
 const Task = require('../../lib/models/task');
 const Stage = require('../../lib/models/stage');
 const Label = require('../../lib/models/label');
+const Activity = require('../../lib/models/activity');
 
 class SocketProject {
     constructor(io, projectId) {
@@ -60,18 +61,15 @@ class SocketProject {
     }
 
     sendInitActivityLogs(user) {
-        // TODO: this is stub
-        return Promise.resolve(() => {
-            user.socket.emit('activityHistory', {});
-        });
+        return Activity.findActivities(this.projectId)
+            .then(xs => user.socket.emit('activityHistory', {activities : xs}));
     }
 
     /// events
 
     notifyText(username, text) {
-        // TODO: save activity on db
-        this.emits('notifyText', {sender: username, content: text});
-        return Promise.resolve();
+        return Activity.add(this.projectId, username, text)
+            .then(x => this.emits('notifyText', x));
     }
 
     joinRoom(user) {

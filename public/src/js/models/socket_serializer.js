@@ -45,7 +45,7 @@ class SocketSerializer {
     }
 
     onActivityHistory({activities}) {
-        _.reverse(activities).forEach(x => this.kanban.activitiesTexts.push(x.text));
+        activities.forEach(x => this.kanban.addActivity(x));
     }
 
     onAddUser({username, user}) {
