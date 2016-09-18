@@ -16,7 +16,7 @@ router.get('/projects', (req, res) => {
 
 // Get a Project
 router.get('/projects/:projectId', (req, res) => {
-    Project.findById(req.params.projectId)
+    Project.findOneIncludeAll({id: req.params.projectId})
         .then(project => {
             // TODO: update user avatar
             res.status(200).json({message: 'OK', project})

@@ -51,7 +51,6 @@ class Project {
         this.defaultStage = ko.computed(() => this.stages().find(x => x.id() === opts.defaultStage.id));
         this.defaultCost = ko.computed(() => this.costs().find(x => x.id() === opts.defaultCost.id));
         this.defaultStage = ko.computed(() => this.stages().find(x => x.id() === opts.defaultStage.id));
-        this.defaultCost = ko.computed(() => this.costs().find(x => x.id() === opts.defaultCost.id));
 
         // getTasksのmemo
         this.memoGetTasks = {};
