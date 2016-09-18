@@ -11,23 +11,26 @@ const addon = require('../addons');
 // Get Projects
 router.get('/projects', (req, res) => {
     Project.findByIncludedUsername(req.user.username)
-        .then(projects => res.status(200).json({message: 'OK', projects}))
+        .then(projects => addon.callAddons('API', 'getProjects', {res, req, projects}))
+        .then(({projects}) => res.status(200).json({message: 'OK', projects}))
         .catch(err => serverError(res, err));
 });
 
 // Get a Project
 router.get('/projects/:projectId', (req, res) => {
     Project.findOneIncludeAll({id: req.params.projectId})
-        .then(project => {
+        .then(project => addon.callAddons('API', 'getProject', {res, req, project}))
+        .then(({project}) => {
             // TODO: update user avatar
             res.status(200).json({message: 'OK', project})
         })
         .catch(err => serverError(res, err));
 });
 
-// Delete a Project
+// Archive a Project
 router.delete('/projects/:projectId', (req, res) => {
     Project.archive(req.params.projectId)
+        .then(project => addon.callAddons('API', 'archiveProject', {res, req, project}))
         .then(() => res.status(200).json({message: 'OK'}))
         .catch(err => serverError(res. err));
 });
@@ -35,7 +38,8 @@ router.delete('/projects/:projectId', (req, res) => {
 // Create a project
 router.post('/projects', (req, res) => {
     Project.create(req.body.projectName, req.user.username)
-        .then(project => res.status(200).json({message: 'OK', project}))
+        .then(project => addon.callAddons('API', 'createProject', {res, req, project}))
+        .then(({project}) => res.status(200).json({message: 'OK', project}))
         .catch(err => serverError(res, err));
 });
 
