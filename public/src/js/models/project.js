@@ -95,7 +95,7 @@ class Project {
 
     static importByGitHub({username, reponame}) {
         return Promise.resolve($.ajax({
-            url: '/api/projects/importByGitHub',
+            url: '/github/api/projects',
             type: 'post',
             dataType: 'json',
             data: {username, reponame}

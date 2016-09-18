@@ -43,30 +43,6 @@ router.post('/projects', (req, res) => {
         .catch(err => serverError(res, err));
 });
 
-// Import Project
-router.post('/projects/importByGitHub', (req, res) => {
-    const {username, reponame} = req.body;
-    if (!username || !reponame) {
-        return res.status(400).json({message: 'require username and reponame.'});
-    }
-
-    // TODO: this is stub
-    return res.status(500).json({message: 'no supported'});
-    // TODO: implement import project
-    // (new GitHub(req.user.token)).importProject(
-    //     username,
-    //     reponame,
-    //     req.user.username,
-    //     (err, project) => {
-    //         if (err) { return serverError(res, err); }
-    //
-    //         Project.findPopulated({id: project.id}, {one: true}, function (err, doc) {
-    //             if (err) { return serverError(res, err); }
-    //             res.status(200).json({message: 'OK', project: doc });
-    //         });
-    //     });
-});
-
 function serverError(res, err) {
     res.status(500).json({message: 'server error.', error: err.message });
     console.error(err);
