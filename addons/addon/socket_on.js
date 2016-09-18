@@ -1,10 +1,6 @@
 'use strict';
 
 class AddonSocketOn {
-    constructor() {
-
-    }
-
     // called just after raised several project on events
     // params are {projectId, user, req, socketProject}
     static joinRoom()                { return Promise.resolve(); }

@@ -1,10 +1,6 @@
 'use strict';
 
 class AddonAPI {
-    constructor() {
-
-    }
-
     // called when raised several api
     // params are different
     static getProjects({res, req, projects})    { return Promise.resolve({res, req, projects}); }

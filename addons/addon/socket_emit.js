@@ -1,10 +1,6 @@
 'use strict';
 
 class AddonSocketEmit {
-    constructor() {
-
-    }
-
     // called just before raised several project emit events
     // params are {projectId, user, params, socketProject}
     static joinRoom(params)                { return Promise.resolve(params); }

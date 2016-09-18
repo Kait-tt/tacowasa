@@ -8,6 +8,7 @@ const passport = require('passport');
 const GitHubStrategy = require('passport-github').Strategy;
 const config = require('config');
 const sessionMiddleware = require('./lib/modules/sessionMiddleware');
+const addon = require('./addons');
 
 const app = express();
 
@@ -67,6 +68,8 @@ app.use('/api', routes.api);
 app.use('/github', routes.github);
 app.use('/users', routes.auth.ensureAuthenticated, routes.user);
 app.use('/users/:user/projects', routes.auth.ensureAuthenticated, routes.project);
+
+addon.callAddons('Router', 'setRouter', {app});
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
