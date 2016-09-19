@@ -33,18 +33,6 @@
       </button>
     </li>
 
-    <!-- TODO: github -->
-    <!-- ko if: false -->
-    <!-- ko if: false && github && github().url -->
-    <li>
-      <a target="_blank" class="btn btn-sm btn-default" href="" data-bind="attr: { href: github().url },
-                tooltip: { title: 'GitHub link', placement:'right', delay: { show: 200, hide: 100 } }">
-        <span class="glyphicon glyphicon-link" aria-hidden="true"></span>
-      </a>
-    </li>
-    <!-- /ko -->
-    <!-- /ko -->
-
     <li data-bind="click: onClickTaskPrevStage, tooltip: { title: 'Prev stage', placement:'left', delay: { show: 200, hide: 100 } }">
       <button type="button" class="btn btn-sm btn-default"
               data-bind="css: {disabled: !enabledPrevStageItem()}, attr: {disabled: !enabledPrevStageItem()}">
