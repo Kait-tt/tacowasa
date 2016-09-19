@@ -80,19 +80,19 @@ class SocketProject {
 
     joinRoom(user) {
         this.emits(user, 'joinRoom', {username: user.username});
-        return this.notifyText(user.username, 'joined room');
+        return this.notifyText(user, 'joined room');
     }
 
     leaveRoom(user) {
         this.emits(user, 'leaveRoom', {username: user.username});
-        return this.notifyText(user.username, 'left room');
+        return this.notifyText(user, 'left room');
     }
 
     addUser(user, {username}) {
         return Member.add(this.projectId, username)
             .then(addedUser => {
                 this.emits(user, 'addUser', {username, user: addedUser});
-                return this.notifyText(user.username, `added user: "${username}"`);
+                return this.notifyText(user, `added user: "${username}"`);
             });
     }
 
@@ -100,7 +100,7 @@ class SocketProject {
         return Member.remove(this.projectId, username)
             .then(() => {
                 this.emits(user, 'removeUser', {username});
-                return this.notifyText(user.username, `removed user: "${username}"`);
+                return this.notifyText(user, `removed user: "${username}"`);
             });
     }
 
@@ -108,7 +108,7 @@ class SocketProject {
         return Member.update(this.projectId, username, updateParams)
             .then(updatedUser => {
                 this.emits(user, 'updateUser', {username, user: updatedUser});
-                return this.notifyText(user.username, `updated user: "${username}"`);
+                return this.notifyText(user, `updated user: "${username}"`);
             });
     }
 
@@ -116,7 +116,7 @@ class SocketProject {
         return Member.updateOrder(this.projectId, username, beforeUsername)
             .then(() => {
                 this.emits(user, 'updateUserOrder', {username, beforeUsername});
-                return this.notifyText(user.username, `update user order: insert ${username} before ${beforeUsername}`);
+                return this.notifyText(user, `update user order: insert ${username} before ${beforeUsername}`);
             });
     }
 
@@ -124,7 +124,7 @@ class SocketProject {
         return Task.create(this.projectId, taskParams)
             .then(newTask => {
                 this.emits(user, 'createTask', {task: newTask});
-                return this.notifyText(user.username, `created new task: ${newTask.title}`);
+                return this.notifyText(user, `created new task: ${newTask.title}`);
             });
     }
 
@@ -132,7 +132,7 @@ class SocketProject {
         return Task.archive(this.projectId, taskId)
             .then(archivedTask => {
                 this.emits(user, 'archiveTask', {task: archivedTask});
-                return this.notifyText(user.username, `archived task: ${archivedTask.title}`);
+                return this.notifyText(user, `archived task: ${archivedTask.title}`);
             });
     }
 
@@ -144,7 +144,7 @@ class SocketProject {
             const assignedUsername = assignedUser && assignedUser.username;
             const stage = yield Stage.findById(that.projectId, stageId);
             that.emits(user, 'updateTaskStatus', {task: updatedTask});
-            return yield that.notifyText(user.username, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}`)
+            return yield that.notifyText(user, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}`)
         });
     }
 
@@ -152,7 +152,7 @@ class SocketProject {
         return Task.updateContent(this.projectId, taskId, {title, body, costId})
             .then(updatedTask => {
                 this.emits(user, 'updateTaskContent', {task: updatedTask});
-                return this.notifyText(user.username, `updateTask: {task: ${updatedTask.title}`);
+                return this.notifyText(user, `updateTask: {task: ${updatedTask.title}`);
             });
     }
 
@@ -160,7 +160,7 @@ class SocketProject {
         return Task.updateWorkingState(this.projectId, taskId, isWorking)
             .then(task => {
                 this.emits(user, 'updateTaskWorkingState', {task, isWorking});
-                return this.notifyText(user.username, `${isWorking ? 'start' : 'stop'} to work: ${task.title}`);
+                return this.notifyText(user, `${isWorking ? 'start' : 'stop'} to work: ${task.title}`);
             });
     }
 
@@ -168,7 +168,7 @@ class SocketProject {
         return Task.updateWorkHistory(this.projectId, taskId, works)
             .then(task => {
                 this.emits(user, 'updateTaskWorkHistory', {task, works: task.works});
-                return this.notifyText(user.username, `updated work history: ${task.title}`);
+                return this.notifyText(user, `updated work history: ${task.title}`);
             });
     }
 
@@ -177,7 +177,7 @@ class SocketProject {
             .then(({task, beforeTask, updated}) => {
                 if (!updated) { return Promise.resolve(); }
                 this.emits(user, 'updateTaskOrder', {task, beforeTask});
-                return this.notifyText(user.username, `update task order: insert ${task.title} before ${beforeTask ? beforeTask.title : null}`);
+                return this.notifyText(user, `update task order: insert ${task.title} before ${beforeTask ? beforeTask.title : null}`);
             });
     }
 
@@ -185,7 +185,7 @@ class SocketProject {
         return Label.attach(this.projectId, labelId, taskId)
             .then(({task, label}) => {
                 this.emits(user, 'attachLabel', {task, label});
-                return this.notifyText(user.username, `attached label: {label: ${label.name}, task: ${task.name}}`);
+                return this.notifyText(user, `attached label: {label: ${label.name}, task: ${task.name}}`);
             });
     }
 
@@ -193,7 +193,7 @@ class SocketProject {
         return Label.detach(this.projectId, labelId, taskId)
             .then(({task, label}) => {
                 this.emits(user, 'detachLabel', {task, label});
-                return this.notifyText(user.username, `detached label: {label: ${label.name}, task: ${task.name}}`);
+                return this.notifyText(user, `detached label: {label: ${label.name}, task: ${task.name}}`);
             });
     }
 
