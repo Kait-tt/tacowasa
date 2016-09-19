@@ -1,7 +1,7 @@
 'use strict';
 const expect = require('chai').expect;
-const helper = require('../helper');
-const db = require('../../lib/schemes');
+const helper = require('../../../../spec/helper');
+const db = require('../../schemas');
 
 afterEach(() => helper.db.clean());
 
@@ -29,13 +29,6 @@ describe('schemes', () => {
                     expect(_gtasks).to.have.lengthOf(1);
                     expect(_gtasks[0]).to.have.property('number', '111');
                     expect(_gtasks[0]).to.have.property('isPullRequest', true);
-                });
-            });
-
-            it('the task should have a github task', () => {
-                return db.Task.findById(task.id, {include: [{model: db.GitHubTask}]}).then(_task => {
-                    expect(_task).to.have.property('githubTask');
-                    expect(_task).to.have.deep.property('githubTask.number', '111');
                 });
             });
         });

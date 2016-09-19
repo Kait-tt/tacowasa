@@ -1,7 +1,7 @@
 'use strict';
 const expect = require('chai').expect;
-const helper = require('../helper');
-const db = require('../../lib/schemes');
+const helper = require('../../../../spec/helper');
+const db = require('../../schemas');
 
 afterEach(() => helper.db.clean());
 
@@ -24,13 +24,6 @@ describe('schemes', () => {
                     expect(_repos[0]).to.have.property('username', 'hoge');
                     expect(_repos[0]).to.have.property('reponame', 'piyo');
                     expect(_repos[0]).to.have.property('sync', true);
-                });
-            });
-
-            it('project should have a github repository', () => {
-                return db.Project.findById(project.id, {include: [{model: db.GitHubRepository}]}).then(_project => {
-                    expect(_project).to.have.property('githubRepository');
-                    expect(_project).to.have.deep.property('githubRepository.username', 'hoge');
                 });
             });
         });
