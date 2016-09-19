@@ -27,6 +27,14 @@ class GitHubAPI {
                 const project = yield Project.create(repo, createUsername, {transaction});
                 const projectId = project.id;
 
+                // add github repository relation
+                yield db.GitHubRepository.create({
+                    projectId,
+                    username: user,
+                    reponame: repo,
+                    sync: true
+                }, {transaction});
+
                 // add users
                 for (let username of repository.users) {
                     if (username !== createUsername) {
@@ -43,7 +51,7 @@ class GitHubAPI {
                         taskId: addedTask.id,
                         number: task.githubTask.number,
                         isPullRequest: task.githubTask.isPullRequest
-                    });
+                    }, {transaction});
                 }
 
                 // create web hook
