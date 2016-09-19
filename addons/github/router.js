@@ -3,7 +3,7 @@ const express = require('express');
 const AddonRouter = require('../addon/router');
 const GitHubApi = require('./model/github_api');
 
-class GitHubRouter extends AddonRouter {
+class GitHubAddonRouter extends AddonRouter {
     static initRouter(router) {
         router.post('/api/projects', (req, res) => {
             const {username, reponame} = req.body;
@@ -31,4 +31,4 @@ class GitHubRouter extends AddonRouter {
     }
 }
 
-module.exports = GitHubRouter;
+module.exports = GitHubAddonRouter;

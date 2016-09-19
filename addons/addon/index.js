@@ -2,7 +2,7 @@
 
 module.exports = {
     name: 'addon',
-    Api: require('./api'),
+    API: require('./api'),
     SocketEmit: require('./socket_emit'),
     SocketOn: require('./socket_on'),
     Router: require('./router')
