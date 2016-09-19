@@ -20,6 +20,7 @@ const effects = require('../views/effects');
 const Scroller = require('../views/scroller');
 const Alert = require('../viewmodels/alert');
 const AlertHub = require('../viewmodels/alert_hub');
+const addons = require('../modules/addons');
 
 let kanban, project, alertHub, vm;
 
@@ -44,6 +45,8 @@ Project.fetch(projectId)
 
         vm = kanban;
         vm.alerts = alert.alerts;
+
+        _.each(addons, addon => addon.init(kanban));
 
         effects.applyBindings(global);
         ko.applyBindings(vm);

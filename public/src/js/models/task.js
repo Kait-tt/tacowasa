@@ -5,6 +5,8 @@ const util = require('../modules/util');
 
 class Task {
     constructor(opts) {
+        this.opts = opts;
+
         Task.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
 
         this.labels = ko.observableArray(opts.labels);
