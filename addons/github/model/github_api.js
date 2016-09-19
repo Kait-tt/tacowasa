@@ -18,31 +18,33 @@ class GitHubAPI {
         }
     }
 
-    importProject({user, repo, createUsername}) {
+    importProject({user, repo, createUsername}, {transaction}={}) {
         const that = this;
 
-        return co(function* () {
-            const repository = yield that.fetchRepository({user, repo});
-            const project = yield Project.create(repo, createUsername);
-            const projectId = project.id;
+        return db.sequelize.transaction({transaction: transaction}, transaction => {
+            return co(function* () {
+                const repository = yield that.fetchRepository({user, repo});
+                const project = yield Project.create(repo, createUsername, {transaction});
+                const projectId = project.id;
 
-            // add users
-            for (let username of repository.users) {
-                if (username !== createUsername) {
-                    yield Member.add(projectId, username);
+                // add users
+                for (let username of repository.users) {
+                    if (username !== createUsername) {
+                        yield Member.add(projectId, username, {}, {transaction});
+                    }
                 }
-            }
 
-            // add tasks
-            for (let task of repository.tasks) {
-                task = yield GitHubAPI.serializeTask(projectId, task);
-                yield Task.create(projectId, task);
-            }
+                // add tasks
+                for (let task of repository.tasks) {
+                    task = yield GitHubAPI.serializeTask(projectId, task, {transaction});
+                    yield Task.create(projectId, task, {transaction});
+                }
 
-            // create web hook
-            yield that.createHook({projectId, user, repo});
+                // create web hook
+                yield that.createHook({projectId, user, repo});
 
-            return Project.findOneIncludeAll({where: {id: projectId}});
+                return Project.findOneIncludeAll({where: {id: projectId}, transaction});
+            });
         });
     }
 
