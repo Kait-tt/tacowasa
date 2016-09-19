@@ -5,6 +5,7 @@ const _ = require('lodash');
 const db = require('../schemas');
 const Project = require('../../../lib/models/project');
 const Member = require('../../../lib/models/member');
+const Label = require('../../../lib/models/label');
 const Task = require('../../../lib/models/task');
 
 class GitHubAPI {
@@ -40,6 +41,12 @@ class GitHubAPI {
                     if (username !== createUsername) {
                         yield Member.add(projectId, username, {}, {transaction});
                     }
+                }
+
+                // add labels
+                yield Label.destroyAll(projectId, {transaction});
+                for (let label of repository.labels) {
+                    yield Label.create(projectId, label, {transaction});
                 }
 
                 // add tasks and github task
