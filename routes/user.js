@@ -1,10 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const fs = require('fs');
+const Promise = require('bluebird');
+const fs = Promise.promisifyAll(require('fs'));
+const path = Promise.promisifyAll(require('path'));
 const _ = require('lodash');
 const co = require('co');
-const Promise = require('bluebird');
-const path = Promise.promisifyAll(require('path'));
+const express = require('express');
+const router = express.Router();
 
 // My Page
 router.get('/me', function (req, res) {
@@ -28,10 +28,10 @@ router.get('/:username/avatar', function (req, res) {
     const {username} = req.params;
 
     co(function* () {
-        const files = yield fs.readdir(dir);
+        const files = yield fs.readdirAsync(dir);
         for (let file of files) {
             if (!_.startsWith(file, `${username}.`)) { continue; }
-            const stat = yield fs.stat(dir + file);
+            const stat = yield fs.statAsync(dir + file);
             if (stat.isFile()) {
                 return file;
             }
