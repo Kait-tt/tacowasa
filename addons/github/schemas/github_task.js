@@ -22,6 +22,11 @@ module.exports = function(sequelize, DataTypes) {
                         allowNull: true
                     }
                 });
+                GitHubTask.belongsTo(models.Project, {
+                    foreignKey: {
+                        allowNull: true
+                    }
+                });
             }
         }
     });

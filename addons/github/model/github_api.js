@@ -2,7 +2,7 @@
 const GitHub = require('github');
 const co = require('co');
 const _ = require('lodash');
-const db = require('../../../lib/schemes');
+const db = require('../schemas');
 const Project = require('../../../lib/models/project');
 const Member = require('../../../lib/models/member');
 const Task = require('../../../lib/models/task');
@@ -34,10 +34,16 @@ class GitHubAPI {
                     }
                 }
 
-                // add tasks
+                // add tasks and github task
                 for (let task of repository.tasks) {
                     task = yield GitHubAPI.serializeTask(projectId, task, {transaction});
-                    yield Task.create(projectId, task, {transaction});
+                    const addedTask = yield Task.create(projectId, task, {transaction});
+                    yield db.GitHubTask.create({
+                        projectId,
+                        taskId: addedTask.id,
+                        number: task.githubTask.number,
+                        isPullRequest: task.githubTask.isPullRequest
+                    });
                 }
 
                 // create web hook
@@ -78,7 +84,7 @@ class GitHubAPI {
             let data;
             do {
                 data = yield that.api.issues.getForRepo({user, repo, state, per_page, page});
-                Array.prototype.push.apply(tasks, data);
+                data.filter(x => !x.pull_request).forEach(x => tasks.push(x));
             } while (page = GitHubAPI.getNext(data.meta));
             return tasks;
         });
@@ -114,7 +120,11 @@ class GitHubAPI {
                 stageId: stage.id,
                 userId: user ? user.id : null,
                 costId: project.defaultCostId,
-                labelIds: _.map(labels, 'id')
+                labelIds: _.map(labels, 'id'),
+                githubTask: {
+                    number: task.number,
+                    isPullRequest: task.pull_request
+                }
             };
         });
     }
