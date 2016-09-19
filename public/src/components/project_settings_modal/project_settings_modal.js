@@ -8,9 +8,16 @@ class ProjectSettingsModal extends EventEmitter2 {
         this.project = project;
     }
 
+    onLoad() {
+        this.emit('load', this);
+    }
+
     register() {
         ko.components.register('project-settings-modal', {
-            viewModel: () => this,
+            viewModel: () => {
+                this.onLoad();
+                return this;
+            },
             template: require('html!./project_settings_modal.html')
         })
     }

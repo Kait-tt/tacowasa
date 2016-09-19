@@ -13,18 +13,6 @@
             </label>
             <p class="form-control-static" id="name" data-bind="text: project.name"></p>
           </div>
-
-          <!-- TODO: github -->
-          <!-- ko if: false && github() -->
-          <div class="form-group">
-            <label for="github-link" class="control-label">
-              <span class="glyphicon glyphicon-link"> GitHub</span>
-            </label>
-            <p><a class="form-control-static" id="github-link" target="_blank" data-bind="
-                            text: github().userName() + '/' + github().repoName(),
-                            attr: { href: github().url } "></a></p>
-          </div>
-          <!-- /ko -->
         </form>
       </div>
       <div class="modal-footer">

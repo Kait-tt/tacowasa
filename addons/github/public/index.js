@@ -3,8 +3,14 @@ const ko = require('knockout');
 
 module.exports = {
     init: (kanban) => {
-        kanban.project.tasks().forEach(task => decorateGitHubTask(kanban.project, task));
-        kanban.project.tasks.subscribe(task => decorateGitHubTask(kanban.project, task));
+        decorateProject(kanban.project);
+        kanban.project.tasks().forEach(task => decorateTask(kanban.project, task));
+        kanban.project.tasks.subscribe(task => decorateTask(kanban.project, task));
+
+        kanban.projectSettingsModal.on('load', () => {
+            const html = githubRepositoryLinkBlockTemplate();
+            $('#project-settings-modal').find('form').append(html);
+        });
 
         kanban.taskCardMiniMenu.on('load', ({viewModel}) => {
             const html = githubLinkItemTemplate();
@@ -13,13 +19,22 @@ module.exports = {
         });
 
         kanban.taskDetailModal.on('load', () => {
-            const html = githubTaskLinkBlockHtml();
+            const html = githubTaskLinkBlockTemplate();
             $('#task-detail-modal').find('.work-history-block').before(html);
         });
     }
 };
 
-function decorateGitHubTask(project, task) {
+function decorateProject(project) {
+    project.githubRepository = project.opts.githubRepository;
+    if (project.githubRepository) {
+        const repo = project.githubRepository;
+        repo.url = `https://github.com/${repo.username}/${repo.reponame}`;
+        repo.displayText = `${repo.username}/${repo.reponame}`;
+    }
+}
+
+function decorateTask(project, task) {
     const oldDisplayTitle = task.displayTitle;
     task.displayTitle = ko.computed(() => {
         const githubTaskId = task.opts.githubTask ? task.opts.githubTask.number : null;
@@ -36,6 +51,21 @@ function decorateGitHubTask(project, task) {
     });
 }
 
+function githubRepositoryLinkBlockTemplate() {
+    return `
+<!-- ko if: project.githubRepository -->
+<div class="form-group">
+    <label for="github-repository-link" class="control-label">
+      <span class="glyphicon glyphicon-link"> GitHub</span>
+    </label>
+    <p><a class="form-control-static" id="github-repository-link" target="_blank" data-bind="
+                text: project.githubRepository.displayText,
+                attr: { href: project.githubRepository.url } "></a></p>
+</div>
+<!-- /ko -->
+`;
+}
+
 function githubLinkItemTemplate() {
     return `
 <!-- ko if: task.githubUrl -->
@@ -48,7 +78,7 @@ function githubLinkItemTemplate() {
 `;
 }
 
-function githubTaskLinkBlockHtml() {
+function githubTaskLinkBlockTemplate() {
     return `
 
 <div data-bind="if: task().githubUrl" class="form-group">
