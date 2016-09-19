@@ -88,6 +88,10 @@ class TaskDetailModal extends EventEmitter2 {
         $('#task-detail-modal').modal('show');
     }
 
+    onLoad() {
+        this.emit('load', this);
+    }
+
     update() {
         if (this.editWorkHistoryMode() === 'edit') {
             this.saveWorkHistory();
@@ -104,7 +108,10 @@ class TaskDetailModal extends EventEmitter2 {
 
     register() {
         ko.components.register('task-detail-modal', {
-            viewModel: () => this,
+            viewModel: () => {
+                this.onLoad();
+                return this;
+            },
             template: require('html!./task_detail_modal.html')
         })
     }

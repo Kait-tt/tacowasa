@@ -19,10 +19,12 @@ class GitHubAddonApi {
             for (let githubTask of githubTasks) {
                 taskToGithubTask[githubTask.taskId] = githubTask.toJSON();
             }
-
             for (let task of project.tasks) {
                 task.githubTask = taskToGithubTask[task.id];
             }
+
+            // add github repository
+            project.githubRepository = yield db.GitHubRepository.findOne({where: {projectId: project.id}});
 
             return {res, req, project};
         });

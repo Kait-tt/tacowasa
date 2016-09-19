@@ -32,6 +32,7 @@ class Project {
     }
 
     constructor(opts) {
+        this.opts = opts;
         Project.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
 
         // array init

@@ -29,6 +29,10 @@ class TaskCardMiniMenu extends EventEmitter2 {
         this.emit('clickTaskPrevStage', {task});
     }
 
+    onLoad(viewModel) {
+        this.emit('load', {viewModel});
+    }
+
     register() {
         const taskCardMiniMenu = this;
 
@@ -46,7 +50,9 @@ class TaskCardMiniMenu extends EventEmitter2 {
                 this.onClickTaskAssign = taskCardMiniMenu.onClickTaskAssign.bind(taskCardMiniMenu, this.task);
                 this.onClickTaskPrevStage = taskCardMiniMenu.onClickTaskPrevStage.bind(taskCardMiniMenu, this.task);
 
-                this.taskCardMiniMenuView = new TaskCardMiniMenuView(this.element);
+                this.view = new TaskCardMiniMenuView(this.element);
+
+                taskCardMiniMenu.onLoad(this);
             },
             template: require('html!./task_card_mini_menu.html')
         })
