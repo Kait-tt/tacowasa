@@ -41,7 +41,6 @@ class SocketProject {
             user.socket.on(key, req => {
                 addon.callAddons('SocketOn', key, {projectId: this.projectId, user, req, socketProject: this})
                     .then(({req}) => {
-                        console.log(key, req);
                         this[key](user, req)
                             .catch(err => {
                                 user.socket.emit('operationError', {error: err, message: err.message});

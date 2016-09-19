@@ -61,6 +61,7 @@ class SocketRouter {
             if (!project) throw new Error(`invalid project id: ${projectId}`);
 
             if (!that.projects[projectId]) {
+                console.log(`create room: ${projectId}`)
                 that.projects[projectId] = new SocketProject(that.io, projectId);
             }
 
