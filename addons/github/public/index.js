@@ -80,11 +80,12 @@ function githubLinkItemTemplate() {
 
 function githubTaskLinkBlockTemplate() {
     return `
-
+<!-- ko if: task().githubUrl -->
 <div data-bind="if: task().githubUrl" class="form-group">
     <a target="_blank" data-bind="attr: { href: task().githubUrl }">
         <span class="glyphicon glyphicon-link" aria-hidden="true"></span> GitHub
     </a>
 </div>
+<!-- /ko -->
 `
 }
