@@ -19,7 +19,6 @@ module.exports = {
         kanban.taskCardMiniMenu.on('load', ({viewModel}) => {
             const html = githubLinkItemTemplate();
             $(viewModel.element).find('li').last().before(html);
-            viewModel.view.hide();
         });
 
         kanban.taskDetailModal.on('load', () => {
@@ -75,7 +74,7 @@ function githubRepositoryLinkBlockTemplate() {
 function githubLinkItemTemplate() {
     return `
 <!-- ko if: task.githubUrl -->
-<li>
+<li class="mini-menu-item">
     <a target="_blank" class="btn btn-sm btn-default" data-bind="attr: {href: task.githubUrl }">
         <span class="glyphicon glyphicon-link" aria-hidden="true"></span>
     </a>

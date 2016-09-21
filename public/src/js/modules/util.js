@@ -159,6 +159,38 @@ const util = {
             }
             quote = null;
         }
+    },
+
+    offset: ele => {
+        const docEle = document.documentElement;
+        const box = ele.getBoundingClientRect();
+        return {
+            top: box.top + window.pageYOffset - docEle.clientTop,
+            left: box.left + window.pageXOffset - docEle.clientLeft
+        };
+    },
+
+    position: ele => {
+        const offsetParent = util.offsetParent(ele);
+
+        const offset = util.offset(ele);
+        const parentOffset = util.offset(offsetParent);
+
+        return {
+            top: parseInt(offset.top, 10) - parseInt(parentOffset.top, 10) - parseInt(ele.style.marginTop || 0, 10),
+            left: parseInt(offset.left, 10) - parseInt(parentOffset.left, 10) - parseInt(ele.style.marginLeft || 0, 10)
+        };
+    },
+
+    offsetParent: ele => {
+        const docEle = document.documentElement;
+        let offsetParent = ele.offsetParent || docEle;
+
+        while (offsetParent && offsetParent !== document && (offsetParent.nodeName !== 'HTML' && offsetParent.style.position === 'static')) {
+            offsetParent = offsetParent.offsetParent;
+        }
+
+        return offsetParent || docEle;
     }
 };
 

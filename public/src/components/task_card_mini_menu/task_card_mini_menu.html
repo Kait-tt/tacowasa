@@ -5,38 +5,39 @@
     </button>
   </div>
   <ul class="mini-menu-list">
-    <li data-bind="click: onClickTaskDetail,
+    <li class="mini-menu-item" data-bind="click: onClickTaskDetail,
                         tooltip: { title: 'Detail', placement:'left', delay: { show: 200, hide: 100 } }">
       <button type="button" class="btn btn-sm btn-default">
         <span class="glyphicon glyphicon-th" aria-hidden="true"></span>
       </button>
     </li>
 
-    <li data-bind="click: onClickTaskNextStage, tooltip: { title: 'Next stage', placement:'right', delay: { show: 200, hide: 100 } }">
+    <li class="mini-menu-item" data-bind="click: onClickTaskNextStage, tooltip: { title: 'Next stage', placement:'right', delay: { show: 200, hide: 100 } }">
       <button type="button" class="btn btn-sm btn-default"
               data-bind="css: {disabled: !enabledNextStageItem()}, attr: {disabled: !enabledNextStageItem()}">
         <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
       </button>
     </li>
 
-    <li data-bind="click: onClickTaskArchive,
+    <li class="mini-menu-item" data-bind="click: onClickTaskArchive,
                         tooltip: { title: 'Archive', placement:'right', delay: { show: 200, hide: 100 } }">
       <button type="button" class="btn btn-sm btn-default">
         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
       </button>
     </li>
 
-    <li data-bind="click: onClickTaskAssign,
+    <li class="mini-menu-item" data-bind="click: onClickTaskAssign,
                         tooltip: { title: 'Assign', placement:'right', delay: { show: 200, hide: 100 } }">
       <button type="button" class="btn btn-sm btn-default">
         <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
       </button>
     </li>
 
-    <li data-bind="click: onClickTaskPrevStage, tooltip: { title: 'Prev stage', placement:'left', delay: { show: 200, hide: 100 } }">
+    <li class="mini-menu-item" data-bind="click: onClickTaskPrevStage, tooltip: { title: 'Prev stage', placement:'left', delay: { show: 200, hide: 100 } }">
       <button type="button" class="btn btn-sm btn-default"
               data-bind="css: {disabled: !enabledPrevStageItem()}, attr: {disabled: !enabledPrevStageItem()}">
         <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
       </button>
     </li>
   </ul>
+</div>
