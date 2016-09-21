@@ -5,7 +5,11 @@ module.exports = {
     init: (kanban) => {
         decorateProject(kanban.project);
         kanban.project.tasks().forEach(task => decorateTask(kanban.project, task));
-        kanban.project.tasks.subscribe(task => decorateTask(kanban.project, task));
+        kanban.project.tasks.subscribe(changes => {
+            _.filter(changes, {status: 'added'}).forEach(({value: task}) => {
+                decorateTask(kanban.project, task);
+            });
+        }, null, 'arrayChange');
 
         kanban.projectSettingsModal.on('load', () => {
             const html = githubRepositoryLinkBlockTemplate();
@@ -35,19 +39,21 @@ function decorateProject(project) {
 }
 
 function decorateTask(project, task) {
+    task.githubNumber = ko.observable(task.opts.githubTask ? task.opts.githubTask.number : null);
+
     const oldDisplayTitle = task.displayTitle;
     task.displayTitle = ko.computed(() => {
-        const githubTaskId = task.opts.githubTask ? task.opts.githubTask.number : null;
+        const githubNumber = task.githubNumber();
         const text = oldDisplayTitle();
-        return `#${githubTaskId} ${text}`;
+        return `#${githubNumber} ${text}`;
     });
 
     task.githubUrl = ko.computed(() => {
         if (!project.opts.githubRepository || !task.opts.githubTask) { return null; }
-        const githubTaskId = task.opts.githubTask.number;
+        const githubNumber = task.githubNumber();
         const username = project.opts.githubRepository.username;
         const reponame = project.opts.githubRepository.reponame;
-        return `https://github.com/${username}/${reponame}/issues/${githubTaskId}`;
+        return `https://github.com/${username}/${reponame}/issues/${githubNumber}`;
     });
 }
 

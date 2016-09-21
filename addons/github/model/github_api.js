@@ -22,6 +22,45 @@ class GitHubAPI {
         }
     }
 
+    static get taskBodySuffix() {
+        return '\n\n[created by tacowasa]';
+    }
+
+    createTask(projectId, {title, body, assigneeId, stageId, labelIds}, {transaction}={}) {
+        const that = this;
+
+        return db.sequelize.transaction(transaction => {
+            return co(function* () {
+                const {username: user, reponame: repo} = yield db.GitHubRepository.findOne({where: {projectId}, transaction});
+
+                const stage = yield db.Stage.findOne({where: {projectId, id: stageId}, transaction});
+                const assignee = yield db.User.findOne({where: {id: assigneeId}, transaction});
+
+                const labels = [];
+                for (let labelId of labelIds) {
+                    const label = yield db.Label.findOne({where: {id: labelId, projectId}, transaction});
+                    labels.push(label.name);
+                }
+
+                const githubTask = yield that.api.issues.create({
+                    user, repo, title, assignee, labels,
+                    body: body + GitHubAPI.taskBodySuffix
+                });
+
+                if (['done', 'archive'].includes(stage.name)) {
+                    yield that.api.issues.edit({
+                        user, repo, state: 'closed'
+                    });
+                }
+
+                const task = yield GitHubAPI.serializeTask(projectId, githubTask, {transaction});
+                task.stageId = stage.id;
+
+                return task;
+            });
+        });
+    }
+
     fetchAvatar(username) {
         const that = this;
         return co(function*() {
