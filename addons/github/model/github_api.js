@@ -22,36 +22,34 @@ class GitHubAPI {
         }
     }
 
-    createTask(projectId, {title, body, assigneeId, stageId, labelIds}, {transaction}={}) {
+    createTask(projectId, {id: taskId, title, body, stage, user: assignee, labels}, {transaction}={}) {
         const that = this;
 
-        return db.sequelize.transaction(transaction => {
+        return db.sequelize.transaction({transaction}, transaction => {
             return co(function* () {
-                const {username: user, reponame: repo} = yield db.GitHubRepository.findOne({where: {projectId}, transaction});
+                const repository = yield db.GitHubRepository.findOne({where: {projectId}, transaction});
+                if (!repository) { return null; }
+                const {username: user, reponame: repo} = repository;
 
-                const stage = yield db.Stage.findOne({where: {projectId, id: stageId}, transaction});
-                const assignee = yield db.User.findOne({where: {id: assigneeId}, transaction});
-
-                const labels = [];
-                for (let labelId of labelIds) {
-                    const label = yield db.Label.findOne({where: {id: labelId, projectId}, transaction});
-                    labels.push(label.name);
-                }
-
-                const githubTask = yield that.api.issues.create({
-                    user, repo, title, body, assignee, labels,
+                const taskOnGitHub = yield that.api.issues.create({
+                    user, repo, title, body, labels,
+                    assignee: assignee ? assignee.username : null
                 });
 
                 if (['done', 'archive'].includes(stage.name)) {
                     yield that.api.issues.edit({
-                        user, repo, state: 'closed'
+                        user, repo, state: 'closed', number: taskOnGitHub.number
                     });
                 }
 
-                const task = yield GitHubAPI.serializeTask(projectId, githubTask, {transaction});
-                task.stageId = stage.id;
+                const serializedTask = yield GitHubAPI.serializeTask(projectId, taskOnGitHub, {transaction});
 
-                return task;
+                // relate github task
+                return yield db.GitHubTask.create({
+                    projectId, taskId,
+                    number: serializedTask.githubTask.number,
+                    isPullRequest: serializedTask.githubTask.isPullRequest
+                }, {transaction});
             });
         });
     }
@@ -84,7 +82,7 @@ class GitHubAPI {
     importProject({user, repo, createUsername}, {transaction}={}) {
         const that = this;
 
-        return db.sequelize.transaction({transaction: transaction}, transaction => {
+        return db.sequelize.transaction({transaction}, transaction => {
             return co(function* () {
                 const repository = yield that.fetchRepository({user, repo});
                 const project = yield Project.create(repo, createUsername, {transaction});
