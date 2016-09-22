@@ -6,8 +6,17 @@ const Project = require('../../lib/models/project');
 const SocketUser = require('./user');
 const SocketProject = require('./project');
 
+let _instance = null;
+
 class SocketRouter {
+    static get instance() {
+        return _instance;
+    }
+
     constructor(server) {
+        if (_instance) { return _instance; }
+        _instance = this;
+
         this.io = socketio.listen(server);
         this.users = {};
         this.projects = {};

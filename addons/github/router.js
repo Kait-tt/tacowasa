@@ -1,7 +1,10 @@
 'use strict';
+const co = require('co');
 const express = require('express');
 const AddonRouter = require('../addon/router');
 const GitHubApi = require('./model/github_api');
+const db = require('./schemas');
+const hooks = require('./hook');
 
 class GitHubAddonRouter extends AddonRouter {
     static initRouter(router) {
@@ -23,6 +26,32 @@ class GitHubAddonRouter extends AddonRouter {
                     console.error(err);
                     res.status(500).json({message: 'error', err});
                 });
+        });
+
+        router.post('/:projectId', (req, res) => {
+            const eventName = req.get('x-Github-Event');
+            const action = req.body && req.body.action;
+            const projectId = req.params && req.params.projectId;
+
+            co(function* () {
+                const project = yield db.Project.findOne({where: {id: projectId}});
+                if (!project) {
+                    res.status(404).json({message: 'project not found'});
+                    return;
+                }
+
+                const hook = hooks[eventName] && hooks[eventName][action];
+
+                if (!hook) {
+                    res.status(400).json({message: 'specified event or action is not supported'});
+                    return;
+                }
+
+                return hook(project.id, req.body.issue);
+            }).catch(err => {
+                console.error(err);
+                res.status(500).json({message: err.message});
+            });
         });
     }
 

@@ -101,6 +101,9 @@ class SocketSerializer {
         this.project.detachLabel({id: task.id}, {id: label.id});
     }
 
+    addLabel({label}) {
+        this.project.addLabel(label);
+    }
 
     static get socketOnEventsKeys() {
         return [
@@ -121,7 +124,8 @@ class SocketSerializer {
             'updateTaskWorkHistory',
             'updateTaskOrder',
             'attachLabel',
-            'detachLabel'
+            'detachLabel',
+            'addLabel'
         ];
     }
 }
