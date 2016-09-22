@@ -22,10 +22,6 @@ class GitHubAPI {
         }
     }
 
-    static get taskBodySuffix() {
-        return '\n\n[created by tacowasa]';
-    }
-
     createTask(projectId, {title, body, assigneeId, stageId, labelIds}, {transaction}={}) {
         const that = this;
 
@@ -43,8 +39,7 @@ class GitHubAPI {
                 }
 
                 const githubTask = yield that.api.issues.create({
-                    user, repo, title, assignee, labels,
-                    body: body + GitHubAPI.taskBodySuffix
+                    user, repo, title, body, assignee, labels,
                 });
 
                 if (['done', 'archive'].includes(stage.name)) {
