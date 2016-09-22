@@ -22,7 +22,12 @@ class AddonSocketEmit {
             .then(() => ({projectId, user, params, socketProject}));
     }
 
-    static updateTaskStatus(params)        { return Promise.resolve(params); }
+    static updateTaskStatus({projectId, user, params, socketProject}) {
+        const githubApi = new GitHubAPI(user.info.token);
+        return githubApi.updateTaskStatus(projectId, params.task)
+            .then(() => ({projectId, user, params, socketProject}));
+    }
+
     static updateTaskContent(params)       { return Promise.resolve(params); }
     static attachLabel(params)             { return Promise.resolve(params); }
     static detachLabel(params)             { return Promise.resolve(params); }

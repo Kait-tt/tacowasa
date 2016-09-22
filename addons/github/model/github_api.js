@@ -54,21 +54,40 @@ class GitHubAPI {
         });
     }
 
-    closeTask(projectId, task) {
+    closeTask(projectId, {id: taskId}) {
         const that = this;
-
         return co(function* () {
             const repository = yield db.GitHubRepository.findOne({where: {projectId}});
             if (!repository) { return null; }
             const {username: user, reponame: repo} = repository;
 
             const githubTask = yield db.GitHubTask.findOne({where: {
-                projectId, taskId: task.id
+                projectId, taskId
             }});
             if (!githubTask) { return null; }
 
             return yield that.api.issues.edit({
                 user, repo, state: 'closed', number: githubTask.number
+            });
+        });
+    }
+
+    updateTaskStatus(projectId, {id: taskId, stage, user: assignee}) {
+        const that = this;
+        return co(function* () {
+            const repository = yield db.GitHubRepository.findOne({where: {projectId}});
+            if (!repository) { return null; }
+            const {username: user, reponame: repo} = repository;
+
+            const githubTask = yield db.GitHubTask.findOne({where: {
+                projectId, taskId
+            }});
+            if (!githubTask) { return null; }
+
+            return yield that.api.issues.edit({
+                user, repo, number: githubTask.number,
+                state : ['archive', 'done'].includes(stage.name) ? 'closed' : 'open',
+                assignee: assignee ? assignee.username : null
             });
         });
     }
