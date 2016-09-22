@@ -38,6 +38,9 @@ function decorateProject(project) {
 }
 
 function decorateTask(project, task) {
+    if (task.isGitHubDecorated) { return; }
+    task.isGitHubDecorated = true;
+
     task.githubNumber = ko.observable(task.opts.githubTask ? task.opts.githubTask.number : null);
 
     const oldDisplayTitle = task.displayTitle;
