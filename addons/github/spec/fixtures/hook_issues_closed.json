@@ -1,0 +1,21 @@
+{
+  "action": "closed",
+  "issue": {
+    "id": 178657937,
+    "number": 900,
+    "title": "hook test",
+    "user": {
+      "login": "snakazawa"
+    },
+    "labels": [],
+    "state": "closed",
+    "assignee": null,
+    "assignees": [],
+    "body": ""
+  },
+  "sender": {
+    "login": "snakazawa",
+    "id": 6027645,
+    "type": "User"
+  }
+}

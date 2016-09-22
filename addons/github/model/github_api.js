@@ -163,7 +163,7 @@ class GitHubAPI {
     createHook({projectId, user, repo}) {
         return this.api.repos.createHook({
             repo, user,
-            name: 'tacowasa',
+            name: 'web',
             config: {
                 url: config.get('github.hookURL').replace(':id', projectId),
                 content_type: 'json'

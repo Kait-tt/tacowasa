@@ -28,7 +28,7 @@ class GitHubAddonRouter extends AddonRouter {
                 });
         });
 
-        router.post('/:projectId', (req, res) => {
+        router.post('/hook/:projectId', (req, res) => {
             const eventName = req.get('x-Github-Event');
             const action = req.body && req.body.action;
             const projectId = req.params && req.params.projectId;
@@ -47,7 +47,9 @@ class GitHubAddonRouter extends AddonRouter {
                     return;
                 }
 
-                return hook(project.id, req.body.issue);
+                const hookResponse = yield hook(project.id, req.body.issue);
+
+                res.status(200).json(hookResponse);
             }).catch(err => {
                 console.error(err);
                 res.status(500).json({message: err.message});

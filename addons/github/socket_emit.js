@@ -17,26 +17,26 @@ class AddonSocketEmit {
     }
 
     static archiveTask(params) {
-        if (user.isGitHub) { return params; }
+        if (params.user.isGitHub) { return params; }
         return AddonSocketEmit.updateTask(params);
     }
 
     static updateTaskStatus(params) {
-        if (user.isGitHub) { return params; }
+        if (params.user.isGitHub) { return params; }
         return AddonSocketEmit.updateTask(params);
     }
 
     static updateTaskContent(params) {
-        if (user.isGitHub) { return params; }
+        if (params.user.isGitHub) { return params; }
         return AddonSocketEmit.updateTask(params);
     }
 
     static attachLabel(params) {
-        if (user.isGitHub) { return params; }
+        if (params.user.isGitHub) { return params; }
         return AddonSocketEmit.updateTask(params);
     }
     static detachLabel(params) {
-        if (user.isGitHub) { return params; }
+        if (params.user.isGitHub) { return params; }
         return AddonSocketEmit.updateTask(params);
     }
 

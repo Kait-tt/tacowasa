@@ -1,0 +1,26 @@
+{
+  "action": "unlabeled",
+  "issue": {
+    "id": 178657937,
+    "number": 900,
+    "title": "hook test hogehoge",
+    "user": {
+      "login": "snakazawa"
+    },
+    "labels": [
+      {
+        "name": "bug",
+        "color": "fc2929"
+      }
+    ],
+    "state": "open",
+    "assignee": null,
+    "assignees": [],
+    "body": "hook test body hogehoge"
+  },
+  "sender": {
+    "login": "snakazawa",
+    "id": 6027645,
+    "type": "User"
+  }
+}

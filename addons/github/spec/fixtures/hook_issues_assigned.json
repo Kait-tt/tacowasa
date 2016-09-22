@@ -1,0 +1,23 @@
+{
+  "action": "assigned",
+  "issue": {
+    "id": 178657937,
+    "number": 900,
+    "title": "hook test",
+    "user": {
+      "login": "snakazawa"
+    },
+    "labels": [],
+    "state": "open",
+    "assignee": {
+      "login": "snakazawa"
+    },
+    "assignees": [],
+    "body": "hook test body"
+  },
+  "sender": {
+    "login": "snakazawa",
+    "id": 6027645,
+    "type": "User"
+  }
+}

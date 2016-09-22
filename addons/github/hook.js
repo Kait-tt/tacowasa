@@ -3,12 +3,13 @@ const co = require('co');
 const _ = require('lodash');
 const db = require('./schemas');
 const GitHubAPI = require('./model/github_api');
+const Task = require('../../lib/models/task');
 
 function createTask(projectId, taskOnGitHub, {transaction}={}) {
     return db.sequelize.transaction({transaction}, transaction => {
         return co(function*() {
             const serializedTask = yield GitHubAPI.serializeTask(projectId, taskOnGitHub, {transaction});
-            const task = yield db.Task.create(serializedTask, {transaction});
+            const task = yield Task.create(projectId, serializedTask, {transaction});
             task.githubTask = yield db.GitHubTask.create({
                 projectId,
                 taskId: task.id,
@@ -16,7 +17,7 @@ function createTask(projectId, taskOnGitHub, {transaction}={}) {
                 isPullRequest: serializedTask.githubTask.isPullRequest
             });
 
-            emits(projectId, 'createTask', `created new task on github: ${task.title}`, {task});
+            yield emits(projectId, 'createTask', `created new task on github: ${task.title}`, task.id, {transaction});
 
             return task;
         });
@@ -24,10 +25,10 @@ function createTask(projectId, taskOnGitHub, {transaction}={}) {
 }
 
 // return {task, githubTask, justCreated}
-function findOrCreateTask(projectId, taskOnGitHub, {transaction, includes}={}) {
+function findOrCreateTask(projectId, taskOnGitHub, {transaction, include}={}) {
     return db.sequelize.transaction({transaction}, transaction => {
         return co(function*() {
-            const existsGitHubTask = yield db.GitHubTask.findOne({where: {number: taskOnGitHub.number}, transaction});
+            const existsGitHubTask = yield db.GitHubTask.findOne({where: {projectId, number: taskOnGitHub.number}, transaction});
             if (!existsGitHubTask) {
                 const {task, githubTask} = yield createTask(projectId, taskOnGitHub, {transaction});
                 return {task, githubTask, justCreated: true};
@@ -35,7 +36,7 @@ function findOrCreateTask(projectId, taskOnGitHub, {transaction, includes}={}) {
 
             const task = yield db.Task.findOne({
                 where: {id: existsGitHubTask.taskId},
-                includes, transaction
+                include, transaction
             });
 
             task.githubTask = existsGitHubTask;
@@ -45,13 +46,13 @@ function findOrCreateTask(projectId, taskOnGitHub, {transaction, includes}={}) {
     });
 }
 
-function updateLabels(projectId, task, taskOnGitHub, {transaction}) {
+function updateLabels(projectId, task, taskOnGitHub, {transaction}={}) {
     return db.sequelize.transaction({transaction}, transaction => {
         return co(function*() {
             const emitParams = [];
 
-            const kanbanLabelNames = task.labels.map(x => name);
-            const githubLabelNames = taskOnGitHub.labels.map(x => name);
+            const kanbanLabelNames = task.labels.map(x => x.name);
+            const githubLabelNames = taskOnGitHub.labels.map(x => x.name);
 
             const attachLabelNames = _.difference(githubLabelNames, kanbanLabelNames);
             const detachLabelNames = _.difference(kanbanLabelNames, githubLabelNames);
@@ -61,33 +62,38 @@ function updateLabels(projectId, task, taskOnGitHub, {transaction}) {
                 let label = _.find(projectLabels, {name: labelName});
                 if (label) {
                     let githubLabel = _.find(taskOnGitHub.labels, {name: labelName});
-                    label = yield db.Label.create({projectId, name: labelName, color: githubLabel.color})
-                    emitParams.push(projectId, 'addLabel', `add label on github: {label: ${label.name}}`, {label});
+                    label = yield db.Label.create({projectId, name: labelName, color: githubLabel.color});
+                    emitParams.push([projectId, 'addLabel', `add label on github: {label: ${label.name}}`, task.id, {transaction, moreParams: {label}}]);
                 }
-                yield db.TaskLabel.create({where: {projectId, taskId: task.id, labelId: label.id}, transaction});
-                emitParams.push(projectId, 'detachLabel', `detached label on github: {label: ${label.name}, task: ${task.name}}`, {task, label});
+                yield db.TaskLabel.create({projectId, taskId: task.id, labelId: label.id}, {transaction});
+                emitParams.push([projectId, 'attachLabel', `attached label on github: {label: ${label.name}, task: ${task.name}}`, task.id, {transaction, moreParams: {label}}]);
             }
 
             for (let labelName of detachLabelNames) {
-                const label = _.find(task.labels, {name: labelName.id});
+                const label = _.find(task.labels, {name: labelName});
                 yield db.TaskLabel.destroy({where: {taskId: task.id, labelId: label.id}, transaction});
-                emitParams.push(projectId, 'attachLabel', `attached label on github: {label: ${label.name}, task: ${task.name}}`, {task, label});
+                emitParams.push([projectId, 'detachLabel', `detached label on github: {label: ${label.name}, task: ${task.name}}`, task.id, {transaction, moreParams: {label}}]);
             }
 
-            emitParams.forEach(params => emits.apply(null, params));
+            for (let params of emitParams) {
+                yield emits.apply(null, params);
+            }
         });
     });
 }
 
-function emits(projectId, name, notifyText, params) {
-    const SocketRouter = require('../../routes/socket');
-    const user = {isGitHub: true, username: 'github'};
-    const socket = SocketRouter.instance;
-    const socketProject = socket && socket.projects[projectId];
-    if (socketProject) {
-        socketProject.emits(user, name, params);
-        socketProject.notifyText(user, notifyText).catch(err => console.error(err));
-    }
+function emits(projectId, name, notifyText, taskId, {transaction, moreParams={}}={}) {
+    return Task.findById(taskId, {transaction})
+        .then(task => {
+            const SocketRouter = require('../../routes/socket');
+            const user = {isGitHub: true, username: 'github'};
+            const socket = SocketRouter.instance;
+            const socketProject = socket && socket.projects[projectId];
+            if (socketProject) {
+                socketProject.emits(user, name, _.assign(moreParams, {task}));
+                socketProject.notifyText(user, notifyText).catch(err => console.error(err));
+            }
+        });
 }
 
 const hooks = {
@@ -96,11 +102,12 @@ const hooks = {
             return db.sequelize.transaction(transaction => {
                 return co(function* () {
                     // exists task?
-                    const existsGithubTask = yield db.GitHubTask.findOne({where: {number: taskOnGitHub.number}, transaction});
-                    if (existsGithubTask) { return; }
+                    const existsGithubTask = yield db.GitHubTask.findOne({where: {projectId, number: taskOnGitHub.number}, transaction});
+                    if (existsGithubTask) { return {message: 'task is already created'}; }
 
                     // create task (emits is called on createTask)
                     yield createTask(projectId, taskOnGitHub, {transaction});
+                    return {message: 'created task'};
                 });
             });
         },
@@ -108,29 +115,35 @@ const hooks = {
         reopened: (projectId, taskOnGitHub) => {
             return db.sequelize.transaction(transaction => {
                 return co(function*() {
-                    const {task, justCreated} = findOrCreateTask(projectId, taskOnGitHub, {transaction, includes: [{model: db.Stage, as: 'stage'}]});
-                    if (justCreated) { return; }
+                    const {task, justCreated} = yield findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.Stage, as: 'stage'}]});
+                    if (justCreated) { return {message: 'created task'}; }
 
                     // no change?
                     if (!['done', 'archive'].includes(task.stage.name)) {
-                        return;
+                        return {message: 'no changed'};
                     }
 
                     // open
                     let stages = yield db.Stage.findAll({where: {projectId}, transaction});
-                    const assigned = taskOnGitHub.assignee === null;
+                    const assigned = taskOnGitHub.assignee !== null;
                     stages = _.filter(stages, {assigned});
 
                     let stage;
+                    let userId;
                     if (assigned) {
                         stage = _.find(stages, {name: 'todo'}) || stages[0];
+                        const user = (yield db.User.findOrCreate({where: {username: taskOnGitHub.assignee}, transaction}))[0];
+                        userId = user.id;
                     } else {
                         stage = _.find(stages, {name: 'issue'}) || stages[0];
+                        userId = null;
                     }
 
-                    yield db.Task.update({stageId: stage.id}, {where: {id: task.id}, transaction});
+                    yield db.Task.update({stageId: stage.id, userId}, {where: {id: task.id}, transaction});
 
-                    emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}`, {task});
+                    yield emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}}`, task.id, {transaction});
+
+                    return {message: 'updated task status'};
                 });
             });
         },
@@ -138,12 +151,12 @@ const hooks = {
         closed: (projectId, taskOnGitHub) => {
             return db.sequelize.transaction(transaction => {
                 return co(function*() {
-                    const {task, justCreated} = findOrCreateTask(projectId, taskOnGitHub, {transaction, includes: [{model: db.Stage, as: 'stage'}]});
-                    if (justCreated) { return; }
+                    const {task, justCreated} = yield findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.Stage, as: 'stage'}]});
+                    if (justCreated) { return {message: 'created task'}; }
 
                     // no change?
                     if (['done', 'archive'].includes(task.stage.name)) {
-                        return;
+                        return {message: 'no changed'};
                     }
 
                     // close
@@ -152,7 +165,9 @@ const hooks = {
 
                     yield db.Task.update({stageId: stage.id, userId: null}, {where: {id: task.id}, transaction});
 
-                    emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}`, {task});
+                    yield emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}}`, task.id, {transaction});
+
+                    return {message: 'updated task status'};
                 });
             });
         },
@@ -160,12 +175,12 @@ const hooks = {
         edited: (projectId, taskOnGitHub) => {
             return db.sequelize.transaction(transaction => {
                 return co(function*() {
-                    const {task, justCreated} = findOrCreateTask(projectId, taskOnGitHub, {transaction});
-                    if (justCreated) { return; }
+                    const {task, justCreated} = yield findOrCreateTask(projectId, taskOnGitHub, {transaction});
+                    if (justCreated) { return {message: 'created task'}; }
 
                     // no change?
                     if (task.title === taskOnGitHub.title && task.body === taskOnGitHub.body) {
-                        return;
+                        return {message: 'no changed'};
                     }
 
                     // edit
@@ -174,7 +189,9 @@ const hooks = {
                         body: taskOnGitHub.body
                     }, {where: {id: task.id}, transaction});
 
-                    emits(projectId, 'updateTaskContent', `updatedTask on github: {taskTitle: ${task.title}`, {task});
+                    yield emits(projectId, 'updateTaskContent', `updatedTask on github: {taskTitle: ${task.title}`, task.id, {transaction});
+
+                    return {message: 'updated task content'};
                 });
             });
         },
@@ -182,21 +199,26 @@ const hooks = {
         assigned: (projectId, taskOnGitHub) => {
             return db.sequelize.transaction(transaction => {
                 return co(function*() {
-                    const {task, justCreated} = findOrCreateTask(projectId, taskOnGitHub, {transaction, includes: [{model: db.User, as: 'user'}]});
-                    if (justCreated) { return; }
+                    const {task, justCreated} = yield findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.User, as: 'user'}]});
+                    if (justCreated) { return {message: 'created task'}; }
 
                     // no change?
                     if (task.user && task.user.username === taskOnGitHub.assignee.login) {
-                        return;
+                        return {message: 'no changed'};
                     }
 
                     // assign
                     const user = (yield db.User.findOrCreate({where: {username: taskOnGitHub.assignee.login}, transaction}))[0];
+                    const stages = yield db.Stage.findAll({where: {projectId}, transaction});
+                    const stage = _.find(stages, {name: 'todo'}) || stages[0];
                     yield db.Task.update({
-                        userId: user.id
+                        userId: user.id,
+                        stageId: stage.id
                     }, {where: {id: task.id}, transaction});
 
-                    emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}`, {task});
+                    yield emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}}`, task.id, {transaction});
+
+                    return {message: 'updated task status'};
                 });
             });
         },
@@ -204,20 +226,25 @@ const hooks = {
         unassigned: (projectId, taskOnGitHub) => {
             return db.sequelize.transaction(transaction => {
                 return co(function*() {
-                    const {task, justCreated} = findOrCreateTask(projectId, taskOnGitHub, {transaction, includes: [{model: db.User, as: 'user'}]});
-                    if (justCreated) { return; }
+                    const {task, justCreated} = yield findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.User, as: 'user'}]});
+                    if (justCreated) { return {message: 'created task'}; }
 
                     // no change?
                     if (!task.user) {
-                        return;
+                        return {message: 'no changed'};
                     }
 
-                    // assign
+                    // unassign
+                    const stages = yield db.Stage.findAll({where: {projectId}, transaction});
+                    const stage = _.find(stages, {name: 'backlog'}) || _.find(stages, {name: 'issue'}) || stages[0];
                     yield db.Task.update({
-                        userId: null
+                        userId: null,
+                        stageId: stage.id
                     }, {where: {id: task.id}, transaction});
 
-                    emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}`, {task});
+                    yield emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}}`, task.id, {transaction});
+
+                    return {message: 'updated task status'};
                 });
             });
         },
@@ -225,11 +252,13 @@ const hooks = {
         labeled: (projectId, taskOnGitHub) => {
             return db.sequelize.transaction(transaction => {
                 return co(function*() {
-                    const {task, justCreated} = findOrCreateTask(projectId, taskOnGitHub, {transaction, includes: [{model: db.Label, as: 'labels'}]});
-                    if (justCreated) { return; }
+                    const {task, justCreated} = yield findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.Label, as: 'labels'}]});
+                    if (justCreated) { return {message: 'created task'}; }
 
                     // emit is called on updateLabels
-                    updateLabels(projectId, task, taskOnGitHub);
+                    yield updateLabels(projectId, task, taskOnGitHub, {transaction});
+
+                    return {message: 'updated task label'};
                 });
             });
         },
@@ -237,11 +266,13 @@ const hooks = {
         unlabeled: (projectId, taskOnGitHub) => {
             return db.sequelize.transaction(transaction => {
                 return co(function*() {
-                    const {task, justCreated} = findOrCreateTask(projectId, taskOnGitHub, {transaction, includes: [{model: db.Label, as: 'labels'}]});
-                    if (justCreated) { return; }
+                    const {task, justCreated} = yield findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.Label, as: 'labels'}]});
+                    if (justCreated) { return {message: 'created task'}; }
 
                     // emit is called on updateLabels
-                    updateLabels(projectId, task, taskOnGitHub);
+                    yield updateLabels(projectId, task, taskOnGitHub, {transaction});
+
+                    return {message: 'updated task label'};
                 });
             });
         }
