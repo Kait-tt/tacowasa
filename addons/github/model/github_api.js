@@ -54,6 +54,25 @@ class GitHubAPI {
         });
     }
 
+    closeTask(projectId, task) {
+        const that = this;
+
+        return co(function* () {
+            const repository = yield db.GitHubRepository.findOne({where: {projectId}});
+            if (!repository) { return null; }
+            const {username: user, reponame: repo} = repository;
+
+            const githubTask = yield db.GitHubTask.findOne({where: {
+                projectId, taskId: task.id
+            }});
+            if (!githubTask) { return null; }
+
+            return yield that.api.issues.edit({
+                user, repo, state: 'closed', number: githubTask.number
+            });
+        });
+    }
+
     fetchAvatar(username) {
         const that = this;
         return co(function*() {

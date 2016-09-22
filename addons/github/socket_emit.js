@@ -9,13 +9,17 @@ class AddonSocketEmit {
 
     static createTask({projectId, user, params, socketProject}) {
         const githubApi = new GitHubAPI(user.info.token);
-        return db.sequelize.transaction(transaction => {
-            return githubApi.createTask(projectId, params.task, {transaction})
-                .then(githubTask => {
-                    params.task.githubTask = githubTask;
-                    return {projectId, user, params, socketProject};
-                });
-        });
+        return githubApi.createTask(projectId, params.task)
+            .then(githubTask => {
+                params.task.githubTask = githubTask;
+                return {projectId, user, params, socketProject};
+            });
+    }
+
+    static archiveTask({projectId, user, params, socketProject}) {
+        const githubApi = new GitHubAPI(user.info.token);
+        return githubApi.closeTask(projectId, params.task)
+            .then(() => ({projectId, user, params, socketProject}));
     }
 
     static updateTaskStatus(params)        { return Promise.resolve(params); }
