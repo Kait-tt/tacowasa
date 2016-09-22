@@ -16,21 +16,30 @@ class AddonSocketEmit {
             });
     }
 
-    static archiveTask({projectId, user, params, socketProject}) {
-        const githubApi = new GitHubAPI(user.info.token);
-        return githubApi.closeTask(projectId, params.task)
-            .then(() => ({projectId, user, params, socketProject}));
+    static archiveTask(params) {
+        return AddonSocketEmit.updateTask(params);
     }
 
-    static updateTaskStatus({projectId, user, params, socketProject}) {
-        const githubApi = new GitHubAPI(user.info.token);
-        return githubApi.updateTaskStatus(projectId, params.task)
-            .then(() => ({projectId, user, params, socketProject}));
+    static updateTaskStatus(params) {
+        return AddonSocketEmit.updateTask(params);
     }
 
-    static updateTaskContent(params)       { return Promise.resolve(params); }
-    static attachLabel(params)             { return Promise.resolve(params); }
-    static detachLabel(params)             { return Promise.resolve(params); }
+    static updateTaskContent(params) {
+        return AddonSocketEmit.updateTask(params);
+    }
+
+    static attachLabel(params) {
+        return AddonSocketEmit.updateTask(params);
+    }
+    static detachLabel(params) {
+        return AddonSocketEmit.updateTask(params);
+    }
+
+    static updateTask({projectId, user, params, socketProject}) {
+        const githubApi = new GitHubAPI(user.info.token);
+        return githubApi.updateTask(projectId, params.task)
+            .then(() => ({projectId, user, params, socketProject}));
+    }
 }
 
 module.exports = AddonSocketEmit;

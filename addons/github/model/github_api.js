@@ -54,25 +54,7 @@ class GitHubAPI {
         });
     }
 
-    closeTask(projectId, {id: taskId}) {
-        const that = this;
-        return co(function* () {
-            const repository = yield db.GitHubRepository.findOne({where: {projectId}});
-            if (!repository) { return null; }
-            const {username: user, reponame: repo} = repository;
-
-            const githubTask = yield db.GitHubTask.findOne({where: {
-                projectId, taskId
-            }});
-            if (!githubTask) { return null; }
-
-            return yield that.api.issues.edit({
-                user, repo, state: 'closed', number: githubTask.number
-            });
-        });
-    }
-
-    updateTaskStatus(projectId, {id: taskId, stage, user: assignee}) {
+    updateTask(projectId, {id: taskId, stage, user: assignee, title, body, labels}) {
         const that = this;
         return co(function* () {
             const repository = yield db.GitHubRepository.findOne({where: {projectId}});
@@ -86,10 +68,16 @@ class GitHubAPI {
 
             return yield that.api.issues.edit({
                 user, repo, number: githubTask.number,
+                title, body,
                 state : ['archive', 'done'].includes(stage.name) ? 'closed' : 'open',
-                assignee: assignee ? assignee.username : null
+                assignee: assignee ? assignee.username : null,
+                labels: labels.map(x => x.name)
             });
         });
+    }
+
+    attachLabel(projectId, {id: taskId, label}) {
+
     }
 
     fetchAvatar(username) {
