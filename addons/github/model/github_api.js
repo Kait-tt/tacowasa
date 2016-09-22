@@ -1,6 +1,7 @@
 'use strict';
 const GitHub = require('github');
 const co = require('co');
+const config = require('config');
 const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
 const _ = require('lodash');
@@ -152,7 +153,6 @@ class GitHubAPI {
                     }, {transaction});
                 }
 
-                // create web hook
                 yield that.createHook({projectId, user, repo});
 
                 return Project.findOneIncludeAll({where: {id: projectId}, transaction});
@@ -161,8 +161,16 @@ class GitHubAPI {
     }
 
     createHook({projectId, user, repo}) {
-        // TODO: create hook
-        return Promise.resolve();
+        return this.api.repos.createHook({
+            repo, user,
+            name: 'tacowasa',
+            config: {
+                url: config.get('github.hookURL').replace(':id', projectId),
+                content_type: 'json'
+            },
+            events: ['issues', 'member'],
+            active: true
+        });
     }
 
     fetchRepository({user, repo}) {
