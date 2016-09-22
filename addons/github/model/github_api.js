@@ -142,7 +142,7 @@ class GitHubAPI {
                 }
 
                 // add tasks and github task
-                for (let task of repository.tasks) {
+                for (let task of _.reverse(repository.tasks)) {
                     task = yield GitHubAPI.serializeTask(projectId, task, {transaction});
                     const addedTask = yield Task.create(projectId, task, {transaction});
                     yield db.GitHubTask.create({
