@@ -3,8 +3,8 @@ const EventEmitter2 = require('eventemitter2');
 const io = require('socket.io-client');
 const _ = require('lodash');
 
-function Socket() {
-    var that = io.connect();
+function Socket () {
+    let that = io.connect();
     that.eventEmitCallback = new EventEmitter2();
 
     // ソケットのデバッグ出力を有効にする
@@ -26,7 +26,7 @@ function Socket() {
             const context = this;
             const enableDebug = !_.includes(['ping', 'pong'], key);
             enableDebug && console.debug('emit: ' + key, req);
-            emit(key, req, res =>  {
+            emit(key, req, res => {
                 enableDebug && console.debug('callback: ' + key, res);
                 fn && fn.apply(context, arguments);
             });

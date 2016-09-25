@@ -1,9 +1,7 @@
 'use strict';
 const expect = require('chai').expect;
-const _ = require('lodash');
 const co = require('co');
 const helper = require('../helper');
-const db = require('../../lib/schemes');
 const User = require('../../lib/models/user');
 
 afterEach(() => helper.db.clean());

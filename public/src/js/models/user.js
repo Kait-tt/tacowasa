@@ -1,12 +1,11 @@
 'use strict';
 const ko = require('knockout');
-const _ = require('lodash');
 const util = require('../modules/util');
 
 class User {
-    constructor(opts) {
-        User.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
-        User.memberColumnKeys.forEach(key => this[key] = ko.observable(opts.member[key]));
+    constructor (opts) {
+        User.columnKeys.forEach(key => { this[key] = ko.observable(opts[key]); });
+        User.memberColumnKeys.forEach(key => { this[key] = ko.observable(opts.member[key]); });
 
         this.workingTask = ko.observable(false);
 
@@ -34,21 +33,21 @@ class User {
         });
     }
 
-    static get columnKeys() {
+    static get columnKeys () {
         return [
             'id',
             'username'
         ];
     }
 
-    static get memberColumnKeys() {
+    static get memberColumnKeys () {
         return [
             'isVisible',
             'wipLimit'
         ];
     }
 
-    willBeOverWipLimit(addedCost) {
+    willBeOverWipLimit (addedCost) {
         return this.wip() + addedCost > this.wipLimit();
     }
 }

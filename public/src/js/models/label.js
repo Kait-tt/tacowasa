@@ -3,8 +3,8 @@ const ko = require('knockout');
 const _ = require('lodash');
 
 class Label {
-    constructor(opts) {
-        Label.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
+    constructor (opts) {
+        Label.columnKeys.forEach(key => { this[key] = ko.observable(opts[key]); });
 
         // colorに対して見やすい文字色（白or黒）
         this.invertMonoColor = ko.computed(() => {
@@ -16,7 +16,7 @@ class Label {
         });
     }
 
-    static get columnKeys() {
+    static get columnKeys () {
         return [
             'id',
             'name',

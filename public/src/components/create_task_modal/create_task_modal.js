@@ -3,11 +3,11 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class CreateTaskModal extends EventEmitter2 {
-    constructor({eventEmitterOptions={}, project}) {
+    constructor ({eventEmitterOptions = {}, project}) {
         super(eventEmitterOptions);
 
-        this.title = ko.observable("");
-        this.body = ko.observable("");
+        this.title = ko.observable('');
+        this.body = ko.observable('');
 
         this.stages = ko.computed(() => project.stages().filter(x => !x.assigned()));
         this.stage = ko.observable(project.defaultStage());
@@ -19,7 +19,7 @@ class CreateTaskModal extends EventEmitter2 {
         this.selectedLabels = ko.observableArray();
     }
 
-    create() {
+    create () {
         this.emit('create', {
             title: this.title(),
             body: this.body(),
@@ -29,11 +29,11 @@ class CreateTaskModal extends EventEmitter2 {
         });
     }
 
-    register() {
+    register () {
         ko.components.register('create-task-modal', {
             viewModel: () => this,
             template: require('html!./create_task_modal.html')
-        })
+        });
     }
 }
 

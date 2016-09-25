@@ -2,10 +2,10 @@
 const co = require('co');
 const _ = require('lodash');
 const db = require('./schemas');
-const GitHubAPI = require('./model/github_api');
+const GitHubAPI = require('./models/github_api');
 const Task = require('../../lib/models/task');
 
-function createTask(projectId, taskOnGitHub, {transaction}={}) {
+function createTask (projectId, taskOnGitHub, {transaction} = {}) {
     return db.sequelize.transaction({transaction}, transaction => {
         return co(function*() {
             const serializedTask = yield GitHubAPI.serializeTask(projectId, taskOnGitHub, {transaction});
@@ -25,7 +25,7 @@ function createTask(projectId, taskOnGitHub, {transaction}={}) {
 }
 
 // return {task, githubTask, justCreated}
-function findOrCreateTask(projectId, taskOnGitHub, {transaction, include}={}) {
+function findOrCreateTask (projectId, taskOnGitHub, {transaction, include} = {}) {
     return db.sequelize.transaction({transaction}, transaction => {
         return co(function*() {
             const existsGitHubTask = yield db.GitHubTask.findOne({where: {projectId, number: taskOnGitHub.number}, transaction});
@@ -36,17 +36,18 @@ function findOrCreateTask(projectId, taskOnGitHub, {transaction, include}={}) {
 
             const task = yield db.Task.findOne({
                 where: {id: existsGitHubTask.taskId},
-                include, transaction
+                include,
+                transaction
             });
 
             task.githubTask = existsGitHubTask;
 
-            return {task, justCreated: false}
+            return {task, justCreated: false};
         });
     });
 }
 
-function updateLabels(projectId, task, taskOnGitHub, {transaction}={}) {
+function updateLabels (projectId, task, taskOnGitHub, {transaction} = {}) {
     return db.sequelize.transaction({transaction}, transaction => {
         return co(function*() {
             const emitParams = [];
@@ -82,7 +83,7 @@ function updateLabels(projectId, task, taskOnGitHub, {transaction}={}) {
     });
 }
 
-function emits(projectId, name, notifyText, taskId, {transaction, moreParams={}}={}) {
+function emits (projectId, name, notifyText, taskId, {transaction, moreParams = {}} = {}) {
     return Task.findById(taskId, {transaction})
         .then(task => {
             const SocketRouter = require('../../routes/socket');

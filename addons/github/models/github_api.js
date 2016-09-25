@@ -13,7 +13,7 @@ const Label = require('../../../lib/models/label');
 const Task = require('../../../lib/models/task');
 
 class GitHubAPI {
-    constructor(token=null) {
+    constructor (token = null) {
         this.api = new GitHub();
         if (token) {
             this.api.authenticate({
@@ -23,7 +23,7 @@ class GitHubAPI {
         }
     }
 
-    createTask(projectId, {id: taskId, title, body, stage, user: assignee, labels}, {transaction}={}) {
+    createTask (projectId, {id: taskId, title, body, stage, user: assignee, labels}, {transaction} = {}) {
         const that = this;
 
         return db.sequelize.transaction({transaction}, transaction => {
@@ -33,7 +33,11 @@ class GitHubAPI {
                 const {username: user, reponame: repo} = repository;
 
                 const taskOnGitHub = yield that.api.issues.create({
-                    user, repo, title, body, labels,
+                    user,
+                    repo,
+                    title,
+                    body,
+                    labels,
                     assignee: assignee ? assignee.username : null
                 });
 
@@ -47,7 +51,8 @@ class GitHubAPI {
 
                 // relate github task
                 return yield db.GitHubTask.create({
-                    projectId, taskId,
+                    projectId,
+                    taskId,
                     number: serializedTask.githubTask.number,
                     isPullRequest: serializedTask.githubTask.isPullRequest
                 }, {transaction});
@@ -55,7 +60,7 @@ class GitHubAPI {
         });
     }
 
-    updateTask(projectId, {id: taskId, stage, user: assignee, title, body, labels}) {
+    updateTask (projectId, {id: taskId, stage, user: assignee, title, body, labels}) {
         const that = this;
         return co(function* () {
             const repository = yield db.GitHubRepository.findOne({where: {projectId}});
@@ -68,20 +73,23 @@ class GitHubAPI {
             if (!githubTask) { return null; }
 
             return yield that.api.issues.edit({
-                user, repo, number: githubTask.number,
-                title, body,
-                state : ['archive', 'done'].includes(stage.name) ? 'closed' : 'open',
+                user,
+                repo,
+                number: githubTask.number,
+                title,
+                body,
+                state: ['archive', 'done'].includes(stage.name) ? 'closed' : 'open',
                 assignee: assignee ? assignee.username : null,
                 labels: labels.map(x => x.name)
             });
         });
     }
 
-    attachLabel(projectId, {id: taskId, label}) {
+    attachLabel (projectId, {id: taskId, label}) {
 
     }
 
-    fetchAvatar(username) {
+    fetchAvatar (username) {
         const that = this;
         return co(function*() {
             const {avatar_url} = yield that.api.users.getForUser({user: username});
@@ -102,11 +110,11 @@ class GitHubAPI {
         });
     }
 
-    static get avatarPath() {
+    static get avatarPath () {
         return `${__dirname}/../../../public/images/avatar/`;
     }
 
-    importProject({user, repo, createUsername}, {transaction}={}) {
+    importProject ({user, repo, createUsername}, {transaction} = {}) {
         const that = this;
 
         return db.sequelize.transaction({transaction}, transaction => {
@@ -160,9 +168,10 @@ class GitHubAPI {
         });
     }
 
-    createHook({projectId, user, repo}) {
+    createHook ({projectId, user, repo}) {
         return this.api.repos.createHook({
-            repo, user,
+            repo,
+            user,
             name: 'web',
             config: {
                 url: config.get('github.hookURL').replace(':id', projectId),
@@ -173,7 +182,7 @@ class GitHubAPI {
         });
     }
 
-    fetchRepository({user, repo}) {
+    fetchRepository ({user, repo}) {
         const that = this;
 
         return co(function* () {
@@ -190,22 +199,23 @@ class GitHubAPI {
         });
     }
 
-    fetchTasks({user, repo, state='all', per_page=100, page=1}) {
+    fetchTasks ({user, repo, state = 'all', perPage = 100, page = 1}) {
         const that = this;
         const tasks = [];
 
         return co(function* () {
             let data;
             do {
-                data = yield that.api.issues.getForRepo({user, repo, state, per_page, page});
+                data = yield that.api.issues.getForRepo({user, repo, state, per_page: perPage, page});
                 data.filter(x => !x.pull_request).forEach(x => tasks.push(x));
-            } while (page = GitHubAPI.getNext(data.meta));
+                page = GitHubAPI.getNext(data.meta);
+            } while (page);
             return tasks;
         });
     }
 
     // github issue -> tacowasa task
-    static serializeTask(projectId, task, {transaction}={}) {
+    static serializeTask (projectId, task, {transaction} = {}) {
         return co(function* () {
             const project = yield db.Project.findOne({where: {id: projectId}, transaction});
 
@@ -243,10 +253,10 @@ class GitHubAPI {
         });
     }
 
-    static getNext(meta) {
+    static getNext (meta) {
         if (!meta || !meta.link) { return null; }
 
-        const regex = /\<.+?\&page=(\d+).*?\>; rel="next"/;
+        const regex = /<.+?&page=(\d+).*?>; rel="next"/;
         const lines = meta.link.split(',');
 
         for (let i = 0; i < lines.length; i++) {

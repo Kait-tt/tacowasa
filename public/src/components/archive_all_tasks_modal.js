@@ -3,22 +3,22 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class ArchiveAllTaskModal extends EventEmitter2 {
-    constructor({eventEmitterOptions={}}) {
+    constructor ({eventEmitterOptions = {}}) {
         super(eventEmitterOptions);
     }
 
-    archiveAll() {
+    archiveAll () {
         this.emit('archiveAll');
     }
 
-    register() {
+    register () {
         ko.components.register('archive-all-tasks-modal', {
             viewModel: () => this,
             template: this.template()
         });
     }
 
-    template() {
+    template () {
         return `<div class="modal fade" id="archive-all-tasks-modal" tabindex="-1" role="dialog" aria-labelledby="archive-all-tasks-modal-label" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

@@ -42,7 +42,7 @@ removeProjectModal.on('submit', ({project}) => {
         .catch(err => {
             alert.pushErrorAlert({message: `プロジェクト ${project.name()} の削除に失敗しました。`});
             console.error(err);
-        })
+        });
 });
 removeProjectModal.register();
 selectedProject.subscribe(project => {

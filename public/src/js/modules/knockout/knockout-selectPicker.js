@@ -1,9 +1,9 @@
 // ref: http://jsfiddle.net/bkzb272j/1/
-const ko = require('knockout');
 'use strict';
+const ko = require('knockout');
 
 ko.bindingHandlers.selectPicker = {
-    init  : (element, valueAccessor, allBindingsAccessor) => {
+    init: (element, valueAccessor, allBindingsAccessor) => {
         const $elem = $(element);
         if ($elem.is('select')) {
             if (ko.isObservable(valueAccessor())) {
@@ -24,12 +24,9 @@ ko.bindingHandlers.selectPicker = {
         if ($elem.is('select')) {
             const selectPickerOptions = allBindingsAccessor().selectPickerOptions;
             if (typeof selectPickerOptions !== 'undefined' && selectPickerOptions !== null) {
-                var options         = selectPickerOptions.optionsArray,
-                    optionsText     = selectPickerOptions.optionsText,
-                    optionsValue    = selectPickerOptions.optionsValue,
-                    optionsCaption  = selectPickerOptions.optionsCaption,
-                    isDisabled      = selectPickerOptions.disabledCondition || false,
-                    resetOnDisabled = selectPickerOptions.resetOnDisabled || false;
+                const options = selectPickerOptions.optionsArray;
+                const isDisabled = selectPickerOptions.disabledCondition || false;
+                const resetOnDisabled = selectPickerOptions.resetOnDisabled || false;
                 if (ko.unwrap(options).length > 0) {
                     // call the default Knockout options binding
                     ko.bindingHandlers.options.update(element, options, allBindingsAccessor);

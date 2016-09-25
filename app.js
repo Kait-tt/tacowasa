@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -23,25 +22,23 @@ passport.deserializeUser((obj, done) => {
 
 // Use the GitHubStrategy within Passport.
 passport.use(new GitHubStrategy({
-        clientID: config.github.clientID,
-        clientSecret: config.github.clientSecret,
-        callbackURL: config.github.callbackURL,
-        scope: ['user', 'repo']
-    },
-    (accessToken, refreshToken, profile, done) => {
-        process.nextTick(() => {
-            profile.token = accessToken;
-            return done(null, profile);
-        });
-    }
-));
+    clientID: config.github.clientID,
+    clientSecret: config.github.clientSecret,
+    callbackURL: config.github.callbackURL,
+    scope: ['user', 'repo']
+}, (accessToken, refreshToken, profile, done) => {
+    process.nextTick(() => {
+        profile.token = accessToken;
+        return done(null, profile);
+    });
+}));
 
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-//app.use(favicon(__dirname + '/public/favicon.ico'));
+// app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));

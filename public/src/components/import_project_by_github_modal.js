@@ -3,24 +3,24 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class RemoveProjectModal extends EventEmitter2 {
-    constructor(opts={}) {
+    constructor (opts = {}) {
         super(opts);
         this.username = ko.observable();
         this.reponame = ko.observable();
     }
 
-    submit() {
+    submit () {
         this.emit('submit', {username: this.username(), reponame: this.reponame()});
     }
 
-    register() {
+    register () {
         ko.components.register('import-project-by-github-modal', {
             viewModel: () => this,
             template: this.template()
-        })
+        });
     }
 
-    template() {
+    template () {
         return `
 <div class="modal fade" id="import-project-modal" tabindex="-1" role="dialog" aria-labelledby="import-project-modal-label" aria-hidden="true">
     <div class="modal-dialog">

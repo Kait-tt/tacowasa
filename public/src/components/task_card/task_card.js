@@ -3,24 +3,24 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class TaskCard extends EventEmitter2 {
-    constructor({eventEmitterOptions={}}={}) {
+    constructor ({eventEmitterOptions = {}} = {}) {
         super(eventEmitterOptions);
     }
 
-    onClickTaskCard(task) {
+    onClickTaskCard (task) {
         this.emit('clickTaskCard', {task});
     }
 
-    onClickWork(task, vm, ele) {
+    onClickWork (task, vm, ele) {
         this.emit('clickWork', {task});
         ele.stopPropagation();
         return false;
     }
 
-    register() {
+    register () {
         const taskCard = this;
         ko.components.register('task-card', {
-            viewModel: function({task}) {
+            viewModel: function ({task}) {
                 'use strict';
                 this.task = task;
                 this.onClickTaskCard = taskCard.onClickTaskCard.bind(taskCard, task);

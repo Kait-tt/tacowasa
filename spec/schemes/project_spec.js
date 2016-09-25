@@ -10,7 +10,7 @@ describe('schemes', () => {
         describe('#create', () => {
             beforeEach(() => {
                 return db.User.create({username: 'user1'})
-                    .then(user => db.Project.create({name: 'project1', createUserId: user.id }));
+                    .then(user => db.Project.create({name: 'project1', createUserId: user.id}));
             });
 
             it('should create a project', () => {

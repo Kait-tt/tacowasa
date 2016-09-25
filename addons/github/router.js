@@ -1,13 +1,12 @@
 'use strict';
 const co = require('co');
-const express = require('express');
 const AddonRouter = require('../addon/router');
-const GitHubApi = require('./model/github_api');
+const GitHubApi = require('./models/github_api');
 const db = require('./schemas');
 const hooks = require('./hook');
 
 class GitHubAddonRouter extends AddonRouter {
-    static initRouter(router) {
+    static initRouter (router) {
         router.post('/api/projects', (req, res) => {
             const {username, reponame} = req.body;
             if (!username || !reponame) {
@@ -57,8 +56,8 @@ class GitHubAddonRouter extends AddonRouter {
         });
     }
 
-    static get root() {
-        return '/github'
+    static get root () {
+        return '/github';
     }
 }
 

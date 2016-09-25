@@ -3,7 +3,8 @@
         "browser": true,
         "commonjs": true,
         "es6": true,
-        "node": true
+        "node": true,
+        "mocha": true
     },
     "extends": "standard",
     "parserOptions": {
@@ -28,6 +29,18 @@
         "semi": [
             "error",
             "always"
+        ],
+        "no-multiple-empty-lines": [
+            "error",
+            {
+                "max": 2
+            }
+        ],
+        "no-var": [
+            "error"
+        ],
+        "no-new": [
+            "off"
         ]
     }
 }

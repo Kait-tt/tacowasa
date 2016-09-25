@@ -1,10 +1,10 @@
 'use strict';
 const co = require('co');
 const db = require('./schemas');
-const GitHubApi = require('./model/github_api');
+const GitHubApi = require('./models/github_api');
 
 class GitHubAddonApi {
-    static getProject({req, res, project}) {
+    static getProject ({req, res, project}) {
         return co(function* () {
             // fetch avatar
             const githubApi = new GitHubApi(req.user.token);

@@ -4,10 +4,10 @@ const _ = require('lodash');
 const util = require('../modules/util');
 
 class Task {
-    constructor(opts) {
+    constructor (opts) {
         this.opts = opts;
 
-        Task.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
+        Task.columnKeys.forEach(key => { this[key] = ko.observable(opts[key]); });
 
         this.labels = ko.observableArray(opts.labels);
         this.works = ko.observableArray(opts.works || []);
@@ -70,7 +70,7 @@ class Task {
         }
     }
 
-    static get columnKeys() {
+    static get columnKeys () {
         return [
             'id',
             'title',
@@ -84,35 +84,35 @@ class Task {
         ];
     }
 
-    static get calcAllWorkingIntervalTime() {
-        return  1000 * 20; // 20 seconds
+    static get calcAllWorkingIntervalTime () {
+        return 1000 * 20; // 20 seconds
     }
 
-    calcAllWorkTime() {
+    calcAllWorkTime () {
         const times = this.works().map(x => x.calcDuration());
         return _.sum(times);
     }
 
     // 最後の作業時間を計算
-    calcLastWorkTime() {
+    calcLastWorkTime () {
         const works = this.works();
         return works.length ? works[works.length - 1].calcDuration(true) : 0;
     }
 
-    updateWorkTimes() {
+    updateWorkTimes () {
         this.allWorkTime(this.calcAllWorkTime());
         this.lastWorkTime(this.calcLastWorkTime());
     }
 
     // 作業時間を一定期間おきに計算
-    startCalcWorkTimeInterval() {
+    startCalcWorkTimeInterval () {
         if (this.isRunningCalcWorkTimeInterval || this.calcWorkTimeIntervalId) { return; }
         this.isRunningCalcWorkTimeInterval = true;
 
         this.calcWorkTimeIntervalId = setInterval(() => this.updateWorkTimes(), this.calcAllWorkTime);
     }
 
-    stopCalcWorkTimeInterval() {
+    stopCalcWorkTimeInterval () {
         if (this.calcWorkTimeIntervalId) {
             clearInterval(this.calcWorkTimeIntervalId);
         }

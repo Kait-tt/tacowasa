@@ -17,43 +17,43 @@ describe('models', () => {
             let project;
             beforeEach(() => {
                 return Project.create('project1', username)
-                    .then(x => project = x);
+                    .then(x => { project = x; });
             });
 
             it('should create a new project', () => db.Project.findAll().then(xs => expect(xs).to.lengthOf(1)));
 
             describe('#findAll', () => {
                 let res;
-                beforeEach(() => Project.findAll().then(x => res = x));
+                beforeEach(() => Project.findAll().then(x => { res = x; }));
 
                 it('should return a array having a project', () => expect(res).to.lengthOf(1));
             });
 
             describe('#findOne', () => {
                 let res;
-                beforeEach(() => Project.findOne().then(x => res = x));
+                beforeEach(() => Project.findOne().then(x => { res = x; }));
 
                 it('should return a project', () => expect(res).to.be.an('object'));
             });
 
             describe('#findById', () => {
                 let res;
-                beforeEach(() => Project.findById(project.id).then(x => res = x));
+                beforeEach(() => Project.findById(project.id).then(x => { res = x; }));
 
                 it('should return a project', () => expect(res).to.be.an('object'));
             });
 
             describe('#archive', () => {
                 let res;
-                beforeEach(() => Project.archive(project.id).then(x => res = x))
+                beforeEach(() => Project.archive(project.id).then(x => { res = x; }));
 
                 it('should archive the project', () => expect(res).to.have.property('enabled', false));
 
                 context('#findOne', () => {
-                    beforeEach(() => Project.findAll().then(x => res = x));
+                    beforeEach(() => Project.findAll().then(x => { res = x; }));
 
                     it('should not include the archived project', () => expect(res).to.lengthOf(0));
-                })
+                });
             });
         });
 
@@ -63,7 +63,7 @@ describe('models', () => {
                 for (let username of ['target', 'user1', 'user2']) {
                     yield User.findOrCreate(username);
                 }
-                const project1 = yield Project.create('project1', 'target');
+                yield Project.create('project1', 'target');
                 const project2 = yield Project.create('project2', 'user1');
                 const project3 = yield Project.create('project3', 'user2');
                 yield Member.add(project2.id, 'user2');

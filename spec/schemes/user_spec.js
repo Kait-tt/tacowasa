@@ -24,7 +24,7 @@ describe('schemes', () => {
                 it('should create two new user', () => {
                     return db.User.findAll().then(users => {
                         expect(users).to.have.lengthOf(2);
-                    })
+                    });
                 });
             });
         });

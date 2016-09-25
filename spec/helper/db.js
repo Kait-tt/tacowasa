@@ -8,6 +8,6 @@ module.exports = {
                 .map(key => db[key])
                 .filter(x => x instanceof Model)
                 .map(x => x.destroy({where: {}}))
-        )
+        );
     }
 };

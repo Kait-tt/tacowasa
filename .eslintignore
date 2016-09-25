@@ -1,3 +1,5 @@
 node_modules/
 migrations/
 dist/
+public/src/components/task_card_list/knockout-sortable.js
+coverage/

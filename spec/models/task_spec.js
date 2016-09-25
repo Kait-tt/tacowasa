@@ -15,14 +15,14 @@ describe('models', () => {
         const taskTitles = ['task1', 'task2', 'task3', 'task4', 'task5'];
         let project;
 
-        beforeEach(() => Project.create('project1', usernames[0]).then(x => project = x));
+        beforeEach(() => Project.create('project1', usernames[0]).then(x => { project = x; }));
 
         it('project should have no task', () => expectTaskSize(project.id, 0));
 
         describe('#create', () => {
             context('with default value', () => {
                 let task;
-                beforeEach(() => Task.create(project.id, {title: taskTitles[0], body: 'body1'}).then(x => task = x));
+                beforeEach(() => Task.create(project.id, {title: taskTitles[0], body: 'body1'}).then(x => { task = x; }));
 
                 it('project should have 2 tasks', () => expectTaskSize(project.id, 1));
                 it('should set params', () => {
@@ -42,7 +42,7 @@ describe('models', () => {
                     userId: project.users[0].id,
                     stageId: project.stages[2].id,
                     costId: project.costs[1].id
-                }).then(x => task = x));
+                }).then(x => { task = x; }));
 
                 it('project should have 2 tasks', () => expectTaskSize(project.id, 1));
                 it('should set params', () => {
@@ -95,7 +95,7 @@ describe('models', () => {
 
                 it('should be updated', () => Task.findById(tasks[1].id).then(task => {
                     _.forEach(updateParams, (v, k) => {
-                        expect(task).to.have.property(k ,v);
+                        expect(task).to.have.property(k, v);
                     });
                 }));
             });
@@ -169,7 +169,7 @@ describe('models', () => {
 
                 context('and do one', () => {
                     beforeEach(() => co(function* () {
-                        works.splice(1,1); // length of works is 2
+                        works.splice(1, 1); // length of works is 2
                         yield Task.updateWorkHistory(project.id, task.id, works);
                         task = yield Task.findById(task.id);
                     }));
@@ -182,7 +182,7 @@ describe('models', () => {
 
             describe('#getAllSorted', () => {
                 let tasks;
-                beforeEach(() => Task.getAllSorted(project.id).then(xs => tasks = xs));
+                beforeEach(() => Task.getAllSorted(project.id).then(xs => { tasks = xs; }));
                 it('should be sorted', () => {
                     const titles = _.reverse(taskTitles.slice());
                     expect(_.map(tasks, 'title')).to.eql(titles);
@@ -206,7 +206,7 @@ describe('models', () => {
                                 yield Task.updateOrder(project.id, target, before);
                             }));
 
-                            it(`should be ordered`, () => Task.getAllSorted(project.id).then(tasks => {
+                            it('should be ordered', () => Task.getAllSorted(project.id).then(tasks => {
                                 tasks.forEach(({id, prevTaskId, nextTaskId}, idx) => {
                                     expect(id).to.equal(ids[idx]);
                                     expect(prevTaskId).to.equal(idx ? ids[idx - 1] : null);
@@ -224,7 +224,7 @@ describe('models', () => {
                             yield Task.updateOrder(project.id, target, null);
                         }));
 
-                        it(`should ordered`, () => Task.getAllSorted(project.id).then(tasks => {
+                        it('should ordered', () => Task.getAllSorted(project.id).then(tasks => {
                             tasks.forEach(({id, prevTaskId, nextTaskId}, idx) => {
                                 expect(id).to.equal(ids[idx]);
                                 expect(prevTaskId).to.equal(idx ? ids[idx - 1] : null);
@@ -238,7 +238,7 @@ describe('models', () => {
     });
 });
 
-function expectTaskSize(projectId, n) {
+function expectTaskSize (projectId, n) {
     return db.Project.findById(projectId, {include: [db.Task]}).then(p => {
         expect(p.tasks).to.lengthOf(n);
     });

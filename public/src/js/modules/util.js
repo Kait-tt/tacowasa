@@ -13,7 +13,7 @@ const util = {
     parseGetQuery: query => {
         const res = {};
 
-        if (1 < query.length) {
+        if (query.length > 1) {
             const params = query.substring(1).split('&');
             params.forEach(x => {
                 const [key, val] = x.split('=');
@@ -50,7 +50,7 @@ const util = {
      * @param reverse
      * @returns {number}
      */
-    comp: (a, b, reverse=false) => {
+    comp: (a, b, reverse = false) => {
         if (a === b) { return 0; }
         if (a < b) { return reverse ? 1 : -1; }
         return reverse ? -1 : 1;
@@ -126,7 +126,6 @@ const util = {
                 } else {
                     quote = c;
                 }
-
             } else if (c === '\'') {
                 if (quote === c) {
                     pushString();
@@ -135,14 +134,12 @@ const util = {
                 } else {
                     quote = c;
                 }
-
             } else if (c === ' ') {
                 if (quote) {
                     str += c;
                 } else {
                     pushString();
                 }
-
             } else {
                 str += c;
             }
@@ -152,7 +149,7 @@ const util = {
 
         return res;
 
-        function pushString() {
+        function pushString () {
             if (str.length) {
                 res.push(str);
                 str = '';

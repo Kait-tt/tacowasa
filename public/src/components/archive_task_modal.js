@@ -3,30 +3,30 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class ArchiveTaskModal extends EventEmitter2 {
-    constructor({eventEmitterOptions={}}) {
+    constructor ({eventEmitterOptions = {}}) {
         super(eventEmitterOptions);
 
         this.task = ko.observable();
     }
 
-    archive() {
+    archive () {
         this.emit('archive', {
             task: this.task()
         });
     }
 
-    showModal() {
+    showModal () {
         $('#archive-task-modal').modal('show');
     }
 
-    register() {
+    register () {
         ko.components.register('archive-task-modal', {
             viewModel: () => this,
             template: this.template()
-        })
+        });
     }
 
-    template() {
+    template () {
         return `<div class="modal fade" id="archive-task-modal" tabindex="-1" role="dialog" aria-labelledby="archive-task-modal-label" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

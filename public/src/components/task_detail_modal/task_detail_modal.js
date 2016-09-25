@@ -4,7 +4,7 @@ const EventEmitter2 = require('eventemitter2');
 const Work = require('../../js/models/work');
 
 class TaskDetailModal extends EventEmitter2 {
-    constructor({eventEmitterOptions={}, project}) {
+    constructor ({eventEmitterOptions = {}, project}) {
         super(eventEmitterOptions);
 
         this.costs = project.costs;
@@ -26,7 +26,7 @@ class TaskDetailModal extends EventEmitter2 {
             this.works(task.works().map(x => x.clone()));
 
             this.selectedLabels.removeAll();
-            task.labels().map(x => {this.selectedLabels.push(x);});
+            task.labels().map(x => { this.selectedLabels.push(x); });
 
             this.editWorkHistoryMode('view');
         });
@@ -52,11 +52,11 @@ class TaskDetailModal extends EventEmitter2 {
         this.editWorkHistoryMode = ko.observable('view');
     }
 
-    editWorkHistory() {
+    editWorkHistory () {
         this.editWorkHistoryMode('edit');
     }
 
-    saveWorkHistory() {
+    saveWorkHistory () {
         this.emit('saveWorkHistory', {
             task: this.task(),
             works: this.works()
@@ -64,16 +64,16 @@ class TaskDetailModal extends EventEmitter2 {
         this.editWorkHistoryMode('view');
     }
 
-    cancelWorkHistory() {
+    cancelWorkHistory () {
         this.works(this.task().works().map(x => x.clone()));
         this.editWorkHistoryMode('view');
     }
 
-    removeWork(work) {
+    removeWork (work) {
         this.works.remove(work);
     }
 
-    addWork() {
+    addWork () {
         const user = this.task().user;
         const work = new Work({
             isEnded: true,
@@ -84,15 +84,15 @@ class TaskDetailModal extends EventEmitter2 {
         this.works.push(work);
     }
 
-    showModal() {
+    showModal () {
         $('#task-detail-modal').modal('show');
     }
 
-    onLoad() {
+    onLoad () {
         this.emit('load', this);
     }
 
-    update() {
+    update () {
         if (this.editWorkHistoryMode() === 'edit') {
             this.saveWorkHistory();
         }
@@ -103,17 +103,17 @@ class TaskDetailModal extends EventEmitter2 {
             body: this.body(),
             cost: this.cost(),
             labels: this.selectedLabels()
-        })
+        });
     }
 
-    register() {
+    register () {
         ko.components.register('task-detail-modal', {
             viewModel: () => {
                 this.onLoad();
                 return this;
             },
             template: require('html!./task_detail_modal.html')
-        })
+        });
     }
 }
 

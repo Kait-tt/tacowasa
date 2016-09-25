@@ -2,7 +2,7 @@
 const moment = require('moment');
 
 class Activity {
-    constructor({sender, content, createdAt}) {
+    constructor ({sender, content, createdAt}) {
         this.created_at = this.time = moment(createdAt).format('MM/DD HH:mm:ss');
         this.sender = sender;
         this.content = content;

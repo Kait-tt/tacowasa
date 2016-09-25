@@ -2,11 +2,11 @@
 const ko = require('knockout');
 
 class Stage {
-    constructor(opts) {
-        Stage.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
+    constructor (opts) {
+        Stage.columnKeys.forEach(key => { this[key] = ko.observable(opts[key]); });
     }
 
-    static get columnKeys() {
+    static get columnKeys () {
         return [
             'id',
             'name',

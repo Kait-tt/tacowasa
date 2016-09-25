@@ -1,5 +1,5 @@
 'use strict';
-module.exports = function(sequelize, DataTypes) {
+module.exports = function (sequelize, DataTypes) {
     const GitHubRepository = sequelize.define('githubRepository', {
         username: {
             allowNull: false,
@@ -19,10 +19,10 @@ module.exports = function(sequelize, DataTypes) {
         },
         lastToken: {
             type: DataTypes.STRING
-        },
+        }
     }, {
         classMethods: {
-            associate: function(models) {
+            associate: function (models) {
                 GitHubRepository.belongsTo(models.Project, {
                     foreignKey: {
                         allowNull: true

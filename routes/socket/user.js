@@ -1,10 +1,10 @@
 class SocketUser {
-    constructor(socket) {
+    constructor (socket) {
         this.socket = socket;
         this.id = this.socket.id;
-        this.info = socket.request.session
-            && socket.request.session.passport
-            && socket.request.session.passport.user;
+        this.info = socket.request.session &&
+            socket.request.session.passport &&
+            socket.request.session.passport.user;
         this.username = this.info && this.info.username;
         this.active = true;
         this.projectId = null;

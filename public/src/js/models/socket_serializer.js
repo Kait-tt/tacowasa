@@ -3,27 +3,27 @@ const _ = require('lodash');
 
 // socketのonイベントをlocalのカンバンに適用するクラス
 class SocketSerializer {
-    constructor({socket, project, kanban}) {
+    constructor ({socket, project, kanban}) {
         this.project = project;
         this.socket = socket;
         this.kanban = kanban;
         this.bindOnEvents();
     }
 
-    bindOnEvents() {
+    bindOnEvents () {
         SocketSerializer.socketOnEventsKeys.forEach(key => {
             const method = 'on' + _.upperFirst(key);
             this.socket.on(key, params => this[method](params));
         });
     }
 
-    /*** on events ***/
+    /** * on events ***/
 
-    onNotifyText(activity) {
+    onNotifyText (activity) {
         this.kanban.addActivity(activity);
     }
 
-    onJoinRoom({username}) {
+    onJoinRoom ({username}) {
         const user = this.project.getUser({username});
         const joinedUsers = this.kanban.joinedUsers();
         if (!_.includes(joinedUsers, user)) {
@@ -31,7 +31,7 @@ class SocketSerializer {
         }
     }
 
-    onLeaveRoom({username}) {
+    onLeaveRoom ({username}) {
         const user = this.project.getUser({username});
         const joinedUsers = this.kanban.joinedUsers();
         if (_.includes(joinedUsers, user)) {
@@ -39,73 +39,73 @@ class SocketSerializer {
         }
     }
 
-    onInitJoinedUsernames({joinedUsernames}) {
+    onInitJoinedUsernames ({joinedUsernames}) {
         const users = joinedUsernames.map(({username}) => this.project.getUser({username}));
-        this.kanban.joinedUsers(users)
+        this.kanban.joinedUsers(users);
     }
 
-    onActivityHistory({activities}) {
+    onActivityHistory ({activities}) {
         activities.forEach(x => this.kanban.addActivity(x));
     }
 
-    onAddUser({username, user}) {
+    onAddUser ({username, user}) {
         this.project.addUser(user);
     }
 
-    onRemoveUser({username}) {
+    onRemoveUser ({username}) {
         this.project.removeUser({username});
     }
 
-    onUpdateUser({username, user}) {
+    onUpdateUser ({username, user}) {
         this.project.updateUser({username}, _.assign({}, user, user.member));
     }
 
-    onUpdateUserOrder({username, beforeUsername}) {
+    onUpdateUserOrder ({username, beforeUsername}) {
         this.project.updateUserOrder({username}, beforeUsername && {username: beforeUsername});
     }
 
-    onCreateTask({task}) {
+    onCreateTask ({task}) {
         this.project.addTask(task);
     }
 
-    onArchiveTask({task}) {
+    onArchiveTask ({task}) {
         this.project.archiveTask({id: task.id});
     }
 
-    onUpdateTaskStatus({task}) {
+    onUpdateTaskStatus ({task}) {
         this.project.updateTaskStatus({id: task.id}, {id: task.stage.id}, task.user && {id: task.user.id});
     }
 
-    onUpdateTaskContent({task}) {
-        this.project.updateTaskContent({id: task.id}, task.title, task.body, {id: task.cost.id})
+    onUpdateTaskContent ({task}) {
+        this.project.updateTaskContent({id: task.id}, task.title, task.body, {id: task.cost.id});
     }
 
-    onUpdateTaskWorkingState({task, isWorking}) {
+    onUpdateTaskWorkingState ({task, isWorking}) {
         this.project.updateTaskWorkingState({id: task.id}, isWorking);
         this.project.updateTaskWorkHistory({id: task.id}, task.works);
     }
 
-    onUpdateTaskWorkHistory({task, works}) {
+    onUpdateTaskWorkHistory ({task, works}) {
         this.project.updateTaskWorkHistory({id: task.id}, works);
     }
 
-    onUpdateTaskOrder({task, beforeTask}) {
+    onUpdateTaskOrder ({task, beforeTask}) {
         this.project.updateTaskOrder({id: task.id}, beforeTask && {id: beforeTask.id});
     }
 
-    onAttachLabel({task, label}) {
+    onAttachLabel ({task, label}) {
         this.project.attachLabel({id: task.id}, {id: label.id});
     }
 
-    onDetachLabel({task, label}) {
+    onDetachLabel ({task, label}) {
         this.project.detachLabel({id: task.id}, {id: label.id});
     }
 
-    onAddLabel({label}) {
+    onAddLabel ({label}) {
         this.project.addLabel(label);
     }
 
-    static get socketOnEventsKeys() {
+    static get socketOnEventsKeys () {
         return [
             'notifyText',
             'joinRoom',

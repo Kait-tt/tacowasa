@@ -4,13 +4,13 @@ const _ = require('lodash');
 
 // TODO: component化
 class Alert {
-    constructor({maxAlertNum=5, waitHideTime=8000}={}) {
+    constructor ({maxAlertNum = 5, waitHideTime = 8000} = {}) {
         this.maxAlertNum = maxAlertNum;
         this.waitHideTime = waitHideTime;
         this.alerts = ko.observableArray();
     }
 
-    pushAlert({title='', message='', isSuccess=false}) {
+    pushAlert ({title = '', message = '', isSuccess = false}) {
         const content = {title, message, isSuccess};
         this.alerts.unshift(content);
 
@@ -25,25 +25,25 @@ class Alert {
         return this;
     }
 
-    pushSuccessAlert({title='Successful!', message=''}) {
-       this.pushAlert({title, message, isSuccess: true});
+    pushSuccessAlert ({title = 'Successful!', message = ''}) {
+        this.pushAlert({title, message, isSuccess: true});
     }
 
-    pushErrorAlert({title='Error', message=''}) {
+    pushErrorAlert ({title = 'Error', message = ''}) {
         this.pushAlert({title, message, isSuccess: false});
     }
 
     // promiseを返す関数をラップする
-    wrapAlert(wrappedFunc, successMessage, errorMessage) {
+    wrapAlert (wrappedFunc, successMessage, errorMessage) {
         if (!_.isFunction(wrappedFunc)) {
-            throw new Error('${wrappedFunc} must be a function');
+            throw new Error(`${wrappedFunc} must be a function`);
         }
 
         return (...args) => {
             wrappedFunc.apply(this, args)
                 .then(() => {
                     if (successMessage) {
-                        this.pushSuccessAlert({message: ko.unwrap(successMessage)})
+                        this.pushSuccessAlert({message: ko.unwrap(successMessage)});
                     }
                 }, err => {
                     if (errorMessage) {
@@ -51,12 +51,12 @@ class Alert {
                     }
                     throw new Error(err);
                 });
-        }
+        };
     }
 
     // 複数の関数をラップする
-    wrapsAlert(targetObject, paramsList) {
-        paramsList.forEach(({methodName, successMessage=null, errorMessage=null}) => {
+    wrapsAlert (targetObject, paramsList) {
+        paramsList.forEach(({methodName, successMessage = null, errorMessage = null}) => {
             targetObject[methodName] = this.wrapAlert(
                 targetObject[methodName].bind(targetObject),
                 successMessage,

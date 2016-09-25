@@ -10,7 +10,7 @@ const Work = require('./work');
 const util = require('../modules/util');
 
 class Project {
-    static get columnKeys() {
+    static get columnKeys () {
         return [
             'id',
             'name',
@@ -24,16 +24,16 @@ class Project {
             'accessLevels',
             'createUser',
             'defaultStage',
-            //'defaultAccessLevel',
+            // 'defaultAccessLevel',
             'defaultCost',
             'createdAt',
             'updatedAt'
         ];
     }
 
-    constructor(opts) {
+    constructor (opts) {
         this.opts = opts;
-        Project.columnKeys.forEach(key => this[key] = ko.observable(opts[key]));
+        Project.columnKeys.forEach(key => { this[key] = ko.observable(opts[key]); });
 
         // array init
         this.stages = ko.observableArray();
@@ -65,7 +65,7 @@ class Project {
         });
     }
 
-    static fetch(id) {
+    static fetch (id) {
         return Promise.resolve($.ajax({
             url: `/api/projects/${id}`,
             type: 'get',
@@ -75,7 +75,7 @@ class Project {
         });
     }
 
-    static fetchAll() {
+    static fetchAll () {
         return Promise.resolve($.ajax({
             url: '/api/projects',
             type: 'get',
@@ -85,7 +85,7 @@ class Project {
         });
     }
 
-    static create({projectName}) {
+    static create ({projectName}) {
         return Promise.resolve($.ajax({
             url: '/api/projects',
             type: 'post',
@@ -94,7 +94,7 @@ class Project {
         })).then(({project}) => new Project(project));
     }
 
-    static importByGitHub({username, reponame}) {
+    static importByGitHub ({username, reponame}) {
         return Promise.resolve($.ajax({
             url: '/github/api/projects',
             type: 'post',
@@ -103,7 +103,7 @@ class Project {
         })).then(({project}) => new Project(project));
     }
 
-    remove() {
+    remove () {
         const id = this.id();
         return Promise.resolve($.ajax({
             url: `/api/projects/${id}`,
@@ -112,9 +112,9 @@ class Project {
         }));
     }
 
-    /*** task ***/
+    /** * task ***/
 
-    getTask(taskOrWhere) {
+    getTask (taskOrWhere) {
         if (taskOrWhere instanceof Task) { return taskOrWhere; }
         return this.tasks().find(task => {
             return _.every(taskOrWhere, (whereValue, whereKey) => {
@@ -124,7 +124,7 @@ class Project {
         });
     }
 
-    getTasks({userOrWhere=null, stageOrWhere=null}={}) {
+    getTasks ({userOrWhere = null, stageOrWhere = null} = {}) {
         const user = userOrWhere && this.getUser(userOrWhere);
         const stage = stageOrWhere && this.getStage(stageOrWhere);
         const userKey = user ? user.id() : '(none)';
@@ -140,7 +140,7 @@ class Project {
         return this.memoGetTasks[key];
     }
 
-    addTask(taskParams) {
+    addTask (taskParams) {
         taskParams.labels = (taskParams.labels || []).map(x => this.getLabel({id: x.id}));
         taskParams.user = taskParams.user && this.getUser({id: taskParams.user.id});
         taskParams.cost = taskParams.cost && this.getCost({id: taskParams.cost.id});
@@ -163,7 +163,7 @@ class Project {
         this.tasks.unshift(task);
     }
 
-    archiveTask(taskOrWhere) {
+    archiveTask (taskOrWhere) {
         const task = this.getTask(taskOrWhere);
         const stage = this.getStage({name: 'archive'});
         if (!stage) { throw new Error('archive stage was not found.'); }
@@ -178,7 +178,7 @@ class Project {
         }
     }
 
-    updateTaskStatus(taskOrWhere, stageOrWhere, userOrWhere) {
+    updateTaskStatus (taskOrWhere, stageOrWhere, userOrWhere) {
         const task = this.getTask(taskOrWhere);
         const stage = this.getStage(stageOrWhere);
         const user = userOrWhere && this.getUser(userOrWhere);
@@ -203,7 +203,7 @@ class Project {
         }
     }
 
-    updateTaskContent(taskOrWhere, title, body, costOrWhere) {
+    updateTaskContent (taskOrWhere, title, body, costOrWhere) {
         const task = this.getTask(taskOrWhere);
         if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
         const cost = this.getCost(costOrWhere);
@@ -214,7 +214,7 @@ class Project {
         task.cost(cost);
     }
 
-    updateTaskWorkingState(taskOrWhere, isWorking) {
+    updateTaskWorkingState (taskOrWhere, isWorking) {
         const task = this.getTask(taskOrWhere);
         if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
         const user = task.user();
@@ -228,7 +228,7 @@ class Project {
         }
     }
 
-    updateTaskWorkHistory(taskOrWhere, works) {
+    updateTaskWorkHistory (taskOrWhere, works) {
         const task = this.getTask(taskOrWhere);
         if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
 
@@ -239,7 +239,7 @@ class Project {
         task.works(workInstances);
     }
 
-    updateTaskOrder(taskOrWhere, beforeTaskOrWhere) {
+    updateTaskOrder (taskOrWhere, beforeTaskOrWhere) {
         const task = this.getTask(taskOrWhere);
         if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
 
@@ -253,9 +253,9 @@ class Project {
         }
     }
 
-    /*** user ***/
+    /** * user ***/
 
-    getUser(userOrWhere) {
+    getUser (userOrWhere) {
         if (userOrWhere instanceof User) { return userOrWhere; }
         return this.users().find(user => {
             return _.every(userOrWhere, (whereValue, whereKey) => {
@@ -265,7 +265,7 @@ class Project {
         });
     }
 
-    addUser(userParam) {
+    addUser (userParam) {
         this.users.unshift(new User(_.extend(userParam, {
             projectTasks: this.tasks,
             projectStages: this.stages,
@@ -273,14 +273,14 @@ class Project {
         })));
     }
 
-    removeUser(userOrWhere) {
+    removeUser (userOrWhere) {
         const user = this.getUser(userOrWhere);
         if (!user) { throw new Error(`user was not found. : ${userOrWhere}`); }
 
         this.users.remove(user);
     }
 
-    updateUser(userOrWhere, updateParams) {
+    updateUser (userOrWhere, updateParams) {
         const user = this.getUser(userOrWhere);
         if (!user) { throw new Error(`user was not found. : ${userOrWhere}`); }
 
@@ -291,7 +291,7 @@ class Project {
         });
     };
 
-    updateUserOrder(userOrWhere, beforeUserOrWhere) {
+    updateUserOrder (userOrWhere, beforeUserOrWhere) {
         const user = this.getUser(userOrWhere);
         if (!user) { throw new Error(`user was not found. : ${userOrWhere}`); }
 
@@ -305,9 +305,9 @@ class Project {
         }
     }
 
-    /*** label ***/
+    /** * label ***/
 
-    getLabel(labelOrWhere) {
+    getLabel (labelOrWhere) {
         if (labelOrWhere instanceof Label) { return labelOrWhere; }
         return this.labels().find(label => {
             return _.every(labelOrWhere, (whereValue, whereKey) => {
@@ -317,11 +317,11 @@ class Project {
         });
     }
 
-    addLabel(labelParams) {
+    addLabel (labelParams) {
         this.labels.push(new Label(labelParams));
     }
 
-    attachLabel(taskOrWhere, labelOrWhere) {
+    attachLabel (taskOrWhere, labelOrWhere) {
         const task = this.getTask(taskOrWhere);
         if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
         const label = this.getLabel(labelOrWhere);
@@ -330,7 +330,7 @@ class Project {
         task.labels.push(label);
     }
 
-    detachLabel(taskOrWhere, labelOrWhere) {
+    detachLabel (taskOrWhere, labelOrWhere) {
         const task = this.getTask(taskOrWhere);
         if (!task) { throw new Error(`task was not found. : ${taskOrWhere}`); }
         const label = this.getLabel(labelOrWhere);
@@ -339,7 +339,7 @@ class Project {
         task.labels.remove(label);
     }
 
-    replaceLabelAll(newLabels, newTasks) {
+    replaceLabelAll (newLabels, newTasks) {
         throw new Error('replaceLabelAll is unsupported.');
         // this.labels.splice(0, this.labels.slice().length, newLabels.map(function (x) { return new model.Label(x); }));
         // O(N^2) なので O(NlogN)に抑える
@@ -351,9 +351,9 @@ class Project {
         // }, this);
     }
 
-    /*** stage ***/
+    /** * stage ***/
 
-    getStage(stageOrWhere) {
+    getStage (stageOrWhere) {
         if (stageOrWhere instanceof Stage) { return stageOrWhere; }
         return this.stages().find(stage => {
             return _.every(stageOrWhere, (whereValue, whereKey) => {
@@ -363,13 +363,13 @@ class Project {
         });
     }
 
-    addStage(stageParams) {
+    addStage (stageParams) {
         this.stages.push(new Stage(stageParams));
     }
 
-    /*** costs ***/
+    /** * costs ***/
 
-    getCost(costOrWhere) {
+    getCost (costOrWhere) {
         if (costOrWhere instanceof Cost) { return costOrWhere; }
         return this.costs().find(cost => {
             return _.every(costOrWhere, (whereValue, whereKey) => {
@@ -379,7 +379,7 @@ class Project {
         });
     }
 
-    addCost(costParams) {
+    addCost (costParams) {
         this.costs.push(new Cost(costParams));
     }
 

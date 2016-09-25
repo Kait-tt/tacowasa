@@ -14,13 +14,13 @@ describe('models', () => {
         const usernames = ['owner', 'user1', 'user2', 'user3', 'user4'];
         let project;
 
-        beforeEach(() => Project.create('project1', usernames[0]).then(x => project = x));
+        beforeEach(() => Project.create('project1', usernames[0]).then(x => { project = x; }));
 
         it('project should have 1 member', () => expectMemberSize(project.id, 1));
 
         describe('#add', () => {
             let user;
-            beforeEach(() => Member.add(project.id, usernames[1]).then(x => user = x));
+            beforeEach(() => Member.add(project.id, usernames[1]).then(x => { user = x; }));
 
             it('project should have 2 members', () => expectMemberSize(project.id, 2));
             it('should be inserted to top', () => expectSorted(project.id, [usernames[1], usernames[0]]));
@@ -42,14 +42,14 @@ describe('models', () => {
 
             describe('#findByUsername', () => {
                 let user;
-                beforeEach(() => Member.findByUsername(project.id, usernames[2]).then(x => user = x));
+                beforeEach(() => Member.findByUsername(project.id, usernames[2]).then(x => { user = x; }));
 
                 it('should be return a user', () => expect(user).to.have.property('id', users[2].id));
             });
 
             describe('#findByUserId', () => {
                 let user;
-                beforeEach(() => Member.findByUserId(project.id, users[2].id).then(x => user = x));
+                beforeEach(() => Member.findByUserId(project.id, users[2].id).then(x => { user = x; }));
 
                 it('should be return a user', () => expect(user).to.have.property('username', usernames[2]));
             });
@@ -68,7 +68,7 @@ describe('models', () => {
 
             describe('#update', () => {
                 let user;
-                beforeEach(() => Member.update(project.id, usernames[1], {wipLimit: 5}).then(x => user = x));
+                beforeEach(() => Member.update(project.id, usernames[1], {wipLimit: 5}).then(x => { user = x; }));
                 it('wip limit of a member should be updated', () => expect(user.member.wipLimit).to.be.equals(5));
             });
         });
@@ -92,10 +92,10 @@ describe('models', () => {
                             const before = _usernames[to];
                             _usernames.splice(from, 1);
                             _usernames.splice(_usernames.indexOf(before), 0, target);
-                            return Member.updateOrder(project.id, target, before)
+                            return Member.updateOrder(project.id, target, before);
                         });
 
-                        it(`should ordered`, () => expectSorted(project.id, _usernames));
+                        it('should ordered', () => expectSorted(project.id, _usernames));
                     });
                 });
                 context(`update position from ${from} to last`, () => {
@@ -103,10 +103,10 @@ describe('models', () => {
                     beforeEach(() => {
                         const target = _usernames.splice(from, 1)[0];
                         _usernames.push(target);
-                        return Member.updateOrder(project.id, target, null)
+                        return Member.updateOrder(project.id, target, null);
                     });
 
-                    it(`should ordered`, () => expectSorted(project.id, _usernames));
+                    it('should ordered', () => expectSorted(project.id, _usernames));
                 });
             });
         });
@@ -114,13 +114,13 @@ describe('models', () => {
 });
 
 
-function expectMemberSize(projectId, n) {
+function expectMemberSize (projectId, n) {
     return db.Project.findById(projectId, {include: [db.User]}).then(_project => {
         expect(_project.users).to.lengthOf(n);
     });
 }
 
-function expectSorted(projectId, order) {
+function expectSorted (projectId, order) {
     return Member.getAllSorted(projectId).then(users => {
         expect(users.map(x => x.username)).to.eql(order);
 

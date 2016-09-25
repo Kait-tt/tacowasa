@@ -11,13 +11,18 @@ describe('schemes', () => {
             let user, project, stage, cost;
 
             beforeEach(() => {
-                return db.User.create({username: 'user1'}).then(x => user = x)
-                    .then(user => db.Project.create({name: 'project1', createUserId: user.id}).then(x => project = x))
-                    .then(() => db.Stage.create({name: 'todo', displayName: 'ToDo', assigned: true, projectId: project.id}).then(x => stage = x))
-                    .then(() => db.Cost.create({name: 'medium', value: 3, projectId: project.id}).then(x => cost = x))
+                return db.User.create({username: 'user1'}).then(x => { user = x; })
+                    .then(user => db.Project.create({name: 'project1', createUserId: user.id}).then(x => { project = x; }))
+                    .then(() => db.Stage.create({name: 'todo', displayName: 'ToDo', assigned: true, projectId: project.id}).then(x => { stage = x; }))
+                    .then(() => db.Cost.create({name: 'medium', value: 3, projectId: project.id}).then(x => { cost = x; }))
                     .then(() => db.Task.create({
-                        projectId: project.id, stageId: stage.id, userId: user.id, costId: cost.id,
-                        title: 'title1', body: 'body1', isWorking: true
+                        projectId: project.id,
+                        stageId: stage.id,
+                        userId: user.id,
+                        costId: cost.id,
+                        title: 'title1',
+                        body: 'body1',
+                        isWorking: true
                     }));
             });
 
@@ -26,7 +31,7 @@ describe('schemes', () => {
                     expect(tasks).to.have.lengthOf(1);
                     expect(tasks[0]).to.have.property('title', 'title1');
                     expect(tasks[0]).to.have.deep.property('cost.value', 3);
-                })
+                });
             });
 
             it('project should have a task', () => {

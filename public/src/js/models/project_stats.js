@@ -5,7 +5,7 @@ const util = require('../modules/util');
 const moment = require('moment');
 
 class ProjectStats {
-    constructor({project}) {
+    constructor ({project}) {
         this.project = project;
         this.stages = project.stages;
 
@@ -23,13 +23,13 @@ class ProjectStats {
             const res = {};
             res[noneKey] = 0;
 
-            this.project.labels().forEach(label => res[label.name()] = 0);
+            this.project.labels().forEach(label => { res[label.name()] = 0; });
 
             this.project.tasks().forEach(task => {
                 const labels = task.labels();
                 const time = task.allWorkTime();
                 if (labels.length) {
-                    labels.forEach(label => res[label.name()] += time);
+                    labels.forEach(label => { res[label.name()] += time; });
                 } else {
                     res[noneKey] += time;
                 }
@@ -45,11 +45,10 @@ class ProjectStats {
         // iteration = {start, startFormat, end, endFormat, users}
         // users[username] = {minutes, format}
         this.iterationWorkTime = ko.observableArray([]);
-
     }
 
     // work listを取得する
-    get _works() {
+    get _works () {
         const res = [];
 
         this.project.tasks().forEach(task => {
@@ -62,7 +61,7 @@ class ProjectStats {
     }
 
     // 過去1週間の人ごとの作業時間の計算
-    calcIterationWorkTime() {
+    calcIterationWorkTime () {
         return new Promise(resolve => setTimeout(() => {
             const usernames = this.project.users().map(x => x.username());
             const works = this._works;
@@ -77,7 +76,7 @@ class ProjectStats {
             const maxt = endDate.diff(beginDate, 'minutes');
             const ts = {};
             const n = maxt + 2;
-            usernames.forEach(username => ts[username] = _.fill(Array(n), 0));
+            usernames.forEach(username => { ts[username] = _.fill(Array(n), 0); });
 
             works.forEach(work => {
                 const username = work.username();

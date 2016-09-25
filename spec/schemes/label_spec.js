@@ -11,9 +11,9 @@ describe('schemes', () => {
             let user, project, label;
 
             beforeEach(() => {
-                return db.User.create({username: 'user1'}).then(x => user = x)
-                    .then(_user => db.Project.create({name: 'project1', createUserId: _user.id})).then(x => project = x)
-                    .then(() => db.Label.create({name: 'label1', color: '343434', projectId: project.id})).then(x => label = x);
+                return db.User.create({username: 'user1'}).then(x => { user = x; })
+                    .then(_user => db.Project.create({name: 'project1', createUserId: _user.id})).then(x => { project = x; })
+                    .then(() => db.Label.create({name: 'label1', color: '343434', projectId: project.id})).then(x => { label = x; });
             });
 
             it('should create a new label', () => {
@@ -28,12 +28,17 @@ describe('schemes', () => {
                 let stage, cost, task;
 
                 beforeEach(() => {
-                    return db.Stage.create({name: 'todo', displayName: 'ToDo', assigned: true, projectId: project.id}).then(x => stage = x)
-                        .then(() => db.Cost.create({name: 'medium', value: 3, projectId: project.id}).then(x => cost = x))
+                    return db.Stage.create({name: 'todo', displayName: 'ToDo', assigned: true, projectId: project.id}).then(x => { stage = x; })
+                        .then(() => db.Cost.create({name: 'medium', value: 3, projectId: project.id}).then(x => { cost = x; }))
                         .then(() => db.Task.create({
-                            projectId: project.id, stageId: stage.id, userId: user.id, costId: cost.id,
-                            title: 'title1', body: 'body1', isWorking: true
-                        })).then(x => task = x)
+                            projectId: project.id,
+                            stageId: stage.id,
+                            userId: user.id,
+                            costId: cost.id,
+                            title: 'title1',
+                            body: 'body1',
+                            isWorking: true
+                        })).then(x => { task = x; })
                         .then(task => task.addLabel(label));
                 });
 

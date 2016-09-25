@@ -8,18 +8,23 @@ afterEach(() => helper.db.clean());
 describe('schemes', () => {
     describe('work', () => {
         describe('#create', () => {
-            let user, project, label, stage, cost, task, work;
+            let user, project, stage, cost, task;
 
             beforeEach(() => {
-                return db.User.create({username: 'user1'}).then(x => user = x)
-                    .then(_user => db.Project.create({name: 'project1', createUserId: _user.id})).then(x => project = x)
-                    .then(() => db.Stage.create({name: 'todo', displayName: 'ToDo', assigned: true, projectId: project.id}).then(x => stage = x))
-                    .then(() => db.Cost.create({name: 'medium', value: 3, projectId: project.id}).then(x => cost = x))
+                return db.User.create({username: 'user1'}).then(x => { user = x; })
+                    .then(_user => db.Project.create({name: 'project1', createUserId: _user.id})).then(x => { project = x; })
+                    .then(() => db.Stage.create({name: 'todo', displayName: 'ToDo', assigned: true, projectId: project.id}).then(x => { stage = x; }))
+                    .then(() => db.Cost.create({name: 'medium', value: 3, projectId: project.id}).then(x => { cost = x; }))
                     .then(() => db.Task.create({
-                        projectId: project.id, stageId: stage.id, userId: user.id, costId: cost.id,
-                        title: 'title1', body: 'body1', isWorking: true
-                    }).then(x => task = x))
-                    .then(() => db.Work.create({userId: user.id, taskId: task.id}).then(x => work = x));
+                        projectId: project.id,
+                        stageId: stage.id,
+                        userId: user.id,
+                        costId: cost.id,
+                        title: 'title1',
+                        body: 'body1',
+                        isWorking: true
+                    }).then(x => { task = x; }))
+                    .then(() => db.Work.create({userId: user.id, taskId: task.id}));
             });
 
             it('should create a new work', () => {

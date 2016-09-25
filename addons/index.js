@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-const fs        = require('fs');
-const path      = require('path');
-const co        = require('co');
+const fs = require('fs');
+const path = require('path');
+const co = require('co');
 
 const addons = fs
     .readdirSync(__dirname)
@@ -12,7 +12,7 @@ const addons = fs
     .map(file => require(path.join(__dirname, file)));
 
 
-function callAddons(type, key, params, {sync=false}={}) {
+function callAddons (type, key, params, {sync = false} = {}) {
     if (sync) {
         for (let addon of addons) {
             if (addon[type] && addon[type][key]) {

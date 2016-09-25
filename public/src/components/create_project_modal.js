@@ -3,23 +3,23 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class CreateProjectModal extends EventEmitter2 {
-    constructor(opts={}) {
+    constructor (opts = {}) {
         super(opts);
         this.projectName = ko.observable();
     }
 
-    submit() {
+    submit () {
         this.emit('submit', {projectName: this.projectName()});
     }
 
-    register() {
+    register () {
         ko.components.register('create-project-modal', {
             viewModel: () => this,
             template: this.template()
-        })
+        });
     }
 
-    template() {
+    template () {
         return `
 <div class="modal fade" id="create-project-modal" tabindex="-1" role="dialog" aria-labelledby="create-project-modal-label" aria-hidden="true">
     <div class="modal-dialog">

@@ -3,7 +3,7 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class UserSettingsModal extends EventEmitter2 {
-    constructor({eventEmitterOptions={}}) {
+    constructor ({eventEmitterOptions = {}}) {
         super(eventEmitterOptions);
         this.user = ko.observable();
 
@@ -16,26 +16,26 @@ class UserSettingsModal extends EventEmitter2 {
         this.canUpdate = ko.computed(() => this.user() && this.user().wip() <= this.wipLimit());
     }
 
-    remove() {
+    remove () {
         this.emit('remove', {user: this.user()});
     }
 
-    update() {
-        this.emit('update', {user: this.user(), wipLimit: this.wipLimit()})
+    update () {
+        this.emit('update', {user: this.user(), wipLimit: this.wipLimit()});
     }
 
-    hideModal() {
+    hideModal () {
         $('#user-settings-modal').modal('hide');
     }
 
-    register() {
+    register () {
         ko.components.register('user-settings-modal', {
             viewModel: () => this,
             template: this.template()
-        })
+        });
     }
 
-    template() {
+    template () {
         return `<div class="modal fade" id="user-settings-modal" tabindex="-1" role="dialog" aria-labelledby="user-settings-modal-label" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

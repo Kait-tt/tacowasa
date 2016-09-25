@@ -1,5 +1,6 @@
 'use strict';
 const ko = require('knockout');
+const _ = require('lodash');
 
 module.exports = {
     init: (kanban) => {
@@ -28,7 +29,7 @@ module.exports = {
     }
 };
 
-function decorateProject(project) {
+function decorateProject (project) {
     project.githubRepository = project.opts.githubRepository;
     if (project.githubRepository) {
         const repo = project.githubRepository;
@@ -37,7 +38,7 @@ function decorateProject(project) {
     }
 }
 
-function decorateTask(project, task) {
+function decorateTask (project, task) {
     if (task.isGitHubDecorated) { return; }
     task.isGitHubDecorated = true;
 
@@ -59,7 +60,7 @@ function decorateTask(project, task) {
     });
 }
 
-function githubRepositoryLinkBlockTemplate() {
+function githubRepositoryLinkBlockTemplate () {
     return `
 <!-- ko if: project.githubRepository -->
 <div class="form-group">
@@ -74,7 +75,7 @@ function githubRepositoryLinkBlockTemplate() {
 `;
 }
 
-function githubLinkItemTemplate() {
+function githubLinkItemTemplate () {
     return `
 <!-- ko if: task.githubUrl -->
 <li class="mini-menu-item">
@@ -86,7 +87,7 @@ function githubLinkItemTemplate() {
 `;
 }
 
-function githubTaskLinkBlockTemplate() {
+function githubTaskLinkBlockTemplate () {
     return `
 <!-- ko if: task().githubUrl -->
 <div data-bind="if: task().githubUrl" class="form-group">
@@ -95,5 +96,5 @@ function githubTaskLinkBlockTemplate() {
     </a>
 </div>
 <!-- /ko -->
-`
+`;
 }

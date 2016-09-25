@@ -14,6 +14,7 @@ require('../../scss/kanban.scss');
 
 const global = window;
 const ko = require('knockout');
+const _ = require('lodash');
 const Kanban = require('../viewmodels/kanban');
 const Project = require('../models/project');
 const effects = require('../views/effects');
@@ -22,13 +23,13 @@ const Alert = require('../viewmodels/alert');
 const AlertHub = require('../viewmodels/alert_hub');
 const addons = require('../modules/addons');
 
-let kanban, project, alertHub, vm;
+let kanban, project, vm;
 
 const projectId = getProjectId();
 
 const alert = new Alert();
 
-const scroller = new Scroller({
+new Scroller({
     selector: ['.task-board'].join(','),
     cancelSelector: ['.task-card', '.activity-wrap', '.modal'].join(',')
 });
@@ -37,7 +38,7 @@ Project.fetch(projectId)
     .then(_project => {
         project = _project;
         kanban = new Kanban({project});
-        alertHub = new AlertHub({alert, kanban, socket: kanban.socket});
+        new AlertHub({alert, kanban, socket: kanban.socket});
 
         // knockout sortable option
         ko.bindingHandlers.sortable.options.scroll = false;
@@ -55,7 +56,7 @@ Project.fetch(projectId)
     });
 
 // 作業中で画面遷移しようとしたら確認ダイアログを表示する
-function setConfirmTransition() {
+function setConfirmTransition () {
     $(window).bind('beforeunload', () => {
         const user = kanban.loginUser();
         if (user && user.workingTask()) {
@@ -64,6 +65,6 @@ function setConfirmTransition() {
     });
 }
 
-function getProjectId() {
+function getProjectId () {
     return _.compact(location.pathname.split('/')).splice(-2, 1)[0];
 }

@@ -3,7 +3,6 @@ const global = window;
 const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 const _ = require('lodash');
-const moment = require('moment');
 
 // modules
 const util = require('../modules/util');
@@ -43,7 +42,7 @@ const TaskCardMiniMenu = require('../../components/task_card_mini_menu');
  * @event workingTaskDropped(arg, task)
  */
 class Kanban extends EventEmitter2 {
-    constructor({eventEmitterOptions = {}, project}) {
+    constructor ({eventEmitterOptions = {}, project}) {
         super(eventEmitterOptions);
 
         this.joinedUsers = ko.observableArray();
@@ -76,7 +75,7 @@ class Kanban extends EventEmitter2 {
         this.initModals();
     }
 
-    initSocket() {
+    initSocket () {
         this.socket = new Socket();
         this.socketSerializer = new SocketSerializer({socket: this.socket, project: this.project, kanban: this});
         this.socket.initSocketDebugMode();
@@ -101,7 +100,7 @@ class Kanban extends EventEmitter2 {
         });
     }
 
-    initModals() {
+    initModals () {
         // createTaskModel
         this.createTaskModel = new CreateTaskModel({project: this.project});
         this.createTaskModel.on('create', ({title, body, stage, cost, labels}) => {
@@ -219,14 +218,14 @@ class Kanban extends EventEmitter2 {
                 this.socket.emit('attachLabel', {
                     taskId: task.id(),
                     labelId: label.id()
-                })
+                });
             });
             detachLabels.forEach(label => {
                 this.socket.emit('detachLabel', {
                     taskId: task.id(),
                     labelId: label.id()
                 });
-            })
+            });
         });
         this.taskDetailModal.on('saveWorkHistory', ({task, works}) => {
             const taskId = task.id();
@@ -327,7 +326,7 @@ class Kanban extends EventEmitter2 {
     }
 
     // TODO: move to TaskCardList
-    onBeforeMoveDrag(arg) {
+    onBeforeMoveDrag (arg) {
         const list = arg.targetParent.parent;
         const task = arg.item;
 
@@ -352,7 +351,7 @@ class Kanban extends EventEmitter2 {
         }
     }
 
-    searchTasks(searchQuery = '') {
+    searchTasks (searchQuery = '') {
         searchQuery = searchQuery.trim();
 
         if (searchQuery) { // search
@@ -361,7 +360,6 @@ class Kanban extends EventEmitter2 {
                 const text = task.textForSearch();
                 task.isVisible(queries.every(q => _.includes(text, q)));
             });
-
         } else { // all visible
             this.tasks().forEach(task => {
                 task.isVisible(true);
@@ -369,7 +367,7 @@ class Kanban extends EventEmitter2 {
         }
     }
 
-    addActivity(activity) {
+    addActivity (activity) {
         this.activities.push(new Activity(activity));
     }
 }

@@ -3,23 +3,23 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class RemoveProjectModal extends EventEmitter2 {
-    constructor(opts={}) {
+    constructor (opts = {}) {
         super(opts);
         this.project = null;
     }
 
-    submit() {
+    submit () {
         this.emit('submit', {project: this.project});
     }
 
-    register() {
+    register () {
         ko.components.register('remove-project-modal', {
             viewModel: () => this,
             template: this.template()
-        })
+        });
     }
 
-    template() {
+    template () {
         return `
 <div class="modal fade" id="remove-project-modal" tabindex="-1" role="dialog" aria-labelledby="remove-project-modal-label" aria-hidden="true">
     <div class="modal-dialog modal-sm">

@@ -3,7 +3,7 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class AssignTaskModal extends EventEmitter2 {
-    constructor({eventEmitterOptions={}, project}) {
+    constructor ({eventEmitterOptions = {}, project}) {
         super(eventEmitterOptions);
 
         this.task = ko.observable();
@@ -19,7 +19,7 @@ class AssignTaskModal extends EventEmitter2 {
         this.canAssign = ko.computed(() => this.user());
     }
 
-    assign() {
+    assign () {
         if (this.task().user() !== this.user()) {
             this.emit('assign', {
                 task: this.task(),
@@ -28,18 +28,18 @@ class AssignTaskModal extends EventEmitter2 {
         }
     }
 
-    showModal() {
+    showModal () {
         $('#assign-task-modal').modal('show');
     }
 
-    register() {
+    register () {
         ko.components.register('assign-task-modal', {
             viewModel: () => this,
             template: this.template()
-        })
+        });
     }
 
-    template() {
+    template () {
         return `<div class="modal fade" id="assign-task-modal" tabindex="-1" role="dialog" aria-labelledby="assign-task-modal-label" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

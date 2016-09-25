@@ -1,5 +1,4 @@
 const socketio = require('socket.io');
-const _ = require('lodash');
 const co = require('co');
 const sessionMiddleware = require('../../lib/modules/sessionMiddleware');
 const Project = require('../../lib/models/project');
@@ -9,11 +8,11 @@ const SocketProject = require('./project');
 let _instance = null;
 
 class SocketRouter {
-    static get instance() {
+    static get instance () {
         return _instance;
     }
 
-    constructor(server) {
+    constructor (server) {
         if (_instance) { return _instance; }
         _instance = this;
 
@@ -63,14 +62,14 @@ class SocketRouter {
         });
     }
 
-    joinProjectRoom(user, projectId) {
+    joinProjectRoom (user, projectId) {
         const that = this;
         return co(function* () {
             const project = yield Project.findById(projectId, {include: []});
             if (!project) throw new Error(`invalid project id: ${projectId}`);
 
             if (!that.projects[projectId]) {
-                console.log(`create room: ${projectId}`)
+                console.log(`create room: ${projectId}`);
                 that.projects[projectId] = new SocketProject(that.io, projectId);
             }
 
@@ -84,7 +83,7 @@ class SocketRouter {
         });
     }
 
-    leaveProjectRoom(user) {
+    leaveProjectRoom (user) {
         return Promise.resolve(() => {
             if (user.projectId) {
                 user.socket.leave(user.projectId);

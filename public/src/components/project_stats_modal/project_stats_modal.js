@@ -3,13 +3,13 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class ProjectStatsModal extends EventEmitter2 {
-    constructor({eventEmitterOptions = {}, project, stats}) {
+    constructor ({eventEmitterOptions = {}, project, stats}) {
         super(eventEmitterOptions);
         this.project = project;
         this.stats = stats;
     }
 
-    register() {
+    register () {
         const that = this;
         ko.components.register('project-stats-modal', {
             viewModel: function () {

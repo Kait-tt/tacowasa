@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const Project = require('../lib/models/project');
-const _  = require('lodash');
 
 
 router.get('/:projectId/:projectName', function (req, res, next) {
@@ -16,7 +15,7 @@ router.get('/:projectId/:projectName', function (req, res, next) {
                 displayTitle: project.name,
                 logined: true,
                 username: username
-            })
+            });
         })
         .catch(err => next(err));
 });

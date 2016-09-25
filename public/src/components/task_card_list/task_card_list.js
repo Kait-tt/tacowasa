@@ -4,34 +4,34 @@ const EventEmitter2 = require('eventemitter2');
 const DraggableTaskList = require('./draggable_task_list');
 
 class TaskCardList extends EventEmitter2 {
-    constructor({eventEmitterOptions={}, project}) {
+    constructor ({eventEmitterOptions = {}, project}) {
         super(eventEmitterOptions);
         this.project = project;
     }
 
-    updateTaskStatus({task, stage, user}) {
+    updateTaskStatus ({task, stage, user}) {
         this.emit('updateTaskStatus', {task, stage, user});
     }
 
-    updateTaskOrder({task, beforeTask}) {
+    updateTaskOrder ({task, beforeTask}) {
         this.emit('updateTaskOrder', {task, beforeTask});
     }
 
-    register() {
+    register () {
         const taskCardList = this;
         const project = this.project;
         ko.components.register('task-card-list', {
-            viewModel: function({stage, user}) {
+            viewModel: function ({stage, user}) {
                 this.stage = stage;
                 this.user = user;
                 this.users = project.users;
                 this.showTasks = user || !stage.assigned();
                 if (this.showTasks) {
                     this.draggableTaskList = new DraggableTaskList({
-                            masterTasks: project.tasks,
-                            stage,
-                            user
-                        });
+                        masterTasks: project.tasks,
+                        stage,
+                        user
+                    });
                     this.tasks = this.draggableTaskList.tasks;
 
                     this.draggableTaskList.on('updatedStatus', taskCardList.updateTaskStatus.bind(taskCardList));
@@ -49,7 +49,7 @@ class TaskCardList extends EventEmitter2 {
         ko.bindingHandlers.sortable.beforeMove = TaskCardList.onBeforeMoveDrag;
     }
 
-    static onBeforeMoveDrag(arg) {
+    static onBeforeMoveDrag (arg) {
         const list = arg.targetParent.parent;
         const task = arg.item;
 

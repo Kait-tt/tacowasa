@@ -8,14 +8,12 @@ afterEach(() => helper.db.clean());
 describe('schemes', () => {
     describe('githubRepository', () => {
         describe('#create', () => {
-            let project, repo;
-
             beforeEach(() => {
                 return db.User.create({username: 'user1'})
-                    .then(user => db.Project.create({name: 'project1', createUserId: user.id }).then(x => project = x))
+                    .then(user => db.Project.create({name: 'project1', createUserId: user.id}))
                     .then(project => db.GitHubRepository.create({
                         projectId: project.id, username: 'hoge', reponame: 'piyo'
-                    }).then(x => repo = x));
+                    }));
             });
 
             it('should create a new github repository', () => {

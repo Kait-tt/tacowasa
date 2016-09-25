@@ -1,7 +1,7 @@
 'use strict';
 
 class AlertHub {
-    constructor({alert, kanban, socket}) {
+    constructor ({alert, kanban, socket}) {
         this.alert = alert;
         this.kanban = kanban;
         this.socket = socket;
@@ -9,8 +9,8 @@ class AlertHub {
         this.initSocketAlert();
     }
 
-    initKanbanAlert() {
-        this.kanban.on('overWIPLimitDropped', () =>  {
+    initKanbanAlert () {
+        this.kanban.on('overWIPLimitDropped', () => {
             this.alert.pushAlert({
                 title: 'WIPLimitを超えてタスクをアサインできません。',
                 message: 'タスクを調整するか、ユーザ設定からWIPLimitの上限を変更してください。',
@@ -27,12 +27,12 @@ class AlertHub {
         });
     }
 
-    initSocketAlert() {
+    initSocketAlert () {
         this.socket.on('error', () => {
             this.alert.pushAlert({
                 title: 'ソケットが接続できませんでした。',
                 isSuccess: false
-            })
+            });
         });
 
         this.socket.on('reconnect', () => {

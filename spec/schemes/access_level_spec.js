@@ -8,13 +8,12 @@ afterEach(() => helper.db.clean());
 describe('schemes', () => {
     describe('accessLevel', () => {
         describe('#create', () => {
-            let user, project, accessLevel;
+            let user, project;
 
             beforeEach(() => {
-                return db.User.create({username: 'user1'}).then(x => user = x)
-                    .then(() => db.Project.create({name: 'project1', createUserId: user.id})).then(x => project = x)
-                    .then(() => db.AccessLevel.create({projectId: project.id, name: 'developer', canWriteOwnTasks: true}))
-                    .then(x => accessLevel = x);
+                return db.User.create({username: 'user1'}).then(x => { user = x; })
+                    .then(() => db.Project.create({name: 'project1', createUserId: user.id})).then(x => { project = x; })
+                    .then(() => db.AccessLevel.create({projectId: project.id, name: 'developer', canWriteOwnTasks: true}));
             });
 
             it('should create a new access level', () => {

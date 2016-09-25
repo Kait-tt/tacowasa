@@ -1,6 +1,5 @@
 const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
-const path = Promise.promisifyAll(require('path'));
 const _ = require('lodash');
 const co = require('co');
 const express = require('express');
@@ -20,7 +19,6 @@ router.get('/me', function (req, res) {
         mustLogin: mustLogin,
         username: username
     });
-
 });
 
 router.get('/:username/avatar', function (req, res) {

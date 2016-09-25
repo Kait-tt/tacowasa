@@ -5,8 +5,8 @@ const util = require('../modules/util');
 const moment = require('moment');
 
 class Work {
-    constructor(opts) {
-        Work.columnKeys.forEach(key => this[key] = ko.isObservable(opts[key]) ? opts[key] : ko.observable(opts[key]));
+    constructor (opts) {
+        Work.columnKeys.forEach(key => { this[key] = ko.isObservable(opts[key]) ? opts[key] : ko.observable(opts[key]); });
 
         // isEndedの修正... // TODO: databaseを直す
         if (!opts.isEnded && opts.userId && opts.endTime) {
@@ -51,7 +51,7 @@ class Work {
         }, this);
     }
 
-    static get columnKeys() {
+    static get columnKeys () {
         return [
             'isEnded',
             'startTime',
@@ -60,7 +60,7 @@ class Work {
         ];
     }
 
-    clone() {
+    clone () {
         return new Work({
             isEnded: this.isEnded(),
             startTime: this.startTime(),
@@ -70,7 +70,7 @@ class Work {
     }
 
     // local format -> server format
-    deserialize() {
+    deserialize () {
         const user = this.user();
         return {
             isEnded: this.isEnded(),
@@ -80,21 +80,21 @@ class Work {
         };
     }
 
-    validateStartTime() {
+    validateStartTime () {
         const start = moment(this.startTime());
         if (!start.isValid()) { return false; }
         if (this.endTime()) { return start.toDate() <= new Date(this.endTime()); }
         return true;
     }
 
-    validateEndTime() {
+    validateEndTime () {
         if (this.isEnded() && !this.endTime()) { return true; } // be working
         const end = moment(this.endTime());
         if (!end.isValid()) { return false; }
         return end.toDate() >= new Date(this.startTime());
     }
 
-    validateUser() {
+    validateUser () {
         const user = this.user();
         const isEnded = this.isEnded();
         return (user && isEnded) || (!user && !isEnded);
@@ -102,7 +102,7 @@ class Work {
 
     // 作業時間の計算
     // force = true なら作業が終了していなくても現在時刻から作業時間を計算する
-    calcDuration(force=false) {
+    calcDuration (force = false) {
         let start = new Date(this.startTime());
         let end;
         // TODO: ここでisEndedのバグの修正はしなくてよい（上でする or databaseでする）
@@ -116,9 +116,13 @@ class Work {
         }
 
         // Dateはマイナスにしてはいけないので気を付けて計算する
-        if (start < end) { return end - start; }
-        else if (start > end) { return -(start - end); } // TODO: start > end ってなんだ...？
-        else { return 0; }
+        if (start < end) {
+            return end - start;
+        } else if (start > end) {
+            return -(start - end); // TODO: start > end ってなんだ...？
+        } else {
+            return 0;
+        }
     }
 }
 

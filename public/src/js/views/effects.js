@@ -1,7 +1,7 @@
 'use strict';
 
 const effects = {
-    fadeIn: elm =>  {
+    fadeIn: elm => {
         $(elm).hide().fadeIn('slow');
     },
 

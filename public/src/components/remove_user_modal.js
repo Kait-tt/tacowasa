@@ -3,30 +3,30 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class RemoveUserModal extends EventEmitter2 {
-    constructor({eventEmitterOptions={}}) {
+    constructor ({eventEmitterOptions = {}}) {
         super(eventEmitterOptions);
 
         this.user = ko.observable();
     }
 
-    remove() {
+    remove () {
         this.emit('remove', {
             user: this.user()
         });
     }
 
-    showModal() {
+    showModal () {
         $('#remove-user-modal').modal('show');
     }
 
-    register() {
+    register () {
         ko.components.register('remove-user-modal', {
             viewModel: () => this,
             template: this.template()
-        })
+        });
     }
 
-    template() {
+    template () {
         return `<div class="modal fade" id="remove-user-modal" tabindex="-1" role="dialog" aria-labelledby="remove-user-modal-label" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

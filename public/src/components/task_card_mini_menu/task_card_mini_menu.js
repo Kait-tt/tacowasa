@@ -5,35 +5,35 @@ const EventEmitter2 = require('eventemitter2');
 const TaskCardMiniMenuView = require('./task_card_mini_menu_view');
 
 class TaskCardMiniMenu extends EventEmitter2 {
-    constructor({eventEmitterOptions={}}={}) {
+    constructor ({eventEmitterOptions = {}} = {}) {
         super(eventEmitterOptions);
     }
 
-    onClickTaskDetail(task) {
+    onClickTaskDetail (task) {
         this.emit('clickTaskDetail', {task});
     }
 
-    onClickTaskNextStage(task) {
+    onClickTaskNextStage (task) {
         this.emit('clickTaskNextStage', {task});
     }
 
-    onClickTaskArchive(task) {
+    onClickTaskArchive (task) {
         this.emit('clickTaskArchive', {task});
     }
 
-    onClickTaskAssign(task) {
+    onClickTaskAssign (task) {
         this.emit('clickTaskAssign', {task});
     }
 
-    onClickTaskPrevStage(task) {
+    onClickTaskPrevStage (task) {
         this.emit('clickTaskPrevStage', {task});
     }
 
-    onLoad(viewModel) {
+    onLoad (viewModel) {
         this.emit('load', {viewModel});
     }
 
-    register() {
+    register () {
         const taskCardMiniMenu = this;
 
         ko.components.register('task-card-mini-menu', {
@@ -55,7 +55,7 @@ class TaskCardMiniMenu extends EventEmitter2 {
                 taskCardMiniMenu.onLoad(this);
             },
             template: require('html!./task_card_mini_menu.html')
-        })
+        });
     }
 }
 

@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const _ = require('lodash');
 const Project = require('../lib/models/project');
 // var Log = require('../lib/model/log');
 // var logger = new (require('../lib/model/loggerAPI'));
@@ -22,7 +21,7 @@ router.get('/projects/:projectId', (req, res) => {
         .then(project => addon.callAddons('API', 'getProject', {res, req, project}))
         .then(({project}) => {
             // TODO: update user avatar
-            res.status(200).json({message: 'OK', project})
+            res.status(200).json({message: 'OK', project});
         })
         .catch(err => serverError(res, err));
 });
@@ -32,7 +31,7 @@ router.delete('/projects/:projectId', (req, res) => {
     Project.archive(req.params.projectId)
         .then(project => addon.callAddons('API', 'archiveProject', {res, req, project}))
         .then(() => res.status(200).json({message: 'OK'}))
-        .catch(err => serverError(res. err));
+        .catch(err => serverError(res, err));
 });
 
 // Create a project
@@ -43,8 +42,8 @@ router.post('/projects', (req, res) => {
         .catch(err => serverError(res, err));
 });
 
-function serverError(res, err) {
-    res.status(500).json({message: 'server error.', error: err.message });
+function serverError (res, err) {
+    res.status(500).json({message: 'server error.', error: err.message});
     console.error(err);
 }
 

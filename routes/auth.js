@@ -1,5 +1,5 @@
-var express = require('express');
-var User = require('../lib/models/user');
+let express = require('express');
+let User = require('../lib/models/user');
 
 module.exports = (passport) => {
     const router = express.Router();

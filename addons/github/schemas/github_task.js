@@ -1,5 +1,5 @@
 'use strict';
-module.exports = function(sequelize, DataTypes) {
+module.exports = function (sequelize, DataTypes) {
     const GitHubTask = sequelize.define('githubTask', {
         taskId: {
             allowNull: false,
@@ -13,10 +13,10 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false,
             defaultValue: false,
             type: DataTypes.BOOLEAN
-        },
+        }
     }, {
         classMethods: {
-            associate: function(models) {
+            associate: function (models) {
                 GitHubTask.belongsTo(models.Task, {
                     foreignKey: {
                         allowNull: true

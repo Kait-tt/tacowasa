@@ -3,16 +3,16 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class ProjectLabelsModal extends EventEmitter2 {
-    constructor({eventEmitterOptions={}, project}) {
+    constructor ({eventEmitterOptions = {}, project}) {
         super(eventEmitterOptions);
         this.labels = project.labels;
     }
 
-    register() {
+    register () {
         ko.components.register('project-labels-modal', {
             viewModel: () => this,
             template: require('html!./project_labels_modal.html')
-        })
+        });
     }
 }
 

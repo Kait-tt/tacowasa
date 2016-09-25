@@ -3,13 +3,13 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 
 class UsersSettingsModal extends EventEmitter2 {
-    constructor({eventEmitterOptions={}, project}) {
+    constructor ({eventEmitterOptions = {}, project}) {
         super(eventEmitterOptions);
         this.users = project.users;
         this.addUsername = ko.observable();
     }
 
-    orderUp(user) {
+    orderUp (user) {
         const users = this.users();
         const idx = users.indexOf(user);
         if (idx !== 0) {
@@ -17,7 +17,7 @@ class UsersSettingsModal extends EventEmitter2 {
         }
     }
 
-    orderDown(user) {
+    orderDown (user) {
         const users = this.users();
         const len = users.length;
         const idx = users.indexOf(user);
@@ -26,23 +26,23 @@ class UsersSettingsModal extends EventEmitter2 {
         }
     }
 
-    visibleUser(user) {
+    visibleUser (user) {
         this.emit('visible', {user, isVisible: user.isVisible()}); // isVisibleは既に反転済み
         return true; // checkboxへ伝搬
     }
 
-    addUser() {
+    addUser () {
         const username = this.addUsername();
         if (username) {
             this.emit('addUser', {username});
         }
     }
 
-    register() {
+    register () {
         ko.components.register('users-settings-modal', {
             viewModel: () => this,
             template: require('html!./users_settings_modal.html')
-        })
+        });
     }
 }
 
