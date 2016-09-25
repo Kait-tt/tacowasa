@@ -8,13 +8,15 @@ const Project = require('../../lib/models/project');
 const User = require('../../lib/models/user');
 const Member = require('../../lib/models/member');
 
-afterEach(() => helper.db.clean());
 
 describe('models', () => {
     describe('project', () => {
+        afterEach(() => helper.db.clean());
+
         describe('#create', () => {
             const username = 'user1';
             let project;
+
             beforeEach(() => {
                 return Project.create('project1', username)
                     .then(x => { project = x; });

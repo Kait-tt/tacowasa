@@ -4,11 +4,13 @@ const co = require('co');
 const helper = require('../helper');
 const User = require('../../lib/models/user');
 
-afterEach(() => helper.db.clean());
 
 describe('models', () => {
     describe('user', () => {
+        afterEach(() => helper.db.clean());
+
         describe('#findOrCreate', () => {
+
             context('with not exists user', () => {
                 let user, users;
                 beforeEach(() => co(function* () {

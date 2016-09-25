@@ -7,7 +7,6 @@ const Project = require('../../lib/models/project');
 const Task = require('../../lib/models/task');
 const Label = require('../../lib/models/label');
 
-afterEach(() => helper.db.clean());
 
 describe('models', () => {
     describe('task', () => {
@@ -19,6 +18,7 @@ describe('models', () => {
         let project;
         let initLabelSize;
 
+        afterEach(() => helper.db.clean());
         beforeEach(() => co(function* () {
             project = yield Project.create('project1', 'owner');
             initLabelSize = project.labels.length;

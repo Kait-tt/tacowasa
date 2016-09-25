@@ -7,13 +7,13 @@ const db = require('../../lib/schemes');
 const Project = require('../../lib/models/project');
 const Member = require('../../lib/models/member');
 
-afterEach(() => helper.db.clean());
 
 describe('models', () => {
     describe('member', () => {
         const usernames = ['owner', 'user1', 'user2', 'user3', 'user4'];
         let project;
 
+        afterEach(() => helper.db.clean());
         beforeEach(() => Project.create('project1', usernames[0]).then(x => { project = x; }));
 
         it('project should have 1 member', () => expectMemberSize(project.id, 1));

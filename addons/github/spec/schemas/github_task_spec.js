@@ -4,10 +4,11 @@ const expect = require('chai').expect;
 const helper = require('../../../../spec/helper');
 const db = require('../../schemas');
 
-afterEach(() => helper.db.clean());
 
 describe('schemes', () => {
     describe('githubTask', () => {
+        afterEach(() => helper.db.clean());
+
         describe('#create', () => {
             let user, project, stage, cost, task;
 

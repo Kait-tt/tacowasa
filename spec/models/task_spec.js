@@ -7,7 +7,6 @@ const db = require('../../lib/schemes');
 const Project = require('../../lib/models/project');
 const Task = require('../../lib/models/task');
 
-afterEach(() => helper.db.clean());
 
 describe('models', () => {
     describe('task', () => {
@@ -15,6 +14,7 @@ describe('models', () => {
         const taskTitles = ['task1', 'task2', 'task3', 'task4', 'task5'];
         let project;
 
+        afterEach(() => helper.db.clean());
         beforeEach(() => Project.create('project1', usernames[0]).then(x => { project = x; }));
 
         it('project should have no task', () => expectTaskSize(project.id, 0));

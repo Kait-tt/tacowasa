@@ -3,10 +3,11 @@ const expect = require('chai').expect;
 const helper = require('../helper');
 const db = require('../../lib/schemes');
 
-afterEach(() => helper.db.clean());
 
 describe('schemes', () => {
     describe('stage', () => {
+        afterEach(() => helper.db.clean());
+
         describe('#create', () => {
             let project, stage;
 

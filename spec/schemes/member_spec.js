@@ -4,10 +4,11 @@ const _ = require('lodash');
 const helper = require('../helper');
 const db = require('../../lib/schemes');
 
-afterEach(() => helper.db.clean());
 
 describe('schemes', () => {
     describe('member', () => {
+        afterEach(() => helper.db.clean());
+
         describe('create project and add member', () => {
             let users, project;
             let membersParams = [
