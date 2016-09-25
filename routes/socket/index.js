@@ -74,7 +74,7 @@ class SocketRouter {
 
             const projectSocket = that.projects[projectId];
 
-            projectSocket.joinRoom(user);
+            yield projectSocket.joinProjectRoom(user);
             user.projectId = projectId;
             user.socket.join(projectId);
 
