@@ -10,6 +10,7 @@ script:
     - npm i
     - npm run migrate:test
     - npm run build
+    - npm run lint:all
     - npm run test:cover
 after_success:
     - npm run coveralls
