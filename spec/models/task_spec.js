@@ -14,8 +14,9 @@ describe('models', () => {
         const taskTitles = ['task1', 'task2', 'task3', 'task4', 'task5'];
         let project;
 
-        afterEach(() => helper.db.clean());
-        beforeEach(() => Project.create('project1', usernames[0]).then(x => { project = x; }));
+        after(() => helper.db.clean());
+        before(() => Project.create('project1', usernames[0]).then(x => { project = x; }));
+        afterEach(() => db.Task.destroy({where: {}}));
 
         it('project should have no task', () => expectTaskSize(project.id, 0));
 

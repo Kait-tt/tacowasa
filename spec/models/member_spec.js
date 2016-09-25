@@ -13,8 +13,10 @@ describe('models', () => {
         const usernames = ['owner', 'user1', 'user2', 'user3', 'user4'];
         let project;
 
-        afterEach(() => helper.db.clean());
-        beforeEach(() => Project.create('project1', usernames[0]).then(x => { project = x; }));
+        after(() => helper.db.clean());
+        before(() => Project.create('project1', usernames[0]).then(x => { project = x; }));
+        afterEach(() => db.Member.destroy({where: {}})
+            .then(() => Member.add(project.id, usernames[0])));
 
         it('project should have 1 member', () => expectMemberSize(project.id, 1));
 
