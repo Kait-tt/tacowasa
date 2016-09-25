@@ -21,7 +21,6 @@ class TaskCard extends EventEmitter2 {
         const taskCard = this;
         ko.components.register('task-card', {
             viewModel: function ({task}) {
-                'use strict';
                 this.task = task;
                 this.onClickTaskCard = taskCard.onClickTaskCard.bind(taskCard, task);
                 this.onClickWork = taskCard.onClickWork.bind(taskCard, task);

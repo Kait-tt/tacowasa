@@ -1,8 +1,8 @@
 'use strict';
 const ko = require('knockout');
-const EventEmitter2 = require('eventemitter2');
+const AbstractModalComponent = require('../abstract_modal_component');
 
-class CreateTaskModal extends EventEmitter2 {
+class CreateTaskModal extends AbstractModalComponent {
     constructor ({eventEmitterOptions = {}, project}) {
         super(eventEmitterOptions);
 
@@ -29,12 +29,9 @@ class CreateTaskModal extends EventEmitter2 {
         });
     }
 
-    register () {
-        ko.components.register('create-task-modal', {
-            viewModel: () => this,
-            template: require('html!./create_task_modal.html')
-        });
-    }
+    get template () { return require('html!./create_task_modal.html'); }
+
+    get modalName () { return 'create-task-modal'; }
 }
 
 module.exports = CreateTaskModal;

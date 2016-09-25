@@ -7,9 +7,9 @@ const Alert = require('../viewmodels/alert');
 const effects = require('../views/effects');
 const Project = require('../models/project');
 const block = require('../modules/block');
-const CreateProjectModal = require('../../components/create_project_modal');
-const RemoveProjectModal = require('../../components/remove_project_modal');
-const ImportProjectByGitHub = require('../../components/import_project_by_github_modal');
+const CreateProjectModal = require('../../components/modals/create_project_modal');
+const RemoveProjectModal = require('../../components/modals/remove_project_modal');
+const ImportProjectByGitHub = require('../../components/modals/import_project_by_github_modal');
 
 const alert = new Alert({maxAlertNum: 2});
 const projects = ko.observableArray();
