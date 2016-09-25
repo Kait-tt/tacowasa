@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const ENV = process.env.NODE_ENV;
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 // development
 const webpackConfig = {
@@ -24,7 +25,7 @@ const webpackConfig = {
             },
             {
                 test: /\.scss$/,
-                loader: 'style!css!sass'
+                loader: ExtractTextPlugin.extract('style-loader', 'css-loader!sass-loader')
             },
             {
                 test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
@@ -60,6 +61,7 @@ const webpackConfig = {
             $: 'jquery',
             jQuery: 'jquery'
         }),
+        new ExtractTextPlugin('[name].css'),
         function () {
             this.plugin('watch-run', (watching, callback) => {
                 console.log('Begin compile at ' + new Date());
