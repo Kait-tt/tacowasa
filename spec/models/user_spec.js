@@ -10,7 +10,6 @@ describe('models', () => {
         afterEach(() => helper.db.clean());
 
         describe('#findOrCreate', () => {
-
             context('with not exists user', () => {
                 let user, users;
                 beforeEach(() => co(function* () {
