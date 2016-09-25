@@ -17,7 +17,7 @@ router.get('/projects', (req, res) => {
 
 // Get a Project
 router.get('/projects/:projectId', (req, res) => {
-    Project.findOneIncludeAll({where: {id: req.params.projectId}})
+    Project.findOne({where: {id: req.params.projectId}})
         .then(project => addon.callAddons('API', 'getProject', {res, req, project}))
         .then(({project}) => {
             // TODO: update user avatar

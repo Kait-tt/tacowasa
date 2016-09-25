@@ -163,7 +163,7 @@ class GitHubAPI {
 
                 yield that.createHook({projectId, user, repo});
 
-                return Project.findOneIncludeAll({where: {id: projectId}, transaction});
+                return Project.findOne({where: {id: projectId}, transaction});
             });
         });
     }
