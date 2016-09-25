@@ -1,13 +1,23 @@
 'use strict';
 const ko = require('knockout');
-const _ = require('lodash');
+const EventEmitter2 = require('eventemitter2');
 
-// TODO: component化
-class Alert {
-    constructor ({maxAlertNum = 5, waitHideTime = 8000} = {}) {
+class Alert extends EventEmitter2 {
+    constructor ({eventEmitterOptions = {}, maxAlertNum = 5, waitHideTime = 8000} = {}) {
+        super(eventEmitterOptions);
         this.maxAlertNum = maxAlertNum;
         this.waitHideTime = waitHideTime;
         this.alerts = ko.observableArray();
+    }
+
+    register () {
+        const that = this;
+        ko.components.register('alert', {
+            viewModel: function () {
+                this.alerts = that.alerts;
+            },
+            template: require('html!./alert.html')
+        });
     }
 
     pushAlert ({title = '', message = '', isSuccess = false}) {
@@ -65,5 +75,6 @@ class Alert {
         });
     }
 }
+
 
 module.exports = Alert;

@@ -19,15 +19,16 @@ const Kanban = require('../viewmodels/kanban');
 const Project = require('../models/project');
 const effects = require('../views/effects');
 const Scroller = require('../views/scroller');
-const Alert = require('../viewmodels/alert');
 const AlertHub = require('../viewmodels/alert_hub');
 const addons = require('../modules/addons');
+const Alert = require('../../components/alert');
 
 let kanban, project, vm;
 
 const projectId = getProjectId();
 
 const alert = new Alert();
+alert.register();
 
 new Scroller({
     selector: ['.task-board'].join(','),
