@@ -1,10 +1,10 @@
 'use strict';
 const ko = require('knockout');
-const EventEmitter2 = require('eventemitter2');
+const AbstractModalComponent = require('../abstract_modal_component');
 
-class UsersSettingsModal extends EventEmitter2 {
+class UsersSettingsModal extends AbstractModalComponent {
     constructor ({eventEmitterOptions = {}, project}) {
-        super(eventEmitterOptions);
+        super({eventEmitterOptions});
         this.users = project.users;
         this.addUsername = ko.observable();
     }
@@ -38,12 +38,9 @@ class UsersSettingsModal extends EventEmitter2 {
         }
     }
 
-    register () {
-        ko.components.register('users-settings-modal', {
-            viewModel: () => this,
-            template: require('html!./users_settings_modal.html')
-        });
-    }
+    get template () { return require('html!./users_settings_modal.html'); }
+
+    get modalName () { return 'users-settings-modal'; }
 }
 
 module.exports = UsersSettingsModal;

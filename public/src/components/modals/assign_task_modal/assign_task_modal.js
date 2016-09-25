@@ -1,0 +1,36 @@
+'use strict';
+const ko = require('knockout');
+const AbstractModalComponent = require('../abstract_modal_component');
+
+class AssignTaskModal extends AbstractModalComponent {
+    constructor ({eventEmitterOptions = {}, project}) {
+        super(eventEmitterOptions);
+
+        this.task = ko.observable();
+        this.user = ko.observable();
+        this.task.subscribe(task => {
+            if (task.user()) {
+                this.user(task.user());
+            }
+        });
+
+        this.canAssignUsers = ko.computed(() => project.users().filter(user => !user.isWipLimited()));
+
+        this.canAssign = ko.computed(() => this.user());
+    }
+
+    assign () {
+        if (this.task().user() !== this.user()) {
+            this.emit('assign', {
+                task: this.task(),
+                user: this.user()
+            });
+        }
+    }
+
+    get template () { return require('html!./assign_task_modal.html'); }
+
+    get modalName () { return 'assign-task-modal'; }
+}
+
+module.exports = AssignTaskModal;

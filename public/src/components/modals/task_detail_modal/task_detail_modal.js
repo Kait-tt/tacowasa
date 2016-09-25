@@ -1,11 +1,11 @@
 'use strict';
 const ko = require('knockout');
-const EventEmitter2 = require('eventemitter2');
 const Work = require('../../../js/models/work');
+const AbstractModalComponent = require('../abstract_modal_component');
 
-class TaskDetailModal extends EventEmitter2 {
+class TaskDetailModal extends AbstractModalComponent {
     constructor ({eventEmitterOptions = {}, project}) {
-        super(eventEmitterOptions);
+        super({eventEmitterOptions});
 
         this.costs = project.costs;
         this.labels = project.labels;
@@ -33,12 +33,10 @@ class TaskDetailModal extends EventEmitter2 {
 
         this.overWipLimit = ko.computed(() => {
             const task = this.task();
-            if (!task) { return false; }
-            const user = task.user();
-            if (!user) { return false; }
+            const user = task && task.user();
             const cost = this.cost();
-            if (!cost) { return false; }
-            return user.willBeOverWipLimit(cost.value - task.cost().value);
+
+            return task && user && cost && user.willBeOverWipLimit(cost.value - task.cost().value);
         });
 
         this.canSaveWorkHistory = ko.computed(() => {
@@ -84,14 +82,6 @@ class TaskDetailModal extends EventEmitter2 {
         this.works.push(work);
     }
 
-    showModal () {
-        $('#task-detail-modal').modal('show');
-    }
-
-    onLoad () {
-        this.emit('load', this);
-    }
-
     update () {
         if (this.editWorkHistoryMode() === 'edit') {
             this.saveWorkHistory();
@@ -106,15 +96,9 @@ class TaskDetailModal extends EventEmitter2 {
         });
     }
 
-    register () {
-        ko.components.register('task-detail-modal', {
-            viewModel: () => {
-                this.onLoad();
-                return this;
-            },
-            template: require('html!./task_detail_modal.html')
-        });
-    }
+    get template () { return require('html!./task_detail_modal.html'); }
+
+    get modalName () { return 'task-detail-modal'; }
 }
 
 module.exports = TaskDetailModal;

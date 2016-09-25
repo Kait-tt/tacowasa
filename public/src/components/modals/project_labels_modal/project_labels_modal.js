@@ -1,19 +1,15 @@
 'use strict';
-const ko = require('knockout');
-const EventEmitter2 = require('eventemitter2');
+const AbstractModalComponent = require('../abstract_modal_component');
 
-class ProjectLabelsModal extends EventEmitter2 {
+class ProjectLabelsModal extends AbstractModalComponent {
     constructor ({eventEmitterOptions = {}, project}) {
-        super(eventEmitterOptions);
+        super({eventEmitterOptions});
         this.labels = project.labels;
     }
 
-    register () {
-        ko.components.register('project-labels-modal', {
-            viewModel: () => this,
-            template: require('html!./project_labels_modal.html')
-        });
-    }
+    get template () { return require('html!./project_labels_modal.html'); }
+
+    get modalName () { return 'project-labels-modal'; }
 }
 
 module.exports = ProjectLabelsModal;

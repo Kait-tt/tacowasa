@@ -4,7 +4,7 @@ const AbstractModalComponent = require('../abstract_modal_component');
 
 class CreateTaskModal extends AbstractModalComponent {
     constructor ({eventEmitterOptions = {}, project}) {
-        super(eventEmitterOptions);
+        super({eventEmitterOptions});
 
         this.title = ko.observable('');
         this.body = ko.observable('');
