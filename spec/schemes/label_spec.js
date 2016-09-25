@@ -1,4 +1,5 @@
 'use strict';
+const co = require('co');
 const expect = require('chai').expect;
 const helper = require('../helper');
 const db = require('../../lib/schemes');
@@ -10,11 +11,11 @@ describe('schemes', () => {
         describe('#create', () => {
             let user, project, label;
 
-            beforeEach(() => {
-                return db.User.create({username: 'user1'}).then(x => { user = x; })
-                    .then(_user => db.Project.create({name: 'project1', createUserId: _user.id})).then(x => { project = x; })
-                    .then(() => db.Label.create({name: 'label1', color: '343434', projectId: project.id})).then(x => { label = x; });
-            });
+            beforeEach(co.wrap(function* () {
+                user = yield db.User.create({username: 'user1'});
+                project = yield db.Project.create({name: 'project1', createUserId: user.id});
+                label = yield db.Label.create({name: 'label1', color: '343434', projectId: project.id});
+            }));
 
             it('should create a new label', () => {
                 return db.Label.findAll({include: [{all: true, nested: false}]}).then(_labels => {
@@ -27,20 +28,20 @@ describe('schemes', () => {
             describe('task#addLabel', () => {
                 let stage, cost, task;
 
-                beforeEach(() => {
-                    return db.Stage.create({name: 'todo', displayName: 'ToDo', assigned: true, projectId: project.id}).then(x => { stage = x; })
-                        .then(() => db.Cost.create({name: 'medium', value: 3, projectId: project.id}).then(x => { cost = x; }))
-                        .then(() => db.Task.create({
-                            projectId: project.id,
-                            stageId: stage.id,
-                            userId: user.id,
-                            costId: cost.id,
-                            title: 'title1',
-                            body: 'body1',
-                            isWorking: true
-                        })).then(x => { task = x; })
-                        .then(task => task.addLabel(label));
-                });
+                beforeEach(co.wrap(function* () {
+                    stage = yield db.Stage.create({name: 'todo', displayName: 'ToDo', assigned: true, projectId: project.id});
+                    cost = yield db.Cost.create({name: 'medium', value: 3, projectId: project.id});
+                    task = yield db.Task.create({
+                        projectId: project.id,
+                        stageId: stage.id,
+                        userId: user.id,
+                        costId: cost.id,
+                        title: 'title1',
+                        body: 'body1',
+                        isWorking: true
+                    });
+                    yield task.addLabel(label);
+                }));
 
                 it('task should have a label', () => {
                     return db.Task.findById(task.id, {include: [{model: db.Label}]}).then(task => {
