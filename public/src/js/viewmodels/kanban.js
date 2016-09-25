@@ -49,7 +49,7 @@ class Kanban extends EventEmitter2 {
         this.activities = ko.observableArray();
 
         this.searchQuery = ko.observable();
-        this.searchQuery.subscribe(_.debounce(this.searchTasks, 500));
+        this.searchQuery.subscribe(_.debounce(this.searchTasks.bind(this), 500));
 
         this.viewMode = ko.observable(localStorage.getItem('viewMode')); // full or compact
         this.viewMode.subscribe(val => localStorage.setItem('viewMode', val));
