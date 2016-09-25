@@ -7,12 +7,12 @@ const User = require('../../lib/models/user');
 
 describe('models', () => {
     describe('user', () => {
-        afterEach(() => helper.db.clean());
+        after(() => helper.db.clean());
 
         describe('#findOrCreate', () => {
             context('with not exists user', () => {
                 let user, users;
-                beforeEach(() => co(function* () {
+                before(() => co(function* () {
                     user = yield User.findOrCreate('user1');
                     users = yield User.findAll();
                 }));
@@ -23,7 +23,7 @@ describe('models', () => {
                 });
 
                 context('with exists user', () => {
-                    beforeEach(() => co(function* () {
+                    before(() => co(function* () {
                         user = yield User.findOrCreate('user1');
                         users = yield User.findAll();
                     }));

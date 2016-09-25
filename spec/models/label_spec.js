@@ -6,10 +6,11 @@ const helper = require('../helper');
 const Project = require('../../lib/models/project');
 const Task = require('../../lib/models/task');
 const Label = require('../../lib/models/label');
+const db = require('../../lib/schemes');
 
 
 describe('models', () => {
-    describe('task', () => {
+    describe('label', () => {
         let labelsParams = [
             {name: 'testlabel1', color: 'fe9245'},
             {name: 'testlabel2', color: '831732'},
@@ -20,7 +21,7 @@ describe('models', () => {
 
         afterEach(() => helper.db.clean());
         beforeEach(() => co(function* () {
-            project = yield Project.create('project1', 'owner');
+            project = yield Project.create('project1', 'owner', {include: [{model: db.Label, as: 'labels', separate: true}]});
             initLabelSize = project.labels.length;
         }));
 

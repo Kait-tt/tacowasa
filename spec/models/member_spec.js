@@ -14,7 +14,9 @@ describe('models', () => {
         let project;
 
         after(() => helper.db.clean());
-        before(() => Project.create('project1', usernames[0]).then(x => { project = x; }));
+        before(() => Project.create('project1', usernames[0], {include: [
+            {model: db.User, as: 'users'}
+        ]}).then(x => { project = x; }));
         afterEach(() => db.Member.destroy({where: {}})
             .then(() => Member.add(project.id, usernames[0])));
 

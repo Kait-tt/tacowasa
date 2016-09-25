@@ -11,16 +11,12 @@ const Member = require('../../lib/models/member');
 
 describe('models', () => {
     describe('project', () => {
-        afterEach(() => helper.db.clean());
-
         describe('#create', () => {
             const username = 'user1';
             let project;
 
-            beforeEach(() => {
-                return Project.create('project1', username)
-                    .then(x => { project = x; });
-            });
+            after(() => helper.db.clean());
+            before(() => Project.create('project1', username, {include: []}).then(x => { project = x; }));
 
             it('should create a new project', () => db.Project.findAll().then(xs => expect(xs).to.lengthOf(1)));
 
@@ -61,13 +57,14 @@ describe('models', () => {
 
         describe('#findByIncludedUsername', () => {
             let res;
-            beforeEach(() => co(function* () {
+            after(() => helper.db.clean());
+            before(co.wrap(function* () {
                 for (let username of ['target', 'user1', 'user2']) {
                     yield User.findOrCreate(username);
                 }
-                yield Project.create('project1', 'target');
-                const project2 = yield Project.create('project2', 'user1');
-                const project3 = yield Project.create('project3', 'user2');
+                yield Project.create('project1', 'target', {include: []});
+                const project2 = yield Project.create('project2', 'user1', {include: []});
+                const project3 = yield Project.create('project3', 'user2', {include: []});
                 yield Member.add(project2.id, 'user2');
                 yield Member.add(project3.id, 'target');
                 // project1 has target

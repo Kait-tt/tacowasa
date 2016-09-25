@@ -15,7 +15,11 @@ describe('models', () => {
         let project;
 
         after(() => helper.db.clean());
-        before(() => Project.create('project1', usernames[0]).then(x => { project = x; }));
+        before(() => Project.create('project1', usernames[0], {include: [
+            {model: db.User, as: 'users'},
+            {model: db.Stage, as: 'stages', separate: true},
+            {model: db.Cost, as: 'costs', separate: true}
+        ]}).then(x => { project = x; }));
         afterEach(() => db.Task.destroy({where: {}}));
 
         it('project should have no task', () => expectTaskSize(project.id, 0));
