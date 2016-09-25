@@ -20,8 +20,7 @@ describe('models', () => {
         let initLabelSize;
 
         beforeEach(() => co(function* () {
-            let {id} = yield Project.create('project1', 'owner');
-            project = yield Project.findById(id);
+            project = yield Project.create('project1', 'owner');
             initLabelSize = project.labels.length;
         }));
 

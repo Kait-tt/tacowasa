@@ -7,6 +7,7 @@ module.exports = {
         'canWork',
         {
           type: Sequelize.BOOLEAN,
+          defaultValue: false,
           allowNull: false
         }
     );

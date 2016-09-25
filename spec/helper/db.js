@@ -1,3 +1,4 @@
+'use strict';
 const db = require('../../lib/schemes');
 const Model = db.Sequelize.Model;
 
