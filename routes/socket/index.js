@@ -42,7 +42,6 @@ class SocketRouter {
             const that = this;
             socket.on('joinProjectRoom', ({projectId}) => co(function* () {
                 projectSocket = yield that.joinProjectRoom(user, projectId);
-                yield projectSocket.joinProjectRoom(user);
             }).catch(err => console.error(err)));
 
             socket.on('leaveProjectRoom', () => co(function* () {
