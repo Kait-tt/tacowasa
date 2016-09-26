@@ -25,22 +25,20 @@ class SocketSerializer {
 
     onJoinRoom ({username}) {
         const user = this.project.getUser({username});
-        const joinedUsers = this.kanban.joinedUsers();
-        if (!_.includes(joinedUsers, user)) {
-            this.kanban.joinedUsers.push(user);
-        }
+        this.kanban.joinedUsers.push(user);
     }
 
     onLeaveRoom ({username}) {
         const user = this.project.getUser({username});
         const joinedUsers = this.kanban.joinedUsers();
-        if (_.includes(joinedUsers, user)) {
-            this.kanban.joinedUsers.remove(user);
+        const pos = joinedUsers.indexOf(user);
+        if (pos !== -1) {
+            joinedUsers.splice(pos, 1);
         }
     }
 
     onInitJoinedUsernames ({joinedUsernames}) {
-        const users = joinedUsernames.map(({username}) => this.project.getUser({username}));
+        const users = joinedUsernames.map((username) => this.project.getUser({username}));
         this.kanban.joinedUsers(users);
     }
 

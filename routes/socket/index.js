@@ -34,25 +34,22 @@ class SocketRouter {
 
         this.io.sockets.on('connection', socket => {
             const user = new SocketUser(socket);
-            let projectSocket;
 
             this.users[socket.id] = user;
             console.log(`new connected: ${socket.id}`);
 
             const that = this;
             socket.on('joinProjectRoom', ({projectId}) => co(function* () {
-                projectSocket = yield that.joinProjectRoom(user, projectId);
+                yield that.joinProjectRoom(user, projectId);
             }).catch(err => console.error(err)));
 
             socket.on('leaveProjectRoom', () => co(function* () {
                 yield that.leaveProjectRoom(user);
-                yield projectSocket.leaveProjectRoom(user);
             }).catch(err => console.error(err)));
 
             socket.on('disconnect', () => co(function* () {
                 if (user.projectId) {
                     yield that.leaveProjectRoom(user);
-                    yield projectSocket.leaveProjectRoom(user);
                 }
                 console.log(`disconnect: ${socket.id}`);
                 user.active = false;
@@ -74,20 +71,21 @@ class SocketRouter {
 
             const projectSocket = that.projects[projectId];
 
-            yield projectSocket.joinProjectRoom(user);
             user.projectId = projectId;
             user.socket.join(projectId);
+            yield projectSocket.joinProjectRoom(user);
 
             return projectSocket;
         });
     }
 
     leaveProjectRoom (user) {
-        return Promise.resolve(() => {
-            if (user.projectId) {
-                user.socket.leave(user.projectId);
-            }
-        });
+        if (user.projectId && this.projects[user.projectId]) {
+            return this.projects[user.projectId].leaveProjectRoom(user)
+                .then(() => user.socket.leave(user.projectId));
+        } else {
+            return Promise.resolve();
+        }
     }
 }
 

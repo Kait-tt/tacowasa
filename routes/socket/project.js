@@ -24,11 +24,10 @@ class SocketProject {
         const that = this;
         return co(function* () {
             that.users[user.id] = user;
-
+            that.bindSocketUser(user);
             yield that.sendInitActivityLogs(user);
             yield that.sendInitJoinedUsers(user);
             yield that.joinRoom(user);
-            that.bindSocketUser(user);
         }).catch(err => console.error(err));
     }
 
@@ -52,18 +51,8 @@ class SocketProject {
     }
 
     sendInitJoinedUsers (user) {
-        return Promise.resolve(() => {
-            const joinedUsernames = _.chain(this.users)
-                .values()
-                .where({projectId: this.projectId, active: true})
-                .map('username')
-                .compact()
-                .uniq()
-                .filter(x => x !== user.username)
-                .value();
-
-            user.socket.emit('initJoinedUesrnames', {joinedUsernames});
-        });
+        user.socket.emit('initJoinedUsernames', {joinedUsernames: this.joinedUsernames});
+        return Promise.resolve();
     }
 
     sendInitActivityLogs (user) {
@@ -213,6 +202,16 @@ class SocketProject {
                 this.emits(user, 'detachLabel', {task, label});
                 return this.notifyText(user, `detached label: {label: ${label.name}, task: ${task.name}}`);
             });
+    }
+
+    get joinedUsernames () {
+        return _.chain(this.users)
+            .values()
+            .filter({projectId: this.projectId, active: true})
+            .map('username')
+            .compact()
+            .uniq()
+            .value();
     }
 
     static get socketEventKeys () {

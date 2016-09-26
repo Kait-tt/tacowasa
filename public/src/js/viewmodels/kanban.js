@@ -45,7 +45,9 @@ class Kanban extends EventEmitter2 {
     constructor ({eventEmitterOptions = {}, project}) {
         super(eventEmitterOptions);
 
-        this.joinedUsers = ko.observableArray();
+        this.joinedUsers = ko.observableArray([]);
+        this.joinedUniqueUsers = ko.computed(() => _.uniq(this.joinedUsers()));
+
         this.activities = ko.observableArray();
 
         this.searchQuery = ko.observable();
