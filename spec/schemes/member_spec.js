@@ -1,6 +1,7 @@
 'use strict';
 const expect = require('chai').expect;
 const _ = require('lodash');
+const co = require('co');
 const helper = require('../helper');
 const db = require('../../lib/schemes');
 
@@ -18,10 +19,18 @@ describe('schemes', () => {
 
             beforeEach(() => {
                 users = [];
-                return Promise.all(['user1', 'user2'].map(username => db.User.create({username}).then(_user => users.push(_user))))
-                    .then(() => db.Project.create({name: 'project1', createUserId: users[0].id}).then(_project => { project = _project; }))
-                    .then(() => db.AccessLevel.create({name: 'developer', projectId: project.id})).then(x => membersParams.forEach(m => { m.accessLevelId = x.id; }))
-                    .then(() => Promise.all(users.map((user, idx) => project.addUser(user, membersParams[idx]))));
+                return co(function* () {
+                    for (let username of ['user1', 'user2']) {
+                        const user = yield db.User.create({username});
+                        users.push(user);
+                    }
+                    project = yield db.Project.create({name: 'project1', createUserId: users[0].id});
+                    const accessLevel = yield db.AccessLevel.create({name: 'developer', projectId: project.id});
+                    for (let idx of [0, 1]) {
+                        membersParams[idx].accessLevelId = accessLevel.id;
+                        yield project.addUser(users[idx], membersParams[idx]);
+                    }
+                });
             });
 
             it('should create two members', () => {
