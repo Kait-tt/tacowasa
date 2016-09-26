@@ -140,7 +140,7 @@ const hooks = {
                         userId = null;
                     }
 
-                    yield db.Task.update({stageId: stage.id, userId}, {where: {id: task.id}, transaction});
+                    yield Task.updateStatus(projectId, task.id, {userId, stageId: stage.id}, {transaction});
 
                     yield emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}}`, task.id, {transaction});
 
@@ -164,7 +164,7 @@ const hooks = {
                     const stages = yield db.Stage.findAll({where: {projectId}, transaction});
                     const stage = _.find(stages, {name: 'done'}) || _.find(stages, {name: 'archive'}) || stages[0];
 
-                    yield db.Task.update({stageId: stage.id, userId: null}, {where: {id: task.id}, transaction});
+                    yield Task.updateStatus(projectId, task.id, {userId: task.userId, stageId: stage.id}, {transaction});
 
                     yield emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}}`, task.id, {transaction});
 
@@ -212,10 +212,8 @@ const hooks = {
                     const user = (yield db.User.findOrCreate({where: {username: taskOnGitHub.assignee.login}, transaction}))[0];
                     const stages = yield db.Stage.findAll({where: {projectId}, transaction});
                     const stage = _.find(stages, {name: 'todo'}) || stages[0];
-                    yield db.Task.update({
-                        userId: user.id,
-                        stageId: stage.id
-                    }, {where: {id: task.id}, transaction});
+
+                    yield Task.updateStatus(projectId, task.id, {userId: user.id, stageId: stage.id}, {transaction});
 
                     yield emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}}`, task.id, {transaction});
 
@@ -238,10 +236,8 @@ const hooks = {
                     // unassign
                     const stages = yield db.Stage.findAll({where: {projectId}, transaction});
                     const stage = _.find(stages, {name: 'backlog'}) || _.find(stages, {name: 'issue'}) || stages[0];
-                    yield db.Task.update({
-                        userId: null,
-                        stageId: stage.id
-                    }, {where: {id: task.id}, transaction});
+
+                    yield Task.updateStatus(projectId, task.id, {userId: null, stageId: stage.id}, {transaction});
 
                     yield emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}}`, task.id, {transaction});
 
