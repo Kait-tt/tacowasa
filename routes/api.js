@@ -1,10 +1,9 @@
+'use strict';
+const co = require('co');
 const express = require('express');
 const router = express.Router();
 const Project = require('../lib/models/project');
-// var Log = require('../lib/model/log');
-// var logger = new (require('../lib/model/loggerAPI'));
-// TODO: logging
-
+const db = require('../lib/schemes');
 const addon = require('../addons');
 
 // Get Projects
@@ -30,16 +29,20 @@ router.get('/projects/:projectId', (req, res) => {
 router.delete('/projects/:projectId', (req, res) => {
     Project.archive(req.params.projectId)
         .then(project => addon.callAddons('API', 'archiveProject', {res, req, project}))
+        .then(({project}) => db.Log.create({projectId: project.id, action: 'archiveProject'}))
         .then(() => res.status(200).json({message: 'OK'}))
         .catch(err => serverError(res, err));
 });
 
 // Create a project
 router.post('/projects', (req, res) => {
-    Project.create(req.body.projectName, req.user.username)
-        .then(project => addon.callAddons('API', 'createProject', {res, req, project}))
-        .then(({project}) => res.status(200).json({message: 'OK', project}))
-        .catch(err => serverError(res, err));
+    co(function* () {
+        let project = yield Project.create(req.body.projectName, req.user.username);
+        const addonRes = yield addon.callAddons('API', 'createProject', {res, req, project});
+        project = addonRes.project;
+        yield db.Log.create({projectId: project.id, action: 'createProject', content: JSON.stringify({project: project})});
+        res.status(200).json({message: 'OK', project});
+    }).catch(err => serverError(res, err));
 });
 
 function serverError (res, err) {

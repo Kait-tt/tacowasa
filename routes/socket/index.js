@@ -36,7 +36,7 @@ class SocketRouter {
             const user = new SocketUser(socket);
 
             this.users[socket.id] = user;
-            console.log(`new connected: ${socket.id}`);
+            console.log(`new connected: ${socket.id} , ${user.username}`);
 
             const that = this;
             socket.on('joinProjectRoom', ({projectId}) => co(function* () {
@@ -51,7 +51,7 @@ class SocketRouter {
                 if (user.projectId) {
                     yield that.leaveProjectRoom(user);
                 }
-                console.log(`disconnect: ${socket.id}`);
+                console.log(`disconnect: ${socket.id} , ${user.username}`);
                 user.active = false;
                 delete that.users[socket.id];
             }).catch(err => console.error(err)));
