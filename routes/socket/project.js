@@ -141,7 +141,7 @@ class SocketProject {
         return Task.updateContent(this.projectId, taskId, {title, body, costId})
             .then(updatedTask => {
                 this.emits(user, 'updateTaskContent', {task: updatedTask});
-                return this.notifyText(user, `updateTask: {task: ${updatedTask.title}`);
+                return this.notifyText(user, `updateTask: {task: ${updatedTask.title}}`);
             });
     }
 
