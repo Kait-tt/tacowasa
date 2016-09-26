@@ -75,7 +75,7 @@ const util = {
         const unwrappedArray = ko.unwrap(ary);
         const currentBeforeOf = pos + 1 < unwrappedArray.length ? unwrappedArray[pos + 1] : null;
 
-        if (currentBeforeOf && beforeOf) { return; }
+        if (currentBeforeOf === beforeOf) { return; }
         if (!currentBeforeOf && !beforeOf) { return; }
 
         // remove

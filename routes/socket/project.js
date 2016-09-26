@@ -181,6 +181,24 @@ class SocketProject {
             });
     }
 
+    updateTaskStatusAndOrder (user, {taskId, beforeTaskId, updateParams: {userId, stageId}}) {
+        const that = this;
+        return co(function* () {
+            const {task: updatedTask, beforeTask, updatedOrder} = yield Task.updateStatusAndOrder(that.projectId, taskId, beforeTaskId, {userId, stageId});
+            const assignedUser = userId && (yield Member.findByUserId(that.projectId, userId));
+            const assignedUsername = assignedUser && assignedUser.username;
+            const stage = yield Stage.findById(that.projectId, stageId);
+            const beforeTaskTitle = beforeTask ? beforeTask.title : null;
+            if (updatedOrder) {
+                that.emits(user, 'updateTaskStatusAndOrder', {task: updatedTask, beforeTask});
+                return yield that.notifyText(user, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}, before: ${beforeTaskTitle}`);
+            } else {
+                that.emits(user, 'updateTaskStatus', {task: updatedTask});
+                return yield that.notifyText(user, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}`);
+            }
+        });
+    }
+
     attachLabel (user, {taskId, labelId}) {
         return Label.attach(this.projectId, labelId, taskId)
             .then(({task, label}) => {
@@ -212,6 +230,7 @@ class SocketProject {
             'updateTaskWorkingState',
             'updateTaskWorkHistory',
             'updateTaskOrder',
+            'updateTaskStatusAndOrder',
             'attachLabel',
             'detachLabel'
         ];

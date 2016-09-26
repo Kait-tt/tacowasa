@@ -1,6 +1,7 @@
 'use strict';
 const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
+const _ = require('lodash');
 
 class Alert extends EventEmitter2 {
     constructor ({eventEmitterOptions = {}, maxAlertNum = 5, waitHideTime = 8000} = {}) {

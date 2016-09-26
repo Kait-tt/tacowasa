@@ -17,6 +17,10 @@ class TaskCardList extends EventEmitter2 {
         this.emit('updateTaskOrder', {task, beforeTask});
     }
 
+    updateTaskStatusAndOrder ({task, beforeTask, stage, user}) {
+        this.emit('updateTaskStatusAndOrder', {task, beforeTask, stage, user});
+    }
+
     register () {
         const taskCardList = this;
         const project = this.project;
@@ -36,6 +40,7 @@ class TaskCardList extends EventEmitter2 {
 
                     this.draggableTaskList.on('updatedStatus', taskCardList.updateTaskStatus.bind(taskCardList));
                     this.draggableTaskList.on('updatedOrder', taskCardList.updateTaskOrder.bind(taskCardList));
+                    this.draggableTaskList.on('updatedStatusAndOrder', taskCardList.updateTaskStatusAndOrder.bind(taskCardList));
 
                     this.isCollapse = ko.observable(true);
                     this.toggleCollapse = () => this.isCollapse(!this.isCollapse());

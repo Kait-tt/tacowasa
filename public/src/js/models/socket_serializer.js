@@ -93,6 +93,11 @@ class SocketSerializer {
         this.project.updateTaskOrder({id: task.id}, beforeTask && {id: beforeTask.id});
     }
 
+    onUpdateTaskStatusAndOrder ({task, beforeTask}) {
+        this.project.updateTaskStatus({id: task.id}, {id: task.stage.id}, task.user && {id: task.user.id});
+        this.project.updateTaskOrder({id: task.id}, beforeTask && {id: beforeTask.id});
+    }
+
     onAttachLabel ({task, label}) {
         this.project.attachLabel({id: task.id}, {id: label.id});
     }
@@ -123,6 +128,7 @@ class SocketSerializer {
             'updateTaskWorkingState',
             'updateTaskWorkHistory',
             'updateTaskOrder',
+            'updateTaskStatusAndOrder',
             'attachLabel',
             'detachLabel',
             'addLabel'

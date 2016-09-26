@@ -32,6 +32,7 @@ const instances = [];
  * @param {ko.observableArray} o.masterTasks   Master task list
  * @event updatedStatus(task, stage, user)
  * @event updatedOrder(task, beforeTask)
+ * @event updatedStatusAndOrder(task, beforeTask, stage, user)
  */
 class DraggableTaskList extends EventEmitter2 {
     constructor ({eventEmitterOptions = {}, masterTasks, stage, user}) {
@@ -162,15 +163,32 @@ class DraggableTaskList extends EventEmitter2 {
         instances
             .filter(taskList => taskList.isRelatedTask(task))
             .forEach(taskList => {
+                let updatedStatus = false;
+                let updatedOrder = false;
+                let beforeTask = null;
+
                 // stage, user の変更
                 if (!taskList.matchCondition({user: task.user(), stage: task.stage()})) {
-                    taskList.emit('updatedStatus', {task, stage: taskList.stage, user: taskList.user});
+                    updatedStatus = true;
                 }
 
-                // priority の変更
+                // order の変更
                 if (taskList.existsTask(task) && !taskList.needUpdatePriority(task, taskList.masterTasks, taskList.tasks)) {
-                    const beforeTask = taskList.getTaskInsertBeforeOf(task, taskList.masterTasks, taskList.tasks);
-                    taskList.emit('updatedOrder', {task, beforeTask});
+                    beforeTask = taskList.getTaskInsertBeforeOf(task, taskList.masterTasks, taskList.tasks);
+                    updatedOrder = true;
+                }
+
+                console.log(updatedStatus, updatedOrder);
+
+                if (updatedStatus && updatedOrder) {
+                    taskList.emit('updatedStatusAndOrder', {task, beforeTask, stage: taskList.stage, user: taskList.user});
+                } else {
+                    if (updatedStatus) {
+                        taskList.emit('updatedStatus', {task, stage: taskList.stage, user: taskList.user});
+                    }
+                    if (updatedOrder) {
+                        taskList.emit('updatedOrder', {task, beforeTask});
+                    }
                 }
             });
     }
