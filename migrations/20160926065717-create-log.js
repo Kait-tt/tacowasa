@@ -27,6 +27,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
+    },
+    {
+      engine: 'MYISAM',
     });
   },
   down: function(queryInterface, Sequelize) {

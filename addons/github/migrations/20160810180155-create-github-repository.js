@@ -39,6 +39,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
+    },
+    {
+      engine: process.env.NODE_ENV === 'test' ? 'MYISAM' : 'InnoDB',
     });
   },
   down: function(queryInterface, Sequelize) {
