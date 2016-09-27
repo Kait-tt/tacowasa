@@ -78,7 +78,7 @@ function githubRepositoryLinkBlockTemplate () {
 function githubLinkItemTemplate () {
     return `
 <!-- ko if: task.githubUrl -->
-<li class="mini-menu-item">
+<li class="mini-menu-item" data-bind="tooltip: {title: 'github link', placement: 'left'}">
     <a target="_blank" class="btn btn-sm btn-default" data-bind="attr: {href: task.githubUrl }">
         <span class="glyphicon glyphicon-link" aria-hidden="true"></span>
     </a>

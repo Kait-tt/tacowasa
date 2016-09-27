@@ -8,8 +8,8 @@ require('bootstrap-select');
 require('knockout');
 require('../modules/knockout/knockout-selectPicker');
 require('../modules/knockout/knockout-bootstrap-switch');
+require('../modules/knockout/knockout-bootstrap-tooltip');
 require('../../scss/kanban.scss');
-// TODO: require knockout-bootstrap
 // TODO: require and init markdown
 
 const global = window;
