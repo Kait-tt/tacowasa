@@ -18,7 +18,7 @@ class GitHubAddonRouter extends AddonRouter {
 
             const githubApi = new GitHubApi(req.user.token);
             githubApi.importProject({user: username, repo: reponame, createUsername: req.user.username})
-                .then(project => db.Log.create({projectId: project.id, action: 'importProjectFromGitHub', content: JSON.stringify({project: project})}))
+                .then(project => db.Log.create({projectId: project.id, action: 'importProjectFromGitHub', content: JSON.stringify({project: project})}).then(() => project))
                 .then(project => {
                     res.status(200).json({message: 'OK', project});
                 })
