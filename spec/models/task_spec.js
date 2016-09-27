@@ -1,11 +1,11 @@
 'use strict';
-const expect = require('chai').expect;
 const _ = require('lodash');
 const co = require('co');
 const helper = require('../helper');
 const db = require('../../lib/schemes');
 const Project = require('../../lib/models/project');
 const Task = require('../../lib/models/task');
+const expect = helper.expect;
 
 
 describe('models', () => {
@@ -18,7 +18,8 @@ describe('models', () => {
         before(() => Project.create('project1', usernames[0], {include: [
             {model: db.User, as: 'users'},
             {model: db.Stage, as: 'stages', separate: true},
-            {model: db.Cost, as: 'costs', separate: true}
+            {model: db.Cost, as: 'costs', separate: true},
+            {model: db.Label, as: 'labels'}
         ]}).then(x => { project = x; }));
         afterEach(() => db.Task.destroy({where: {}}));
 
@@ -46,7 +47,8 @@ describe('models', () => {
                     body: 'body1',
                     userId: project.users[0].id,
                     stageId: project.stages[2].id,
-                    costId: project.costs[1].id
+                    costId: project.costs[1].id,
+                    labelIds: project.labels.slice(0, 2).map(x => x.id)
                 }).then(x => { task = x; }));
 
                 it('project should have 2 tasks', () => expectTaskSize(project.id, 1));
@@ -56,7 +58,34 @@ describe('models', () => {
                     expect(task).to.have.property('userId', project.users[0].id);
                     expect(task).to.have.property('stageId', project.stages[2].id);
                     expect(task).to.have.property('costId', project.costs[1].id);
+                    expect(task.labels.map(x => x.id)).to.to.include.members(project.labels.slice(0, 2).map(x => x.id));
                 });
+            });
+
+            context('with not exists stage', () => {
+                it('should throw error', () => expect(Task.create(project.id, {title: taskTitles[0], body: 'body1', stageId: -1}))
+                    .to.be.rejectedWith(/stage was not found/));
+            });
+
+            context('with assigned stage and null user', () => {
+                let stageId;
+                let userId = null;
+                beforeEach(() => { stageId = project.stages.find(x => x.assigned).id; });
+
+                it('should throw error', () => expect(Task.create(project.id, {title: taskTitles[0], body: 'body1', stageId, userId}))
+                    .to.be.rejectedWith(/no assignment is invalid/));
+            });
+
+            context('with not assigned stage and user', () => {
+                let stageId;
+                let userId = null;
+                beforeEach(() => {
+                    stageId = project.stages.find(x => !x.assigned).id;
+                    userId = project.users[0].id;
+                });
+
+                it('should throw error', () => expect(Task.create(project.id, {title: taskTitles[0], body: 'body1', stageId, userId}))
+                    .to.be.rejectedWith(/assignment is invalid/));
             });
         });
 
@@ -85,6 +114,13 @@ describe('models', () => {
                         }
                     });
                 }));
+
+                context('not exists archive stage', () => {
+                    beforeEach(() => db.Stage.destroy({where: project.stages.find(x => x.name === 'archive')}));
+
+                    it('should throw error', () =>
+                        expect(Task.archive(project.id, tasks[1].id)).to.be.rejectedWith(/archive/));
+                });
             });
 
             describe('#updateContent', () => {
@@ -112,6 +148,24 @@ describe('models', () => {
                     expect(task).to.have.property('stageId', project.stages[1].id);
                     expect(task).to.have.property('userId', null);
                 }));
+
+                context('given not exists task', () => {
+                    it('should throw error', () =>
+                        expect(Task.updateStatus(project.id, -1, {userId: null, stageId: project.stages[1].id}))
+                            .to.be.rejectedWith(/task was not found/));
+                });
+
+                context('given working task', () => {
+                    let taskId;
+                    beforeEach(() => {
+                        taskId = tasks[1].id;
+                        return db.Task.update({isWorking: true}, {where: {id: taskId}});
+                    });
+
+                    it('should throw error', () =>
+                        expect(Task.updateStatus(project.id, taskId, {userId: null, stageId: project.stages[1].id}))
+                            .to.be.rejectedWith(/working task/));
+                });
             });
 
             describe('#updateWorkingState', () => {
@@ -150,38 +204,71 @@ describe('models', () => {
                         });
                     });
                 });
+
+                context('on cannot work stage', () => {
+                    let taskId;
+                    beforeEach(() => {
+                        taskId = tasks[1].id;
+                        const stage = project.stages.find(x => !x.canWork);
+                        return db.Task.update({stageId: stage.id}, {where: {id: taskId}});
+                    });
+
+                    it('should throw error', () => expect(Task.updateWorkingState(project.id, taskId, true))
+                        .to.be.rejectedWith(/on cannot work/));
+                });
+
+                context('not exists work and stop work', () => {
+                    let taskId;
+                    beforeEach(() => {
+                        taskId = tasks[1].id;
+                        return Task.updateStatus(project.id, taskId, {
+                            userId: project.users[0].id,
+                            stageId: _.find(project.stages, {canWork: true}).id
+                        });
+                    });
+
+                    it('should throw error', () => expect(Task.updateWorkingState(project.id, taskId, false))
+                        .to.be.rejectedWith(/work was not found/));
+                });
             });
 
             describe('#updateWorkHistory', () => {
                 let task;
                 let works;
 
-                beforeEach(() => co(function* () {
-                    let taskId = tasks[1].id;
-                    let userId = project.users[0].id;
-                    works = [
-                        {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId},
-                        {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId},
-                        {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId}
-                    ];
-                    yield Task.updateWorkHistory(project.id, taskId, works);
-                    task = yield Task.findById(taskId);
-                }));
-
-                it('should replace to the works', () => {
-                    expect(task.works).to.lengthOf(3);
-                });
-
-                context('and do one', () => {
+                context('with valid params', () => {
                     beforeEach(() => co(function* () {
-                        works.splice(1, 1); // length of works is 2
-                        yield Task.updateWorkHistory(project.id, task.id, works);
-                        task = yield Task.findById(task.id);
+                        let taskId = tasks[1].id;
+                        let userId = project.users[0].id;
+                        works = [
+                            {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId},
+                            {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId},
+                            {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId}
+                        ];
+                        yield Task.updateWorkHistory(project.id, taskId, works);
+                        task = yield Task.findById(taskId);
                     }));
 
-                    it('should replace to the new works', () => {
-                        expect(task.works).to.lengthOf(2);
+                    it('should replace to the works', () => {
+                        expect(task.works).to.lengthOf(3);
                     });
+
+                    context('and do one', () => {
+                        beforeEach(() => co(function* () {
+                            works.splice(1, 1); // length of works is 2
+                            yield Task.updateWorkHistory(project.id, task.id, works);
+                            task = yield Task.findById(task.id);
+                        }));
+
+                        it('should replace to the new works', () => {
+                            expect(task.works).to.lengthOf(2);
+                        });
+                    });
+                });
+
+                context('with invalid params', () => {
+                    it('should throw error', () => expect(Task.updateWorkHistory(project.id, tasks[1].id, [{}]))
+                        .to.be.rejectedWith(/invalid parameter/));
                 });
             });
 
@@ -211,13 +298,7 @@ describe('models', () => {
                                 yield Task.updateOrder(project.id, target, before);
                             }));
 
-                            it('should be ordered', () => Task.getAllSorted(project.id).then(tasks => {
-                                tasks.forEach(({id, prevTaskId, nextTaskId}, idx) => {
-                                    expect(id).to.equal(ids[idx]);
-                                    expect(prevTaskId).to.equal(idx ? ids[idx - 1] : null);
-                                    expect(nextTaskId).to.equal(idx + 1 < 5 ? ids[idx + 1] : null);
-                                });
-                            }));
+                            it('should be ordered', () => expectOrder(project.id, ids));
                         });
                     });
                     context(`update position from ${from} to last`, () => {
@@ -229,15 +310,43 @@ describe('models', () => {
                             yield Task.updateOrder(project.id, target, null);
                         }));
 
-                        it('should ordered', () => Task.getAllSorted(project.id).then(tasks => {
-                            tasks.forEach(({id, prevTaskId, nextTaskId}, idx) => {
-                                expect(id).to.equal(ids[idx]);
-                                expect(prevTaskId).to.equal(idx ? ids[idx - 1] : null);
-                                expect(nextTaskId).to.equal(idx + 1 < 5 ? ids[idx + 1] : null);
-                            });
-                        }));
+                        it('should be ordered', () => expectOrder(project.id, ids));
                     });
                 });
+
+                context('with taskId equals beforeTaskId', () => {
+                    it('should throw error', () => expect(Task.updateOrder(project.id, tasks[1].id, tasks[1].id))
+                        .to.be.rejectedWith(/should not equals before/));
+                });
+
+                context('with not exists taskId', () => {
+                    it('should throw error', () => expect(Task.updateOrder(project.id, -1, tasks[1].id))
+                        .to.be.rejectedWith(/was not found/));
+                });
+
+                context('with not exists beforeTaskId', () => {
+                    it('should throw error', () => expect(Task.updateOrder(project.id, tasks[1].id, -1))
+                        .to.be.rejectedWith(/was not found/));
+                });
+            });
+
+            describe('#updateStatusAndOrder', () => {
+                let ids, target, before;
+                beforeEach(co.wrap(function* () {
+                    ids = _.map(yield Task.getAllSorted(project.id), 'id');
+                    target = ids[1];
+                    before = ids[2];
+                    ids.splice(1, 1);
+                    ids.splice(ids.indexOf(before), 0, target);
+                    yield Task.updateStatusAndOrder(project.id, target, before, {userId: null, stageId: project.stages[1].id});
+                }));
+
+                it('should be updated', () => Task.findById(target).then(task => {
+                    expect(task).to.have.property('stageId', project.stages[1].id);
+                    expect(task).to.have.property('userId', null);
+                }));
+
+                it('should be ordered', () => expectOrder(project.id, ids));
             });
         });
     });
@@ -246,5 +355,15 @@ describe('models', () => {
 function expectTaskSize (projectId, n) {
     return db.Project.findById(projectId, {include: [db.Task]}).then(p => {
         expect(p.tasks).to.lengthOf(n);
+    });
+}
+
+function expectOrder (projectId, ids) {
+    return Task.getAllSorted(projectId).then(tasks => {
+        tasks.forEach(({id, prevTaskId, nextTaskId}, idx) => {
+            expect(id).to.equal(ids[idx]);
+            expect(prevTaskId).to.equal(idx ? ids[idx - 1] : null);
+            expect(nextTaskId).to.equal(idx + 1 < 5 ? ids[idx + 1] : null);
+        });
     });
 }

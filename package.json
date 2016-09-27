@@ -45,6 +45,7 @@
     "bootstrap": "^3.3.7",
     "bootstrap-sass": "^3.3.7",
     "bootstrap-select": "^1.11.0",
+    "chai-as-promised": "^5.3.0",
     "co": "^4.6.0",
     "config": "^1.21.0",
     "connect-mysql": "^2.1.1",
