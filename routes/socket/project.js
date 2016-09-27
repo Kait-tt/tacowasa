@@ -87,40 +87,40 @@ class SocketProject {
     addUser (user, {username}) {
         const that = this;
         return co(function* () {
-            const addedUser = yield Member.add(this.projectId, username);
+            const addedUser = yield Member.add(that.projectId, username);
             yield that.logging(user.username, 'addUser', {user: addedUser});
-            this.emits(user, 'addUser', {username, user: addedUser});
-            return yield this.notifyText(user, `added user: "${username}"`);
+            that.emits(user, 'addUser', {username, user: addedUser});
+            return yield that.notifyText(user, `added user: "${username}"`);
         });
     }
 
     removeUser (user, {username}) {
         const that = this;
         return co(function* () {
-            const removedUser = yield Member.remove(this.projectId, username);
+            const removedUser = yield Member.remove(that.projectId, username);
             yield that.logging(user.username, 'removeUser', {user: removedUser});
-            this.emits(user, 'removeUser', {username});
-            return this.notifyText(user, `removed user: "${username}"`);
+            that.emits(user, 'removeUser', {username});
+            return that.notifyText(user, `removed user: "${username}"`);
         });
     }
 
     updateUser (user, {username, updateParams}) {
         const that = this;
         return co(function* () {
-            const updatedUser = yield Member.update(this.projectId, username, updateParams);
+            const updatedUser = yield Member.update(that.projectId, username, updateParams);
             yield that.logging(user.username, '', {user: updatedUser});
-            this.emits(user, 'updateUser', {username, user: updatedUser});
-            return yield this.notifyText(user, `updated user: "${username}"`);
+            that.emits(user, 'updateUser', {username, user: updatedUser});
+            return yield that.notifyText(user, `updated user: "${username}"`);
         });
     }
 
     updateUserOrder (user, {username, beforeUsername}) {
         const that = this;
         return co(function* () {
-            const res = yield Member.updateOrder(this.projectId, username, beforeUsername);
+            const res = yield Member.updateOrder(that.projectId, username, beforeUsername);
             yield that.logging(user.username, 'updateUserOrder', res);
-            this.emits(user, 'updateUserOrder', {username, beforeUsername});
-            return this.notifyText(user, `update user order: insert ${username} before ${beforeUsername}`);
+            that.emits(user, 'updateUserOrder', {username, beforeUsername});
+            return that.notifyText(user, `update user order: insert ${username} before ${beforeUsername}`);
         });
     }
 
@@ -137,10 +137,10 @@ class SocketProject {
     archiveTask (user, {taskId}) {
         const that = this;
         return co(function* () {
-            const archivedTask = yield Task.archive(this.projectId, taskId);
+            const archivedTask = yield Task.archive(that.projectId, taskId);
             yield that.logging(user.username, 'archiveTask', {task: archivedTask});
-            this.emits(user, 'archiveTask', {task: archivedTask});
-            return yield this.notifyText(user, `archived task: ${archivedTask.title}`);
+            that.emits(user, 'archiveTask', {task: archivedTask});
+            return yield that.notifyText(user, `archived task: ${archivedTask.title}`);
         });
     }
 
@@ -160,41 +160,41 @@ class SocketProject {
     updateTaskContent (user, {taskId, updateParams: {title, body, costId}}) {
         const that = this;
         return co(function* () {
-            const updatedTask = yield Task.updateContent(this.projectId, taskId, {title, body, costId});
+            const updatedTask = yield Task.updateContent(that.projectId, taskId, {title, body, costId});
             yield that.logging(user.username, 'updateTaskContent', {task: updatedTask});
-            this.emits(user, 'updateTaskContent', {task: updatedTask});
-            return yield this.notifyText(user, `updateTask: {task: ${updatedTask.title}}`);
+            that.emits(user, 'updateTaskContent', {task: updatedTask});
+            return yield that.notifyText(user, `updateTask: {task: ${updatedTask.title}}`);
         });
     }
 
     updateTaskWorkingState (user, {taskId, isWorking}) {
         const that = this;
         return co(function* () {
-            const task = yield Task.updateWorkingState(this.projectId, taskId, isWorking);
+            const task = yield Task.updateWorkingState(that.projectId, taskId, isWorking);
             yield that.logging(user.username, '', {task});
-            this.emits(user, 'updateTaskWorkingState', {task, isWorking});
-            return yield this.notifyText(user, `${isWorking ? 'start' : 'stop'} to work: ${task.title}`);
+            that.emits(user, 'updateTaskWorkingState', {task, isWorking});
+            return yield that.notifyText(user, `${isWorking ? 'start' : 'stop'} to work: ${task.title}`);
         });
     }
 
     updateTaskWorkHistory (user, {taskId, works}) {
         const that = this;
         return co(function* () {
-            const task = yield Task.updateWorkHistory(this.projectId, taskId, works);
+            const task = yield Task.updateWorkHistory(that.projectId, taskId, works);
             yield that.logging(user.username, '', {});
-            this.emits(user, 'updateTaskWorkHistory', {task, works: task.works});
-            return yield this.notifyText(user, `updated work history: ${task.title}`);
+            that.emits(user, 'updateTaskWorkHistory', {task, works: task.works});
+            return yield that.notifyText(user, `updated work history: ${task.title}`);
         });
     }
 
     updateTaskOrder (user, {taskId, beforeTaskId}) {
         const that = this;
         return co(function* () {
-            const {task, beforeTask, updated} = yield Task.updateOrder(this.projectId, taskId, beforeTaskId);
+            const {task, beforeTask, updated} = yield Task.updateOrder(that.projectId, taskId, beforeTaskId);
             if (!updated) { return Promise.resolve(); }
             yield that.logging(user.username, '', {});
-            this.emits(user, 'updateTaskOrder', {task, beforeTask});
-            return yield this.notifyText(user, `update task order: insert ${task.title} before ${beforeTask ? beforeTask.title : null}`);
+            that.emits(user, 'updateTaskOrder', {task, beforeTask});
+            return yield that.notifyText(user, `update task order: insert ${task.title} before ${beforeTask ? beforeTask.title : null}`);
         });
     }
 
@@ -221,20 +221,20 @@ class SocketProject {
     attachLabel (user, {taskId, labelId}) {
         const that = this;
         return co(function* () {
-            const {task, label} = yield Label.attach(this.projectId, labelId, taskId);
+            const {task, label} = yield Label.attach(that.projectId, labelId, taskId);
             yield that.logging(user.username, 'attachLabel', {task, label});
-            this.emits(user, 'attachLabel', {task, label});
-            return yield this.notifyText(user, `attached label: {label: ${label.name}, task: ${task.name}}`);
+            that.emits(user, 'attachLabel', {task, label});
+            return yield that.notifyText(user, `attached label: {label: ${label.name}, task: ${task.name}}`);
         });
     }
 
     detachLabel (user, {taskId, labelId}) {
         const that = this;
         return co(function* () {
-            const {task, label} = yield Label.detach(this.projectId, labelId, taskId);
+            const {task, label} = yield Label.detach(that.projectId, labelId, taskId);
             yield that.logging(user.username, 'detachLabel', {task, label});
-            this.emits(user, 'detachLabel', {task, label});
-            return yield this.notifyText(user, `detached label: {label: ${label.name}, task: ${task.name}}`);
+            that.emits(user, 'detachLabel', {task, label});
+            return yield that.notifyText(user, `detached label: {label: ${label.name}, task: ${task.name}}`);
         });
     }
 
