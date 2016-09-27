@@ -2,24 +2,6 @@
 'use strict';
 const ko = require('knockout');
 
-
-// Outer HTML
-if (!$.fn.outerHtml) {
-    $.fn.outerHtml = function () {
-        if (this.length === 0) {
-            return false;
-        }
-        var elem = this[0], name = elem.tagName.toLowerCase();
-        if (elem.outerHTML) {
-            return elem.outerHTML;
-        }
-        var attrs = $.map(elem.attributes, function (i) {
-            return i.name + '="' + i.value + '"';
-        });
-        return "<" + name + (attrs.length > 0 ? " " + attrs.join(" ") : "") + ">" + elem.innerHTML + "</" + name + ">";
-    };
-}
-
 ko.bindingHandlers.tooltip = {
     init: (element, valueAccessor) => {
         const local = ko.utils.unwrapObservable(valueAccessor());
