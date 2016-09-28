@@ -55,8 +55,7 @@ const routes = {
     auth: require('./routes/auth')(passport),
     user: require('./routes/user'),
     project: require('./routes/project'),
-    api: require('./routes/api'),
-    github: require('./routes/github')
+    api: require('./routes/api')
 };
 
 app.use('/', routes.index);

@@ -7,6 +7,7 @@ describe('routes', () => {
         it('should return 200 OK', () => {
             return request
                 .get('/')
+                .expect('Content-Type', 'text/html; charset=utf-8')
                 .expect(200);
         });
     });
