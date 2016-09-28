@@ -8,12 +8,13 @@ const hooks = require('./hook');
 class GitHubAddonRouter extends AddonRouter {
     static initRouter (router) {
         router.post('/api/projects', (req, res) => {
+            if (!req.user || !req.user.token) {
+                return res.status(401).json({message: 'require authorization'});
+            }
+
             const {username, reponame} = req.body;
             if (!username || !reponame) {
                 return res.status(400).json({message: 'require username and reponame.'});
-            }
-            if (!req.user || !req.user.token) {
-                return res.status(501).json({message: 'require login and token'});
             }
 
             const githubApi = new GitHubApi(req.user.token);

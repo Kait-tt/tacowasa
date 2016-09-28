@@ -3,7 +3,7 @@
 class AddonSocketEmit {
     // called just before raised several project emit events
     // params are {projectId, user, params, socketProject}
-    
+
     // static joinRoom (params) { return Promise.resolve(params); }
     // static leaveRoom (params) { return Promise.resolve(params); }
     // static addUser (params) { return Promise.resolve(params); }

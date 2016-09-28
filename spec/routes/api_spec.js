@@ -141,6 +141,7 @@ describe('routes', () => {
                     it('should archive the project', () => request.post(url)
                         .send({projectName: 'testProject'})
                         .expect(200)
+                        .expect('Content-Type', /json/)
                         .expect(res => {
                             expect(res.body.project.name).to.eq('testProject');
                         }));
