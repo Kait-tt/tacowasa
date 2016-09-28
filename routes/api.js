@@ -26,8 +26,8 @@ router.get('/projects/:projectId', (req, res, next) => {
             return res.status(403).json({message: 'you are not the project\'s member'});
         }
         // TODO: update user avatar
-        const addonRes = yield addon.callAddons('API', 'archiveProject', {res, req, project});
-        yield db.Log.create({projectId: project.id, action: 'archiveProject'});
+        const addonRes = yield addon.callAddons('API', 'getProject', {res, req, project});
+        yield db.Log.create({projectId: project.id, action: 'getProject'});
         project = addonRes.project;
         res.status(200).json({message: 'OK', project});
     }).catch(err => serverError(res, err));
