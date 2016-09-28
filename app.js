@@ -62,7 +62,7 @@ app.use('/', routes.index);
 app.use('/auth', routes.auth);
 app.use('/api', routes.api);
 app.use('/users', routes.auth.ensureAuthenticated, routes.user);
-app.use('/users/:user/projects', routes.auth.ensureAuthenticated, routes.project);
+app.use('/users', routes.auth.ensureAuthenticated, routes.project);
 
 addon.callAddons('Router', 'setRouter', {app}, {sync: true});
 

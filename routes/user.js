@@ -27,13 +27,10 @@ router.get('/:username/avatar', function (req, res, next) {
             if (path) {
                 res.sendFile(path.file, {root: path.dir});
             } else {
-                res.status(404).end(`${username}'s avatar was not found.`);
+                next();
             }
         })
-        .catch(err => {
-            console.error(err);
-            next(err);
-        });
+        .catch(err => next(err));
 });
 
 module.exports = router;
