@@ -11,7 +11,7 @@ describe('routes', () => {
         before(() => passportStub.install(app));
         after(() => passportStub.uninstall(app));
 
-        describe('GET /me', () => {
+        describe('GET /users//me', () => {
             let url = '/users/me';
             context('not authorized', () => {
                 it('should return 302 and redirect to /', () => {
@@ -35,7 +35,7 @@ describe('routes', () => {
             });
         });
 
-        describe('GET /:username/avatar', () => {
+        describe('GET /users//:username/avatar', () => {
             let url = `/users/${stubUser.username}/avatar`;
             context('not authorized', () => {
                 it('should return 302 and redirect to /', () => {

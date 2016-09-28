@@ -60,9 +60,12 @@ const routes = {
 
 app.use('/', routes.index);
 app.use('/auth', routes.auth);
-app.use('/api', routes.api);
 app.use('/users', routes.auth.ensureAuthenticated, routes.user);
 app.use('/users', routes.auth.ensureAuthenticated, routes.project);
+app.use('/api', routes.auth.ensureAuthenticatedApi, routes.api);
+app.use('/api', (req, res) => {
+    res.status(404).json({message: 'Not found'});
+});
 
 addon.callAddons('Router', 'setRouter', {app}, {sync: true});
 

@@ -20,7 +20,7 @@ describe('routes', () => {
             return helper.db.clean();
         });
 
-        describe('GET /:projectId/:projectName', () => {
+        describe('GET /users/:username/projects/:projectId/:projectName', () => {
             let url = _.template('/users/{{username}}/projects/{{projectId}}/{{projectName}}');
             let validUrlParams = () => ({username: stubUser.username, projectId: project.id, projectName: project.name});
 

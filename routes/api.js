@@ -15,27 +15,49 @@ router.get('/projects', (req, res) => {
 });
 
 // Get a Project
-router.get('/projects/:projectId', (req, res) => {
-    Project.findOne({where: {id: req.params.projectId}})
-        .then(project => addon.callAddons('API', 'getProject', {res, req, project}))
-        .then(({project}) => {
-            // TODO: update user avatar
-            res.status(200).json({message: 'OK', project});
-        })
-        .catch(err => serverError(res, err));
+router.get('/projects/:projectId', (req, res, next) => {
+    const username = req.user.username;
+    co(function* () {
+        let project = yield Project.findOne({where: {id: req.params.projectId}});
+        if (!project) {
+            return next();
+        }
+        if (!project.users.find(x => x.username === username)) {
+            return res.status(403).json({message: 'you are not the project\'s member'});
+        }
+        // TODO: update user avatar
+        const addonRes = yield addon.callAddons('API', 'archiveProject', {res, req, project});
+        yield db.Log.create({projectId: project.id, action: 'archiveProject'});
+        project = addonRes.project;
+        res.status(200).json({message: 'OK', project});
+    }).catch(err => serverError(res, err));
 });
 
 // Archive a Project
-router.delete('/projects/:projectId', (req, res) => {
-    Project.archive(req.params.projectId)
-        .then(project => addon.callAddons('API', 'archiveProject', {res, req, project}))
-        .then(({project}) => db.Log.create({projectId: project.id, action: 'archiveProject'}))
-        .then(() => res.status(200).json({message: 'OK'}))
-        .catch(err => serverError(res, err));
+router.delete('/projects/:projectId', (req, res, next) => {
+    const username = req.user.username;
+    co(function* () {
+        let project = yield Project.findOne({where: {id: req.params.projectId}});
+        if (!project) {
+            return next();
+        }
+        if (!project.users.find(x => x.username === username)) {
+            return res.status(403).json({message: 'you are not the project\'s member'});
+        }
+        project = yield Project.archive(req.params.projectId);
+        const addonRes = yield addon.callAddons('API', 'archiveProject', {res, req, project});
+        yield db.Log.create({projectId: project.id, action: 'archiveProject'});
+        project = addonRes.project;
+        res.status(200).json({message: 'OK', project});
+    }).catch(err => serverError(res, err));
 });
 
 // Create a project
 router.post('/projects', (req, res) => {
+    if (!req.body.projectName) {
+        return res.status(400).json({message: 'require projectName'});
+    }
+
     co(function* () {
         let project = yield Project.create(req.body.projectName, req.user.username);
         const addonRes = yield addon.callAddons('API', 'createProject', {res, req, project});
@@ -46,8 +68,8 @@ router.post('/projects', (req, res) => {
 });
 
 function serverError (res, err) {
-    res.status(500).json({message: 'server error.', error: err.message});
     console.error(err);
+    res.status(500).json({message: 'server error.', error: err.message});
 }
 
 module.exports = router;
