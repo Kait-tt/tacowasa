@@ -10,11 +10,11 @@ const GitHubAPI = require('../../models/github_api');
 describe('addons', () => {
     describe('github', () => {
         describe('router', () => {
-            let stubUser = {username: 'stub-username', token: 'stub-token'};
-            before(() => passportStub.install(app));
-            after(() => passportStub.uninstall(app));
-
             describe('api', () => {
+                let stubUser = {username: 'stub-username', token: 'stub-token'};
+                before(() => passportStub.install(app));
+                after(() => passportStub.uninstall(app));
+
                 describe('POST /github/api/projects', () => {
                     let url = '/github/api/projects';
                     context('not authorized', () => {
