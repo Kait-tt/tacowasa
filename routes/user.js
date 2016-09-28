@@ -1,9 +1,7 @@
-const Promise = require('bluebird');
-const fs = Promise.promisifyAll(require('fs'));
-const _ = require('lodash');
-const co = require('co');
+'use strict';
 const express = require('express');
 const router = express.Router();
+const User = require('../lib/models/user');
 
 // My Page
 router.get('/me', function (req, res) {
@@ -21,24 +19,20 @@ router.get('/me', function (req, res) {
     });
 });
 
-router.get('/:username/avatar', function (req, res) {
-    const dir = `${__dirname}/../public/images/avatar/`;
+router.get('/:username/avatar', function (req, res, next) {
     const {username} = req.params;
 
-    co(function* () {
-        const files = yield fs.readdirAsync(dir);
-        for (let file of files) {
-            if (!_.startsWith(file, `${username}.`)) { continue; }
-            const stat = yield fs.statAsync(dir + file);
-            if (stat.isFile()) {
-                return file;
+    User.avatarFilePath(username)
+        .then(path => {
+            if (path) {
+                res.sendFile(path.file, {root: path.dir});
+            } else {
+                res.status(404).end(`${username}'s avatar was not found.`);
             }
-        }
-        throw new Error(`${username}'s avatar was not found.`);
-    })
-        .then(file => res.sendFile(file, {root: dir}))
-        .catch(e => {
-            res.status(404).end(e.message);
+        })
+        .catch(err => {
+            console.error(err);
+            next(err);
         });
 });
 
