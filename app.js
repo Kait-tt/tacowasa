@@ -50,22 +50,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // routing
-const routes = {
-    index: require('./routes/index'),
-    auth: require('./routes/auth')(passport),
-    user: require('./routes/user'),
-    project: require('./routes/project'),
-    api: require('./routes/api')
-};
-
-app.use('/', routes.index);
-app.use('/auth', routes.auth);
-app.use('/users', routes.auth.ensureAuthenticated, routes.user);
-app.use('/users', routes.auth.ensureAuthenticated, routes.project);
-app.use('/api', routes.auth.ensureAuthenticatedApi, routes.api);
-app.use('/api', (req, res) => {
-    res.status(404).json({message: 'Not found'});
-});
+const Router = require('./router');
+const router = new Router(passport);
+app.use('/', router);
 
 addon.callAddons('Router', 'setRouter', {app}, {sync: true});
 
