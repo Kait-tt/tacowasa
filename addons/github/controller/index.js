@@ -1,8 +1,8 @@
 'use strict';
 const co = require('co');
-const GitHubApi = require('./models/github_api');
-const db = require('./schemas');
-const hooks = require('./hook');
+const GitHubApi = require('../models/github_api');
+const db = require('../schemas');
+const Hook = require('./hook');
 
 class GitHubAddonController {
     static importProject (req, res) {
@@ -39,7 +39,7 @@ class GitHubAddonController {
                 return;
             }
 
-            const hook = hooks[eventName] && hooks[eventName][action];
+            const hook = Hook.getHook(eventName, action);
 
             if (!hook) {
                 res.status(400).json({message: 'specified event or action is not supported'});

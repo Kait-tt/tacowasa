@@ -1,5 +1,5 @@
 'use strict';
 
 module.exports = {
-    github: require('../../../../addons/github/public')
+    github: require('../../../../addons/controller/public')
 };
