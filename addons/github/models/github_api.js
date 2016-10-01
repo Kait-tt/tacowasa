@@ -235,7 +235,7 @@ class GitHubAPI {
             }
 
             const projectLabels = yield db.Label.findAll({where: {projectId}, transaction});
-            const labels = task.labels.map(({name}) => _.find(projectLabels, {name}));
+            const labels = _.compact(task.labels.map(({name}) => _.find(projectLabels, {name})));
 
             return {
                 title: task.title || '',

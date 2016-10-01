@@ -7,7 +7,7 @@ const Task = require('../../../../lib/models/task');
 
 class GitHubAddonIssueHook {
     static get actionNames () {
-        return ['opened', 'eopened', 'closed', 'edited', 'assigned', 'unassigned', 'labeled', 'unlabeled'];
+        return ['opened', 'reopened', 'closed', 'edited', 'assigned', 'unassigned', 'labeled', 'unlabeled'];
     }
 
     static get actions () {
@@ -48,7 +48,7 @@ class GitHubAddonIssueHook {
                 let userId;
                 if (assigned) {
                     stage = _.find(stages, {name: 'todo'}) || stages[0];
-                    const user = (yield db.User.findOrCreate({where: {username: taskOnGitHub.assignee}, transaction}))[0];
+                    const user = (yield db.User.findOrCreate({where: {username: taskOnGitHub.assignee.login}, transaction}))[0];
                     userId = user.id;
                 } else {
                     stage = _.find(stages, {name: 'issue'}) || stages[0];
@@ -271,15 +271,19 @@ class GitHubAddonIssueHook {
     static emits (projectId, name, notifyText, taskId, {transaction, moreParams = {}} = {}) {
         return Task.findById(taskId, {transaction})
             .then(task => {
-                const SocketRouter = require('../../../../routes/socket');
                 const user = {isGitHub: true, username: 'github'};
-                const socket = SocketRouter.instance;
-                const socketProject = socket && socket.projects[projectId];
+                const socketProject = GitHubAddonIssueHook.socketProject(projectId);
                 if (socketProject) {
                     socketProject.emits(user, name, _.assign(moreParams, {task}));
                     socketProject.notifyText(user, notifyText).catch(err => console.error(err));
                 }
             });
+    }
+
+    static socketProject (projectId) {
+        const SocketRouter = require('../../../../routes/socket');
+        const socket = SocketRouter.instance;
+        return (socket && socket.projects[projectId]) || null;
     }
 }
 
