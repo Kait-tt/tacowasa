@@ -1,0 +1,4 @@
+instrumentation:
+  extension: .js
+  include-all-sources: true
+  excludes: ['**/migrations/**', 'public/dist/**', 'config/**']
