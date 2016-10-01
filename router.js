@@ -27,7 +27,7 @@ class Router extends express.Router {
         this.get('/api/projects/:projectId', Controller.Api.getProject);
         this.delete('/api/projects/:projectId', Controller.Api.deleteProject);
 
-        addon.callAddons('Router', 'setRouter', {app: this}, {sync: true});
+        addon.callAddons('Router', 'setRouter', {parentRouter: this}, {sync: true});
 
         this.all('/api/*', Controller.Api.notFound);
         this.all('*', Controller.Index.notFound);

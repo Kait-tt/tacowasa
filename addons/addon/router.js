@@ -1,16 +1,10 @@
 'use strict';
 const express = require('express');
 
-class AddonRouter {
-    static setRouter ({app}) {
-        const router = express.Router();
-        this.initRouter(router);
-        app.use(this.root, router);
-        return {app};
-    }
-
-    static initRouter (router) {
-        // router.get('/path', (req, res) => { ... })
+class AddonRouter extends express.Router {
+    static setRouter ({parentRouter, routerOptions}) {
+        parentRouter.use(this.root, new this(routerOptions));
+        return {parentRouter};
     }
 
     static get root () {
