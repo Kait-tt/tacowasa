@@ -11,9 +11,9 @@
     "lint:all": "eslint . --ext .js",
     "migrate": "sequelize db:migrate && sequelize db:migrate --migrations-path addons/github/migrations",
     "migrate:test": "cross-env NODE_ENV=test sequelize db:migrate && cross-env NODE_ENV=test sequelize db:migrate --migrations-path addons/github/migrations",
-    "test": "cross-env NODE_ENV=test mocha --reporter spec --timeout 10000",
-    "test:all": "cross-env NODE_ENV=test npm run test --recursive spec/schemes/ spec/models/ spec/routes/ addons/github/spec/schemas",
-    "test:cover": "cross-env NODE_ENV=test istanbul cover node_modules/mocha/bin/_mocha -- -u exports --timeout 10000 --recursive spec/schemes/ spec/models/ spec/routes/ addons/github/spec/schemas",
+    "test": "cross-env NODE_ENV=test mocha --reporter spec",
+    "test:all": "cross-env NODE_ENV=test mocha --opts mocha.all.opts",
+    "test:cover": "cross-env NODE_ENV=test istanbul cover node_modules/mocha/bin/_mocha -- -u exports --opts mocha.all.opts",
     "coveralls": "cross-env NODE_ENV=test cat ./coverage/lcov.info | coveralls",
     "component:create": "bash ./scripts/create_component.sh"
   },
