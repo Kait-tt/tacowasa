@@ -7,7 +7,6 @@ const passport = require('passport');
 const GitHubStrategy = require('passport-github').Strategy;
 const config = require('config');
 const sessionMiddleware = require('./lib/modules/sessionMiddleware');
-const addon = require('./addons');
 
 const app = express();
 
@@ -53,45 +52,6 @@ app.use(passport.session());
 const Router = require('./router');
 const router = new Router(passport);
 app.use('/', router);
-
-addon.callAddons('Router', 'setRouter', {app}, {sync: true});
-
-// catch 404 and forward to error handler
-app.use((req, res, next) => {
-    const err = new Error('Not Found');
-    err.status = 404;
-    next(err);
-});
-
-// error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-    app.use((err, req, res, next) => {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
-        if (err && err.status % 100 === 5) {
-            console.error(err);
-        }
-    });
-}
-
-// production error handler
-// no stacktraces leaked to user
-app.use((err, req, res, next) => {
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
-    if (err && err.status % 100 === 5) {
-        console.error(err);
-    }
-});
 
 
 module.exports = app;

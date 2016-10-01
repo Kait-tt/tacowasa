@@ -1,6 +1,7 @@
 'use strict';
 const express = require('express');
 const Controller = require('./lib/controllers/');
+const addon = require('./addons');
 
 class Router extends express.Router {
     constructor (passport, options) {
@@ -25,7 +26,12 @@ class Router extends express.Router {
         this.post('/api/projects', Controller.Api.createProject);
         this.get('/api/projects/:projectId', Controller.Api.getProject);
         this.delete('/api/projects/:projectId', Controller.Api.deleteProject);
+
+        addon.callAddons('Router', 'setRouter', {app: this}, {sync: true});
+
         this.all('/api/*', Controller.Api.notFound);
+        this.all('*', Controller.Index.notFound);
+        this.use(Controller.Index.internalServerError);
     }
 }
 
