@@ -3,3 +3,4 @@ migrations/
 dist/
 public/src/components/task_card_list/knockout-sortable.js
 coverage/
+spec/helper/nightmare_preload.js

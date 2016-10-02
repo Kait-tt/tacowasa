@@ -13,9 +13,28 @@
     "migrate:test": "cross-env NODE_ENV=test sequelize db:migrate && cross-env NODE_ENV=test sequelize db:migrate --migrations-path addons/github/migrations",
     "test": "cross-env NODE_ENV=test mocha --reporter spec",
     "test:all": "cross-env NODE_ENV=test mocha --opts mocha.all.opts",
-    "test:cover": "cross-env NODE_ENV=test istanbul cover node_modules/mocha/bin/_mocha -- -u exports --opts mocha.all.opts",
+    "test:nyc": "cross-env NODE_ENV=test BABEL_ENV=test nyc npm run test:all",
     "coveralls": "cross-env NODE_ENV=test cat ./coverage/lcov.info | coveralls",
     "component:create": "bash ./scripts/create_component.sh"
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text"
+    ],
+    "exclude": [
+      "**/spec/**",
+      "**/migrations/**",
+      "public/dist/**"
+    ],
+    "require": [
+      "babel-register",
+      "babel-polyfill"
+    ],
+    "all": true,
+    "check-coverage": true,
+    "sourceMap": false,
+    "instrument": false
   },
   "repository": {
     "type": "git",
@@ -37,8 +56,10 @@
   "dependencies": {
     "babel": "^6.5.2",
     "babel-loader": "^6.2.5",
+    "babel-plugin-istanbul": "^2.0.1",
     "babel-polyfill": "^6.13.0",
     "babel-preset-es2015": "^6.14.0",
+    "babel-register": "^6.16.3",
     "block-ui": "^2.70.1",
     "bluebird": "^3.4.1",
     "body-parser": "^1.15.2",
@@ -71,6 +92,7 @@
     "morgan": "^1.7.0",
     "mysql": "^2.11.1",
     "node-sass": "^3.8.0",
+    "nyc": "^8.3.0",
     "passport": "^0.3.2",
     "passport-github": "^1.1.0",
     "passport-stub": "^1.1.1",
@@ -89,6 +111,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "coveralls": "^2.11.12",
+    "electron": "^1.4.2",
     "eslint": "^3.6.0",
     "eslint-config-standard": "^6.0.1",
     "eslint-plugin-promise": "^2.0.1",
@@ -96,6 +119,7 @@
     "istanbul": "^0.4.4",
     "mocha": "^3.0.2",
     "mocha-lcov-reporter": "^1.2.0",
+    "nightmare": "^2.7.0",
     "sinon": "^1.17.6",
     "supertest": "^2.0.0"
   }

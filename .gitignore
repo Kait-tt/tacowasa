@@ -24,3 +24,5 @@ coverage/
 /config/*
 !/config/default.json
 !/config/db.js
+
+.nyc_output/

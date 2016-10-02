@@ -25,5 +25,9 @@
   "session": {
     "name": "name",
     "secret": "secret"
+  },
+
+  "nightmare": {
+    "show": false
   }
 }
