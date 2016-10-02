@@ -18,5 +18,6 @@ before_build {
 }
 
 task(:anonymous) {
-  entry_point '/'
+  entry_point '/',
+  exclude_paths [/.+/]
 }
