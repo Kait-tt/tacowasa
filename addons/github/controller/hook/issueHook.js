@@ -57,7 +57,9 @@ class GitHubAddonIssueHook {
 
                 yield Task.updateStatus(projectId, task.id, {userId, stageId: stage.id}, {transaction});
 
-                yield GitHubAddonIssueHook.emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}}`, task.id, {transaction});
+                yield GitHubAddonIssueHook.emits(projectId, 'updateTaskStatus',
+                    `updatedTask on github: {taskTitle: ${task.title}, stage: ${stage.name}`,
+                    task.id, {transaction});
 
                 return {message: 'updated task status'};
             });
@@ -81,7 +83,9 @@ class GitHubAddonIssueHook {
 
                 yield Task.updateStatus(projectId, task.id, {userId: task.userId, stageId: stage.id}, {transaction});
 
-                yield GitHubAddonIssueHook.emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}}`, task.id, {transaction});
+                yield GitHubAddonIssueHook.emits(projectId, 'updateTaskStatus',
+                    `updatedTask on github: {taskTitle: ${task.title}, stage: ${stage.name}`,
+                    task.id, {transaction});
 
                 return {message: 'updated task status'};
             });
@@ -105,7 +109,9 @@ class GitHubAddonIssueHook {
                     body: taskOnGitHub.body
                 }, {where: {id: task.id}, transaction});
 
-                yield GitHubAddonIssueHook.emits(projectId, 'updateTaskContent', `updatedTask on github: {taskTitle: ${task.title}`, task.id, {transaction});
+                yield GitHubAddonIssueHook.emits(projectId, 'updateTaskContent',
+                    `updatedTask on github: {taskTitle: ${task.title}}`,
+                    task.id, {transaction});
 
                 return {message: 'updated task content'};
             });
@@ -130,7 +136,9 @@ class GitHubAddonIssueHook {
 
                 yield Task.updateStatus(projectId, task.id, {userId: user.id, stageId: stage.id}, {transaction});
 
-                yield GitHubAddonIssueHook.emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}}`, task.id, {transaction});
+                yield GitHubAddonIssueHook.emits(projectId, 'updateTaskStatus',
+                    `updatedTask on github: {taskTitle: ${task.title}, username: ${user ? user.username : '(null)'}, stage: ${stage.name}`,
+                    task.id, {transaction});
 
                 return {message: 'updated task status'};
             });
@@ -154,7 +162,9 @@ class GitHubAddonIssueHook {
 
                 yield Task.updateStatus(projectId, task.id, {userId: null, stageId: stage.id}, {transaction});
 
-                yield GitHubAddonIssueHook.emits(projectId, 'updateTaskStatus', `updatedTask on github: {taskTitle: ${task.title}}`, task.id, {transaction});
+                yield GitHubAddonIssueHook.emits(projectId, 'updateTaskStatus',
+                    `updatedTask on github: {taskTitle: ${task.title}, username: (null)}, stage: ${stage.name}`,
+                    task.id, {transaction});
 
                 return {message: 'updated task status'};
             });
@@ -246,7 +256,7 @@ class GitHubAddonIssueHook {
                 const projectLabels = yield db.Label.findAll({where: {projectId}, transaction});
                 for (let labelName of attachLabelNames) {
                     let label = _.find(projectLabels, {name: labelName});
-                    if (label) {
+                    if (!label) {
                         let githubLabel = _.find(taskOnGitHub.labels, {name: labelName});
                         label = yield db.Label.create({projectId, name: labelName, color: githubLabel.color});
                         emitParams.push([projectId, 'addLabel', `add label on github: {label: ${label.name}}`, task.id, {transaction, moreParams: {label}}]);

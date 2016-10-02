@@ -13,7 +13,6 @@ const Member = require('../../../../lib/models/member');
 const GitHubAddonIssueHook = require('../../controller/hook/issueHook');
 const db = require('../../schemas');
 
-// TODO: test of emit and notifyText
 describe('addons', () => {
     describe('github', () => {
         describe('router', () => {
@@ -42,6 +41,8 @@ describe('addons', () => {
                     let body;
                     let socketProjectStub;
                     let task;
+                    const emitsNames = [];
+                    const notifyTexts = [];
                     const shouldCreateNewTask = () => {
                         it('should create a new task', () => requestWrap(project.id, body)
                             .expect(200)
@@ -51,6 +52,9 @@ describe('addons', () => {
                                 expect(tasks).to.lengthOf(1);
                                 const githubTask = yield db.GitHubTask.findOne({where: {projectId: project.id, taskId: tasks[0].id}});
                                 expect(githubTask).to.have.property('number', String(body.issue.number));
+                                expect(emitsNames).to.have.members(['createTask']);
+                                expect(notifyTexts).lengthOf(1);
+                                expect(emitsNames[0]).to.match(/created new task/);
                             })));
                     };
                     const createTask = ({stageName, user, title, body, labels} = {}) => co(function* () {
@@ -85,10 +89,23 @@ describe('addons', () => {
 
                     before(() => {
                         socketProjectStub = sinon.stub(GitHubAddonIssueHook, 'socketProject');
-                        socketProjectStub.returns({emits: () => Promise.resolve(), notifyText: () => Promise.resolve()});
+                        socketProjectStub.returns({
+                            emits: (user, name) => {
+                                emitsNames.push(name);
+                                return Promise.resolve();
+                            },
+                            notifyText: (user, notifyText) => {
+                                notifyTexts.push(notifyText);
+                                return Promise.resolve();
+                            }
+                        });
                     });
                     after(() => {
                         socketProjectStub.restore();
+                    });
+                    beforeEach(() => {
+                        emitsNames.splice(0, emitsNames.length);
+                        notifyTexts.splice(0, notifyTexts.length);
                     });
 
                     context('with not exists project', () => {
@@ -96,6 +113,8 @@ describe('addons', () => {
                             .expect(404)
                             .expect(res => {
                                 expect(res.body).to.have.property('message').that.match(/project was not found/);
+                                expect(emitsNames).lengthOf(0);
+                                expect(notifyTexts).lengthOf(0);
                             }));
                     });
 
@@ -116,6 +135,8 @@ describe('addons', () => {
                                     return Task.findAll(project.id, {include: []})
                                         .then(tasks => {
                                             expect(tasks).to.lengthOf(1);
+                                            expect(emitsNames).lengthOf(0);
+                                            expect(notifyTexts).lengthOf(0);
                                         });
                                 }));
                         });
@@ -136,6 +157,8 @@ describe('addons', () => {
                                 .expect(res => {
                                     expect(res.body).property('message').that.match(/no changed/);
                                     taskStageShouldBe('issue');
+                                    expect(emitsNames).lengthOf(0);
+                                    expect(notifyTexts).lengthOf(0);
                                 }));
                         });
 
@@ -154,6 +177,9 @@ describe('addons', () => {
                                     .expect(res => {
                                         expect(res.body).property('message').that.match(/updated/);
                                         taskStageShouldBe('todo');
+                                        expect(emitsNames).have.members(['updateTaskStatus']);
+                                        expect(notifyTexts).lengthOf(1);
+                                        expect(notifyTexts[0]).to.match(/updatedTask.+stage/);
                                     }));
                             });
 
@@ -165,6 +191,9 @@ describe('addons', () => {
                                     .expect(res => {
                                         expect(res.body).property('message').that.match(/updated/);
                                         taskStageShouldBe('issue');
+                                        expect(emitsNames).have.members(['updateTaskStatus']);
+                                        expect(notifyTexts).lengthOf(1);
+                                        expect(notifyTexts[0]).to.match(/updatedTask.+stage/);
                                     }));
                             });
                         });
@@ -185,6 +214,8 @@ describe('addons', () => {
                                 .expect(res => {
                                     expect(res.body).property('message').that.match(/no changed/);
                                     taskStageShouldBe('archive');
+                                    expect(emitsNames).lengthOf(0);
+                                    expect(notifyTexts).lengthOf(0);
                                 }));
                         });
 
@@ -196,6 +227,9 @@ describe('addons', () => {
                                 .expect(res => {
                                     expect(res.body).property('message').that.match(/updated/);
                                     taskStageShouldBe('done');
+                                    expect(emitsNames).have.members(['updateTaskStatus']);
+                                    expect(notifyTexts).lengthOf(1);
+                                    expect(notifyTexts[0]).to.match(/updatedTask.+stage/);
                                 }));
                         });
                     });
@@ -214,6 +248,8 @@ describe('addons', () => {
                                 .expect(200)
                                 .expect(res => {
                                     expect(res.body).property('message').that.match(/no changed/);
+                                    expect(emitsNames).lengthOf(0);
+                                    expect(notifyTexts).lengthOf(0);
                                 }));
                         });
 
@@ -225,6 +261,9 @@ describe('addons', () => {
                                 .expect(res => {
                                     expect(res.body).property('message').that.match(/updated/);
                                     taskContentShouldBe(body.issue.title, body.issue.body);
+                                    expect(emitsNames).have.members(['updateTaskContent']);
+                                    expect(notifyTexts).lengthOf(1);
+                                    expect(notifyTexts[0]).to.match(/updatedTask/);
                                 }));
                         });
                     });
@@ -245,6 +284,8 @@ describe('addons', () => {
                                 .expect(res => {
                                     expect(res.body).property('message').that.match(/no changed/);
                                     taskUserShouldBe(project.users[0].username);
+                                    expect(emitsNames).lengthOf(0);
+                                    expect(notifyTexts).lengthOf(0);
                                 }));
                         });
 
@@ -256,6 +297,9 @@ describe('addons', () => {
                                 .expect(res => {
                                     expect(res.body).property('message').that.match(/updated/);
                                     taskUserShouldBe(project.users[0].username);
+                                    expect(emitsNames).have.members(['updateTaskStatus']);
+                                    expect(notifyTexts).lengthOf(1);
+                                    expect(notifyTexts[0]).to.match(/updatedTask.+username/);
                                 }));
                         });
 
@@ -267,6 +311,9 @@ describe('addons', () => {
                                 .expect(res => {
                                     expect(res.body).property('message').that.match(/updated/);
                                     taskUserShouldBe(project.users[0].username);
+                                    expect(emitsNames).have.members(['updateTaskStatus']);
+                                    expect(notifyTexts).lengthOf(1);
+                                    expect(notifyTexts[0]).to.match(/updatedTask.+username/);
                                 }));
                         });
                     });
@@ -286,6 +333,8 @@ describe('addons', () => {
                                 .expect(res => {
                                     expect(res.body).property('message').that.match(/no changed/);
                                     taskUserShouldBe(null);
+                                    expect(emitsNames).lengthOf(0);
+                                    expect(notifyTexts).lengthOf(0);
                                 }));
                         });
 
@@ -297,6 +346,9 @@ describe('addons', () => {
                                 .expect(res => {
                                     expect(res.body).property('message').that.match(/updated/);
                                     taskUserShouldBe(null);
+                                    expect(emitsNames).have.members(['updateTaskStatus']);
+                                    expect(notifyTexts).lengthOf(1);
+                                    expect(notifyTexts[0]).to.match(/updatedTask.+username/);
                                 }));
                         });
                     });
@@ -305,7 +357,7 @@ describe('addons', () => {
                     describe('labeled', () => {
                         before(() => {
                             body = JSON.parse(fs.readFileSync(`${__dirname}/../fixtures/hook_issues_labeled.json`));
-                            body.issue.labels = project.labels.slice(0, 2).map(label => _.pick(label, ['name', 'color']));
+                            body.issue.labels = project.labels.slice(0, 3).map(label => _.pick(label, ['name', 'color']));
                         });
 
                         context('with not exists task', shouldCreateNewTask);
@@ -319,7 +371,11 @@ describe('addons', () => {
                                 .expect(200)
                                 .expect(res => {
                                     expect(res.body).property('message').that.match(/updated/);
-                                    taskLabelsShouldBe(project.labels.slice(0, 2));
+                                    taskLabelsShouldBe(project.labels.slice(0, 3));
+                                    expect(emitsNames).have.members(['attachLabel', 'attachLabel']);
+                                    expect(notifyTexts).lengthOf(2);
+                                    expect(notifyTexts[0]).to.match(/attached label/);
+                                    expect(notifyTexts[1]).to.match(/attached label/);
                                 }));
                         });
                     });
@@ -341,6 +397,9 @@ describe('addons', () => {
                                 .expect(res => {
                                     expect(res.body).property('message').that.match(/updated/);
                                     taskLabelsShouldBe([project.labels[0], project.labels[2]]);
+                                    expect(emitsNames).have.members(['detachLabel']);
+                                    expect(notifyTexts).lengthOf(1);
+                                    expect(notifyTexts[0]).to.match(/detached label/);
                                 }));
                         });
                     });
