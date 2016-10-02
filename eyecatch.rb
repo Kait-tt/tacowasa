@@ -12,6 +12,7 @@ env 'NODE_ENG=test'
 before_build {
   run 'ndenv local v6.3.1'
   run 'npm i'
+  run 'mysql -uroot -e "create database tacowasa"'
   run 'npm run migrate:test'
   run 'npm run build'
 }
