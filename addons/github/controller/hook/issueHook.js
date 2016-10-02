@@ -174,6 +174,7 @@ class GitHubAddonIssueHook {
     static labeled (projectId, taskOnGitHub) {
         return db.sequelize.transaction(transaction => {
             return co(function*() {
+                yield GitHubAddonIssueHook.addProjectLabels(projectId, taskOnGitHub.labels || []);
                 const {task, justCreated} = yield GitHubAddonIssueHook.findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.Label, as: 'labels'}]});
                 if (justCreated) { return {message: 'created task'}; }
 
@@ -188,6 +189,7 @@ class GitHubAddonIssueHook {
     static unlabeled (projectId, taskOnGitHub) {
         return db.sequelize.transaction(transaction => {
             return co(function*() {
+                yield GitHubAddonIssueHook.addProjectLabels(projectId, taskOnGitHub.labels || []);
                 const {task, justCreated} = yield GitHubAddonIssueHook.findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.Label, as: 'labels'}]});
                 if (justCreated) { return {message: 'created task'}; }
 
@@ -198,7 +200,6 @@ class GitHubAddonIssueHook {
             });
         });
     }
-
 
     static createTask (projectId, taskOnGitHub, {transaction} = {}) {
         return db.sequelize.transaction({transaction}, transaction => {
@@ -242,6 +243,21 @@ class GitHubAddonIssueHook {
         });
     }
 
+    static addProjectLabels (projectId, labels, {transaction} = {}) {
+        return db.sequelize.transaction({transaction}, transaction => {
+            return co(function*() {
+                const projectLabels = yield db.Label.findAll({where: {projectId}, transaction});
+
+                for (let label of labels) {
+                    if (!_.find(projectLabels, {name: label.name})) {
+                        label = yield db.Label.create({projectId, name: label.name, color: label.color});
+                        GitHubAddonIssueHook.emits(projectId, 'addLabel', `add label on github: {label: ${label.name}}`, null, {transaction, moreParams: {label}});
+                    }
+                }
+            });
+        });
+    }
+
     static updateLabels (projectId, task, taskOnGitHub, {transaction} = {}) {
         return db.sequelize.transaction({transaction}, transaction => {
             return co(function*() {
@@ -252,15 +268,9 @@ class GitHubAddonIssueHook {
 
                 const attachLabelNames = _.difference(githubLabelNames, kanbanLabelNames);
                 const detachLabelNames = _.difference(kanbanLabelNames, githubLabelNames);
-
                 const projectLabels = yield db.Label.findAll({where: {projectId}, transaction});
                 for (let labelName of attachLabelNames) {
                     let label = _.find(projectLabels, {name: labelName});
-                    if (!label) {
-                        let githubLabel = _.find(taskOnGitHub.labels, {name: labelName});
-                        label = yield db.Label.create({projectId, name: labelName, color: githubLabel.color});
-                        emitParams.push([projectId, 'addLabel', `add label on github: {label: ${label.name}}`, task.id, {transaction, moreParams: {label}}]);
-                    }
                     yield db.TaskLabel.create({projectId, taskId: task.id, labelId: label.id}, {transaction});
                     emitParams.push([projectId, 'attachLabel', `attached label on github: {label: ${label.name}, task: ${task.name}}`, task.id, {transaction, moreParams: {label}}]);
                 }

@@ -353,7 +353,6 @@ describe('addons', () => {
                         });
                     });
 
-                    // TODO: test with new create label task
                     describe('labeled', () => {
                         before(() => {
                             body = JSON.parse(fs.readFileSync(`${__dirname}/../fixtures/hook_issues_labeled.json`));
@@ -376,6 +375,27 @@ describe('addons', () => {
                                     expect(notifyTexts).lengthOf(2);
                                     expect(notifyTexts[0]).to.match(/attached label/);
                                     expect(notifyTexts[1]).to.match(/attached label/);
+                                }));
+                        });
+
+                        context('with new labels', () => {
+                            const newProjectLabel = {name: 'newLabel', color: '#ff00ff'};
+                            beforeEach(co.wrap(function*() {
+                                yield createTask({labels: [project.labels[1]]});
+                                body.issue.labels.push(newProjectLabel);
+                            }));
+
+                            it('should update task labels and add project label', () => requestWrap(project.id, body)
+                                .expect(200)
+                                .expect(res => {
+                                    expect(res.body).property('message').that.match(/updated/);
+                                    taskLabelsShouldBe(project.labels.slice(0, 3).concat([newProjectLabel]));
+                                    expect(emitsNames).have.members(['attachLabel', 'attachLabel', 'attachLabel', 'addLabel']);
+                                    expect(notifyTexts).lengthOf(4);
+                                    expect(notifyTexts[0]).to.match(/add label/);
+                                    expect(notifyTexts[1]).to.match(/attached label/);
+                                    expect(notifyTexts[2]).to.match(/attached label/);
+                                    expect(notifyTexts[3]).to.match(/attached label/);
                                 }));
                         });
                     });
