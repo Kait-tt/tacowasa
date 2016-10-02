@@ -4,8 +4,14 @@ node_js:
 env:
     global:
         - NODE_ENV=test
+addons:
+    apt:
+      packages:
+        - xvfb
 install:
     - mysql -uroot -e "create database tacowasa"
+    - export DISPLAY=':99.0'
+    - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
 script:
     - npm i
     - npm run migrate:test
