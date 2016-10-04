@@ -43,7 +43,7 @@ class SyncAllFromGitHubComponent extends EventEmitter2 {
 
     // on events
     startSyncAllFromGitHub () {
-        block.block();
+        block.block('同期中...');
         this.syncStatus(true);
     }
 
