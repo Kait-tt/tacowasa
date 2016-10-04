@@ -1,5 +1,6 @@
 'use strict';
 require('block-ui');
+$.blockUI.defaults.baseZ = 2000; // over dialogs
 
 module.exports = {
     block: function (message = 'processing...') {

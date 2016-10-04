@@ -10,7 +10,7 @@ module.exports = {
             alert.pushAlert({
                 title: 'GitHub同期に成功しました',
                 message: 'ブラウザを更新してください',
-                isSuccess: false
+                isSuccess: true
             });
         });
         syncAllComponent.on('failedSyncAllFromGitHub', ({error}) => {
