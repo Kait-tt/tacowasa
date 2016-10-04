@@ -1,10 +1,6 @@
 'use strict';
 module.exports = function (sequelize, DataTypes) {
     const GitHubTask = sequelize.define('githubTask', {
-        taskId: {
-            allowNull: false,
-            type: DataTypes.INTEGER
-        },
         number: {
             allowNull: false,
             type: DataTypes.STRING
@@ -19,12 +15,12 @@ module.exports = function (sequelize, DataTypes) {
             associate: function (models) {
                 GitHubTask.belongsTo(models.Task, {
                     foreignKey: {
-                        allowNull: true
+                        allowNull: false
                     }
                 });
                 GitHubTask.belongsTo(models.Project, {
                     foreignKey: {
-                        allowNull: true
+                        allowNull: false
                     }
                 });
             }

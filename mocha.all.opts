@@ -1,3 +1,3 @@
 --reporter spec
 --timeout 30000
---recursive spec/schemes/ spec/models/ spec/routes/ addons/github/spec/schemas addons/github/spec/router spec/integrations/
+--recursive spec/schemes/ spec/models/ spec/routes/ addons/github/spec/schemas addons/github/spec/router addons/github/spec/models spec/integrations/

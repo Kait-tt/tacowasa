@@ -85,10 +85,6 @@ class GitHubAPI {
         });
     }
 
-    attachLabel (projectId, {id: taskId, label}) {
-
-    }
-
     fetchAvatar (username) {
         const that = this;
         return co(function*() {
@@ -179,6 +175,56 @@ class GitHubAPI {
             },
             events: ['issues', 'member'],
             active: true
+        });
+    }
+
+    // github を元に project のすべての labels, tasks を同期
+    // 同期するのは下記の情報のみ
+    //   task: {title, body, labels}
+    //   label: {name, color}
+    // 存在しないタスクについては考慮しない
+    syncAllTasksAndLabelsFromGitHub (projectId, {transaction} = {}) {
+        const that = this;
+        return db.sequelize.transaction({transaction}, transaction => {
+            return co(function*() {
+                const repository = yield db.GitHubRepository.findOne({where: {projectId}, transaction});
+                if (!repository) { throw Error(`repository of ${projectId} was not found`); }
+                const {username: user, reponame: repo} = repository;
+
+                const tasksOnGitHub = yield that.fetchTasks({user, repo});
+                const labelsOnGitHub = yield that.api.issues.getLabels({user, repo, per_page: 100});
+
+                // remove all labels and task labels
+                const oldLabels = yield db.Label.findAll({where: {projectId}, transaction});
+                for (let oldLabel of oldLabels) {
+                    yield db.TaskLabel.destroy({where: {labelId: oldLabel.id}, transaction});
+                }
+                yield db.Label.destroy({where: {projectId}, transaction});
+
+                // add all labels
+                const labels = [];
+                for (let labelOnGitHub of labelsOnGitHub) {
+                    const label = yield db.Label.create({
+                        projectId,
+                        name: labelOnGitHub.name,
+                        color: labelOnGitHub.color
+                    }, {transaction});
+                    labels.push(label);
+                }
+
+                // attach all task labels
+                for (let taskOnGitHub of tasksOnGitHub) {
+                    const githubTask = yield db.GitHubTask.findOne({where: {number: String(taskOnGitHub.number)}, transaction});
+                    if (!githubTask) { continue; }
+                    const task = yield db.Task.findOne({where: {id: githubTask.taskId}, transaction});
+                    if (!task) { continue; }
+                    for (let taskLabelOnGitHub of taskOnGitHub.labels || []) {
+                        const label = _.find(labels, {name: taskLabelOnGitHub.name});
+                        if (!label) { continue; }
+                        yield db.TaskLabel.create({taskId: task.id, labelId: label.id}, {transaction});
+                    }
+                }
+            });
         });
     }
 
