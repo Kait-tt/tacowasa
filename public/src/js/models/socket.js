@@ -7,18 +7,20 @@ function Socket () {
     let that = io.connect();
     that.eventEmitCallback = new EventEmitter2();
 
+    // debug on event
+    that.debugOnEvent = key => {
+        that.on(key, res => {
+            console.debug('on: ' + key, res);
+        });
+    };
+
     // ソケットのデバッグ出力を有効にする
     // on/emit時の内容をコンソールに出力する
     that.initSocketDebugMode = () => {
-        // debug on event
         Object.keys(that._callbacks)
             .map(x => x.replace(/\$/g, ''))
             .filter(key => !_.includes(['ping', 'pong'], key))
-            .forEach(key => {
-                that.on(key, res => {
-                    console.debug('on: ' + key, res);
-                });
-            });
+            .forEach(that.debugOnEvent);
 
         // debug on emit
         that.emit = _.wrap(that.emit.bind(that), (emit, key, req, fn) => {

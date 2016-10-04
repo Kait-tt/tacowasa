@@ -1,9 +1,28 @@
 'use strict';
 const ko = require('knockout');
 const _ = require('lodash');
+const SyncAllFromGitHubComponent = require('./sync_all_from_github_component');
 
 module.exports = {
-    init: (kanban) => {
+    init: (kanban, {alert}) => {
+        const syncAllComponent = new SyncAllFromGitHubComponent(kanban, kanban.project);
+        syncAllComponent.on('completedSyncAllFromGitHub', () => {
+            alert.pushAlert({
+                title: 'GitHub同期に成功しました',
+                message: 'ブラウザを更新してください',
+                isSuccess: false
+            });
+        });
+        syncAllComponent.on('failedSyncAllFromGitHub', ({error}) => {
+            alert.pushAlert({
+                title: 'GitHub同期に失敗しました',
+                message: error.message,
+                isSuccess: false
+            });
+        });
+        syncAllComponent.initSocket();
+        syncAllComponent.register();
+
         decorateProject(kanban.project);
         kanban.project.tasks().forEach(task => decorateTask(kanban.project, task));
         kanban.project.tasks.subscribe(changes => {
@@ -15,6 +34,7 @@ module.exports = {
         kanban.projectSettingsModal.on('load', () => {
             const html = githubRepositoryLinkBlockTemplate();
             $('#project-settings-modal').find('form').append(html);
+            $('#project-settings-modal').find('form').append(`<${syncAllComponent.componentName}>`);
         });
 
         kanban.taskCardMiniMenu.on('load', ({viewModel}) => {

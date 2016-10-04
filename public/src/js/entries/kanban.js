@@ -48,7 +48,7 @@ Project.fetch(projectId)
         vm = kanban;
         vm.alerts = alert.alerts;
 
-        _.each(addons, addon => addon.init(kanban));
+        _.each(addons, addon => addon.init(kanban, {alert}));
 
         effects.applyBindings(global);
         ko.applyBindings(vm);

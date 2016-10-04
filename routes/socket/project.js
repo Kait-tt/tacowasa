@@ -44,7 +44,7 @@ class SocketProject {
                     console.error(err);
                 }));
         });
-        addon.callAddons('SocketOn', 'register', {socketProject: this, user});
+        addon.callAddons('SocketOn', 'register', {socketProject: this, user}, {sync: true});
     }
 
     sendInitJoinedUsers (user) {
