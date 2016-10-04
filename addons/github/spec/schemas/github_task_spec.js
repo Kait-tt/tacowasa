@@ -26,7 +26,7 @@ describe('schemes', () => {
                     body: 'body1',
                     isWorking: true
                 });
-                yield db.GitHubTask.create({taskId: task.id, number: 111, isPullRequest: true});
+                yield db.GitHubTask.create({projectId: project.id, taskId: task.id, number: 111, isPullRequest: true});
             }));
 
             it('should create a new github task', () => {

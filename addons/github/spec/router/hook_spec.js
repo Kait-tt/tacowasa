@@ -29,8 +29,8 @@ describe('addons', () => {
                     return helper.db.clean();
                 });
                 afterEach(() => {
-                    afterEach(() => db.Task.destroy({where: {}})
-                        .then(() => db.GitHubTask.destroy({where: {}})));
+                    db.Task.destroy({where: {}})
+                        .then(() => db.GitHubTask.destroy({where: {}}));
                 });
 
                 describe('issue', () => {
