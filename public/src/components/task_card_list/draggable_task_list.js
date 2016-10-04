@@ -178,8 +178,6 @@ class DraggableTaskList extends EventEmitter2 {
                     updatedOrder = true;
                 }
 
-                console.log(updatedStatus, updatedOrder);
-
                 if (updatedStatus && updatedOrder) {
                     taskList.emit('updatedStatusAndOrder', {task, beforeTask, stage: taskList.stage, user: taskList.user});
                 } else {

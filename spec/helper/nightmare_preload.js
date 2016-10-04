@@ -46,5 +46,4 @@ window.addEventListener('error', e => {
     window.confirm = function (message, defaultResponse){
         __nightmare.ipc.send('page', 'confirm', message, defaultResponse);
     };
-    console.log('hoge');
 })();
