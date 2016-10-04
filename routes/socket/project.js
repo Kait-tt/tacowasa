@@ -38,17 +38,13 @@ class SocketProject {
 
     bindSocketUser (user) {
         SocketProject.socketEventKeys.forEach(key => {
-            user.socket.on(key, req => {
-                addon.callAddons('SocketOn', key, {projectId: this.projectId, user, req, socketProject: this})
-                    .then(({req}) => {
-                        this[key](user, req)
-                            .catch(err => {
-                                user.socket.emit('operationError', {error: err, message: err.message});
-                                console.error(err);
-                            });
-                    });
-            });
+            user.socket.on(key, req => this[key](user, req)
+                .catch(err => {
+                    user.socket.emit('operationError', {error: err, message: err.message});
+                    console.error(err);
+                }));
         });
+        addon.callAddons('SocketOn', 'register', {socketProject: this, user});
     }
 
     sendInitJoinedUsers (user) {

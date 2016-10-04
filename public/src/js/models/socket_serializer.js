@@ -129,7 +129,8 @@ class SocketSerializer {
             'updateTaskStatusAndOrder',
             'attachLabel',
             'detachLabel',
-            'addLabel'
+            'addLabel',
+            'addonSocketTest'
         ];
     }
 }
