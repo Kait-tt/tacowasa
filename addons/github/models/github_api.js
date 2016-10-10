@@ -275,7 +275,8 @@ class GitHubAPI {
 
             let user;
             if (stage.assigned && task.assignee) {
-                user = (yield db.User.findOrCreate({where: {username: task.assignee.login}, transaction}))[0];
+                const assignee = task.assignee || task.assignees[0];
+                user = (yield db.User.findOrCreate({where: {username: assignee.login}, transaction}))[0];
             } else {
                 user = null;
             }

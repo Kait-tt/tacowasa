@@ -48,7 +48,8 @@ class GitHubAddonIssueHook {
                 let userId;
                 if (assigned) {
                     stage = _.find(stages, {name: 'todo'}) || stages[0];
-                    const user = (yield db.User.findOrCreate({where: {username: taskOnGitHub.assignee.login}, transaction}))[0];
+                    const assignee = taskOnGitHub.assignee || taskOnGitHub.assignees[0];
+                    const user = (yield db.User.findOrCreate({where: {username: assignee.login}, transaction}))[0];
                     userId = user.id;
                 } else {
                     stage = _.find(stages, {name: 'issue'}) || stages[0];
@@ -124,13 +125,15 @@ class GitHubAddonIssueHook {
                 const {task, justCreated} = yield GitHubAddonIssueHook.findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.User, as: 'user'}]});
                 if (justCreated) { return {message: 'created task'}; }
 
+                const assignee = taskOnGitHub.assignee || taskOnGitHub.assignees[0];
+
                 // no change?
-                if (task.user && task.user.username === taskOnGitHub.assignee.login) {
+                if (task.user && task.user.username === assignee.login) {
                     return {message: 'no changed'};
                 }
 
                 // assign
-                const user = (yield db.User.findOrCreate({where: {username: taskOnGitHub.assignee.login}, transaction}))[0];
+                const user = (yield db.User.findOrCreate({where: {username: assignee.login}, transaction}))[0];
                 const stages = yield db.Stage.findAll({where: {projectId}, transaction});
                 const stage = _.find(stages, {name: 'todo'}) || stages[0];
 
