@@ -1,9 +1,9 @@
 'use strict';
-require('../../bin/www');
 const helper = require('../helper');
 const expect = helper.expect;
 
 describe('integrations', () => {
+    before(() => helper.startApp());
     describe('root', () => {
         let nightmare;
         let url = 'http://localhost:3000';

@@ -14,5 +14,6 @@ module.exports = {
             preload: `${__dirname}/nightmare_preload.js`
         }
     })),
+    startApp: () => require('../../bin/www'),
     expect
 };
