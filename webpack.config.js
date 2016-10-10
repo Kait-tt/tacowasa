@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const ENV = process.env.NODE_ENV;
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 // development
@@ -73,7 +72,7 @@ const webpackConfig = {
 
 // production
 // TODO: why throw runtime error with knockout?
-// if (ENV === 'production') {
+// if (process.env.NODE_ENV === 'production') {
 //     const uglifyJsPlugin = new webpack.optimize.UglifyJsPlugin({
 //         compress: {
 //             warnings: false
