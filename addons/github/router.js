@@ -7,7 +7,7 @@ class GitHubAddonRouter extends AddonRouter {
         super(options);
 
         this.post('/api/projects', Controller.importProject);
-        this.post('/hook/:projectId', Controller.postHook);
+        this.post('/:projectId', Controller.postHook);
     }
 
     static get root () {
