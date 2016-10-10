@@ -26,6 +26,11 @@ class GitHubAddonSocketEmit {
         return GitHubAddonSocketEmit.updateTask(params);
     }
 
+    static updateTaskStatusAndOrder (params) {
+        if (params.user.isGitHub) { return Promise.resolve(params); }
+        return GitHubAddonSocketEmit.updateTask(params);
+    }
+
     static updateTaskContent (params) {
         if (params.user.isGitHub) { return Promise.resolve(params); }
         return GitHubAddonSocketEmit.updateTask(params);
