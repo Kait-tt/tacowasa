@@ -9,7 +9,7 @@ class GitHubAddonHook {
 
     static get hooks () {
         return {
-            issue: IssueHook.actions
+            issues: IssueHook.actions
         };
     }
 }

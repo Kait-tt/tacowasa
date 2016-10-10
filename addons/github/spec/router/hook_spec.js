@@ -35,7 +35,7 @@ describe('addons', () => {
 
                 describe('issue', () => {
                     const requestWrap = (projectId, body) => request.post(url(projectId))
-                        .set('x-Github-Event', 'issue')
+                        .set('x-Github-Event', 'issues')
                         .send(body)
                         .expect('Content-Type', /json/);
                     let body;
