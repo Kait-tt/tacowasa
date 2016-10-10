@@ -92,8 +92,8 @@ body{
   }
 
   .task-card-list {
-    padding: $stage-block-horizontal-margin + 10px 25px 1em 0;
-    margin: -$stage-block-horizontal-margin + 10px (-25px) 0 0;
+    padding: $stage-block-horizontal-margin + 10px 20px 1em 0;
+    margin: -$stage-block-horizontal-margin + 10px (-20px) 0 0;
     list-style-type: none;
     height: calc(100% - 60px);
     overflow: auto;
