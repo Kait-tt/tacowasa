@@ -72,14 +72,15 @@ const webpackConfig = {
 };
 
 // production
-if (ENV === 'production') {
-    const uglifyJsPlugin = new webpack.optimize.UglifyJsPlugin({
-        compress: {
-            warnings: false
-        },
-        test: /\.(js|json)$/
-    });
-    webpackConfig.plugins.push(uglifyJsPlugin);
-}
+// TODO: why throw runtime error with knockout?
+// if (ENV === 'production') {
+//     const uglifyJsPlugin = new webpack.optimize.UglifyJsPlugin({
+//         compress: {
+//             warnings: false
+//         },
+//         test: /\.(js|json)$/
+//     });
+//     webpackConfig.plugins.push(uglifyJsPlugin);
+// }
 
 module.exports = webpackConfig;
