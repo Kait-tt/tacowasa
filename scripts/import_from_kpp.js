@@ -169,7 +169,7 @@ function importProject ({transaction} = {}) {
                     const user = _.find(users, {_id: oldUserId});
                     if (!user) { throw new Error(`user not found: ${oldUserId}`); }
 
-                    yield db.Work.create({startTime, isEnded, userId: user.id, taskId: task.id});
+                    yield db.Work.create({startTime: start, endTime: end, isEnded, userId: user.id, taskId: task.id});
                 }
             }
 
