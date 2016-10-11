@@ -38,9 +38,6 @@ Usage:
 `;
 }
 
-const users = [];
-const projects = [];
-
 function serializeMongoJSON (str) {
     return _.compact(str.split('\n')).map(x => {
         x = x.replace(/NumberInt\((\d+)\)/g, '$1');

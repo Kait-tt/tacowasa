@@ -19,7 +19,7 @@ describe('addons', () => {
             describe('hook', () => {
                 let project;
                 let otherUser;
-                const url = (projectId) => `/github/hook/${projectId}`;
+                const url = (projectId) => `/github/${projectId}`;
                 before(co.wrap(function* () {
                     project = yield Project.create('testProject', 'testUser');
                     otherUser = (yield db.User.findOrCreate({where: {username: 'otherUsername'}}))[0];
