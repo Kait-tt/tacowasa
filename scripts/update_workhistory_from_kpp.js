@@ -61,8 +61,8 @@ function updateWorkHistory ({transaction} = {}) {
             for (let {title, workHistory: srcWorks, github: {number: githubNumber}} of issues) {
                 console.log(`target task: ${title}`);
 
-                const githubTask = yield db.GitHubTask.findOne({where: {projectId: project.id, number: String(githubNumber)}});
-                const task = yield db.Task.findOne({where: {id: githubTask.taskId}});
+                const githubTask = yield db.GitHubTask.findOne({where: {projectId: project.id, number: String(githubNumber)}, transaction});
+                const task = yield db.Task.findOne({where: {id: githubTask.taskId}, transaction});
 
                 const oldWorks = yield db.Work.findAll({where: {taskId: task.id}, transaction});
 

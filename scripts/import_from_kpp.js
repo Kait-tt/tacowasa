@@ -99,7 +99,7 @@ function importProject ({transaction} = {}) {
                 reponame: github.repoName,
                 sync: github.sync,
                 hookId: github.hook.id
-            });
+            }, {transaction});
 
             // add members
             for (let {user: srcUserId, created_at: createdAt, visible, wipLimit} of members) {
@@ -152,7 +152,7 @@ function importProject ({transaction} = {}) {
                     yield db.Task.update({isWorking: true}, {where: {id: task.id}, transaction});
                 }
 
-                yield db.GitHubTask.create({number: github.number, projectId: project.id, taskId: task.id});
+                yield db.GitHubTask.create({number: github.number, projectId: project.id, taskId: task.id}, {transaction});
 
                 // work history
                 for (let {startTime, endTime, isEnded, userId: oldUserId} of workHistory || []) {
@@ -169,7 +169,7 @@ function importProject ({transaction} = {}) {
                     const user = _.find(users, {_id: oldUserId});
                     if (!user) { throw new Error(`user not found: ${oldUserId}`); }
 
-                    yield db.Work.create({startTime: start, endTime: end, isEnded, userId: user.id, taskId: task.id});
+                    yield db.Work.create({startTime: start, endTime: end, isEnded, userId: user.id, taskId: task.id}, {transaction});
                 }
             }
 
