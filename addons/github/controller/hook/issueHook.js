@@ -82,7 +82,10 @@ class GitHubAddonIssueHook {
                 const stages = yield db.Stage.findAll({where: {projectId}, transaction});
                 const stage = _.find(stages, {name: 'done'}) || _.find(stages, {name: 'archive'}) || stages[0];
 
-                yield Task.updateStatus(projectId, task.id, {userId: task.userId, stageId: stage.id}, {transaction});
+                yield Task.updateStatus(projectId, task.id, {
+                    userId: stage.assigned ? task.userId : null,
+                    stageId: stage.id
+                }, {transaction});
 
                 yield GitHubAddonIssueHook.emits(projectId, 'updateTaskStatus',
                     `updatedTask on github: {taskTitle: ${task.title}, stage: ${stage.name}`,
