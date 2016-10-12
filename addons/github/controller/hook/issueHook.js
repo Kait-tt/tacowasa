@@ -254,7 +254,11 @@ class GitHubAddonIssueHook {
                 for (let label of labels) {
                     if (!_.find(projectLabels, {name: label.name})) {
                         label = yield db.Label.create({projectId, name: label.name, color: label.color});
-                        GitHubAddonIssueHook.emits(projectId, 'addLabel', `add label on github: {label: ${label.name}}`, null, {transaction, moreParams: {label}});
+                        GitHubAddonIssueHook.emits(projectId, 'addLabel', `add label on github: {label: ${label.name}}`, null, {
+                            transaction,
+                            moreParams: {label},
+                            logContent: {label}
+                        });
                     }
                 }
             });
@@ -275,13 +279,21 @@ class GitHubAddonIssueHook {
                 for (let labelName of attachLabelNames) {
                     let label = _.find(projectLabels, {name: labelName});
                     yield db.TaskLabel.create({projectId, taskId: task.id, labelId: label.id}, {transaction});
-                    emitParams.push([projectId, 'attachLabel', `attached label on github: {label: ${label.name}, task: ${task.name}}`, task.id, {transaction, moreParams: {label}}]);
+                    emitParams.push([projectId, 'attachLabel', `attached label on github: {label: ${label.name}, task: ${task.name}}`, task.id, {
+                        transaction,
+                        moreParams: {label},
+                        logContent: {label}
+                    }]);
                 }
 
                 for (let labelName of detachLabelNames) {
                     const label = _.find(task.labels, {name: labelName});
                     yield db.TaskLabel.destroy({where: {taskId: task.id, labelId: label.id}, transaction});
-                    emitParams.push([projectId, 'detachLabel', `detached label on github: {label: ${label.name}, task: ${task.name}}`, task.id, {transaction, moreParams: {label}}]);
+                    emitParams.push([projectId, 'detachLabel', `detached label on github: {label: ${label.name}, task: ${task.name}}`, task.id, {
+                        transaction,
+                        moreParams: {label},
+                        logContent: {label}
+                    }]);
                 }
 
                 for (let params of emitParams) {
@@ -291,16 +303,17 @@ class GitHubAddonIssueHook {
         });
     }
 
-    static emits (projectId, name, notifyText, taskId, {transaction, moreParams = {}} = {}) {
-        return Task.findById(taskId, {transaction})
-            .then(task => {
-                const user = {isGitHub: true, username: 'github'};
-                const socketProject = GitHubAddonIssueHook.socketProject(projectId);
-                if (socketProject) {
-                    socketProject.emits(user, name, _.assign(moreParams, {task}));
-                    socketProject.notifyText(user, notifyText).catch(err => console.error(err));
-                }
-            });
+    static emits (projectId, name, notifyText, taskId, {transaction, moreParams = {}, logContent} = {}) {
+        return co(function* () {
+            const task = yield Task.findById(taskId, {transaction});
+            const user = {isGitHub: true, username: 'github'};
+            const socketProject = GitHubAddonIssueHook.socketProject(projectId);
+            if (socketProject) {
+                yield socketProject.logging(user.username, name, logContent || {task});
+                socketProject.emits(user, name, _.assign(moreParams, {task}));
+                yield socketProject.notifyText(user, notifyText).catch(err => console.error(err));
+            }
+        });
     }
 
     static socketProject (projectId) {

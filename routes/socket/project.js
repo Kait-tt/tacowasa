@@ -104,7 +104,7 @@ class SocketProject {
         const that = this;
         return co(function* () {
             const updatedUser = yield Member.update(that.projectId, username, updateParams);
-            yield that.logging(user.username, '', {user: updatedUser});
+            yield that.logging(user.username, 'updatedUser', {user: updatedUser});
             that.emits(user, 'updateUser', {username, user: updatedUser});
             return yield that.notifyText(user, `updated user: "${username}"`);
         });
@@ -167,7 +167,7 @@ class SocketProject {
         const that = this;
         return co(function* () {
             const task = yield Task.updateWorkingState(that.projectId, taskId, isWorking);
-            yield that.logging(user.username, '', {task});
+            yield that.logging(user.username, 'updateTaskWorkingState', {task});
             that.emits(user, 'updateTaskWorkingState', {task, isWorking});
             return yield that.notifyText(user, `${isWorking ? 'start' : 'stop'} to work: ${task.title}`);
         });
@@ -177,7 +177,7 @@ class SocketProject {
         const that = this;
         return co(function* () {
             const task = yield Task.updateWorkHistory(that.projectId, taskId, works);
-            yield that.logging(user.username, '', {});
+            yield that.logging(user.username, 'updateTaskWorkHistory', {});
             that.emits(user, 'updateTaskWorkHistory', {task, works: task.works});
             return yield that.notifyText(user, `updated work history: ${task.title}`);
         });
@@ -188,7 +188,7 @@ class SocketProject {
         return co(function* () {
             const {task, beforeTask, updated} = yield Task.updateOrder(that.projectId, taskId, beforeTaskId);
             if (!updated) { return Promise.resolve(); }
-            yield that.logging(user.username, '', {});
+            yield that.logging(user.username, 'updateTaskOrder', {});
             that.emits(user, 'updateTaskOrder', {task, beforeTask});
             return yield that.notifyText(user, `update task order: insert ${task.title} before ${beforeTask ? beforeTask.title : null}`);
         });
