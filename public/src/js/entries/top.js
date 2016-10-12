@@ -1,6 +1,8 @@
 'use strict';
 require('../../scss/top.scss');
 require('bootstrap');
+const ko = require('knockout');
+const Project = require('../models/project');
 
 const topOffset = 60;
 
@@ -14,3 +16,17 @@ $('.outline a').each(() => {
         $('html,body').animate({scrollTop: target}, 500);
     });
 });
+
+const projects = ko.observableArray();
+const logined = window.logined;
+
+const vm = {projects};
+ko.applyBindings(vm);
+
+if (logined) {
+    Project.fetchAll()
+        .then(_projects => {
+            _projects.forEach(x => projects.push(x));
+        })
+        .catch(err => console.error(err));
+}

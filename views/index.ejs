@@ -5,6 +5,7 @@
     <title><%= title %></title>
     <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/top.css">
+    <script>window.logined = <%= logined %>;</script>
 </head>
 <body>
 
@@ -21,7 +22,7 @@
 
             <% if (logined) { %>
 
-            <p><a href="/users/me/" class="btn btn-default">利用する &raquo;</a></p>
+            <p><a href="/users/me/" class="btn btn-default">Your page &raquo;</a></p>
 
             <% } else { %>
 
@@ -29,6 +30,23 @@
 
             <% } %>
         </div>
+
+        <% if (logined) { %>
+        <div class="projects" data-bind="if: projects().length">
+            <h2>Projects</h2>
+            <ul class="projects" data-bind="foreach: projects">
+                <li>
+                    <a data-bind="attr: { href: url }">
+                        <span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span>
+                        <span data-bind="text: name"></span>
+                    </a>
+                    <span class="created-at" data-bind="text: createdAt"></span>
+                </li>
+            </ul>
+        </div>
+        <% } %>
+
+
         <div class="row information-wrap">
             <h2><span class="glyphicon glyphicon-info-sign"></span> 機能説明</h2>
             <hr>
