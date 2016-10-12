@@ -316,7 +316,7 @@ describe('models', () => {
 
                 context('with taskId equals beforeTaskId', () => {
                     it('should throw error', () => expect(Task.updateOrder(project.id, tasks[1].id, tasks[1].id))
-                        .to.be.rejectedWith(/should not equals before/));
+                        .to.eventually.have.property('updated', false));
                 });
 
                 context('with not exists taskId', () => {
