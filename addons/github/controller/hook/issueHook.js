@@ -212,7 +212,7 @@ class GitHubAddonIssueHook {
             return co(function*() {
                 const serializedTask = yield GitHubAPI.serializeTask(projectId, taskOnGitHub, {transaction});
                 const task = yield Task.create(projectId, serializedTask, {transaction});
-                task.githubTask = yield db.GitHubTask.create({
+                yield db.GitHubTask.create({
                     projectId,
                     taskId: task.id,
                     number: serializedTask.githubTask.number,
@@ -309,6 +309,10 @@ class GitHubAddonIssueHook {
     static emits (projectId, name, notifyText, taskId, {transaction, moreParams = {}, logContent} = {}) {
         return co(function* () {
             const task = yield Task.findById(taskId, {transaction});
+            const githubTask = yield db.GitHubTask.findOne({where: {taskId}, transaction});
+            if (githubTask) {
+                task.githubTask = githubTask.toJSON();
+            }
             const user = {isGitHub: true, username: 'github'};
             const socketProject = GitHubAddonIssueHook.socketProject(projectId);
             if (socketProject) {
