@@ -78,6 +78,13 @@ function decorateTask (project, task) {
         const reponame = project.opts.githubRepository.reponame;
         return `https://github.com/${username}/${reponame}/issues/${githubNumber}`;
     });
+
+    const oldTextForSearch = task.textForSearch;
+    task.textForSearch = ko.computed(() => {
+        const old = oldTextForSearch();
+        const githubNumber = task.githubNumber();
+        return `${old} #${githubNumber}`;
+    });
 }
 
 function githubRepositoryLinkBlockTemplate () {
