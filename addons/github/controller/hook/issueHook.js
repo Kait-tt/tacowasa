@@ -217,7 +217,7 @@ class GitHubAddonIssueHook {
                     taskId: task.id,
                     number: serializedTask.githubTask.number,
                     isPullRequest: serializedTask.githubTask.isPullRequest
-                });
+                }, {transaction});
 
                 yield GitHubAddonIssueHook.emits(projectId, 'createTask', `created new task on github: ${task.title}`, task.id, {transaction});
 
