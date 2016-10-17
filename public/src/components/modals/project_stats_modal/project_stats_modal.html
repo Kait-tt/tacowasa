@@ -6,6 +6,36 @@
         <h4 class="modal-title" id="project-stats-modal-label">Project Stats</h4>
       </div>
       <div class="modal-body">
+        <div class="last-two-week-stats">
+          <h3>過去2週間の実働時間</h3>
+          <div class="table-responsible">
+            <table class="table">
+              <thead>
+              <tr>
+                <th>day/username</th>
+                <!-- ko foreach: project.users -->
+                <!-- ko if: isVisible -->
+                <th data-bind="text: username"></th>
+                <!-- /ko -->
+                <!-- /ko -->
+              </tr>
+              </thead>
+              <tbody>
+              <!-- ko foreach: {data: stats.lastTwoWeekWorkTime, as: 'stats'} -->
+              <tr>
+                <th data-bind="text: stats.dayFormat"></th>
+                <!-- ko foreach: {data: $parent.project.users, as: 'user'} -->
+                <!-- ko if: user.isVisible -->
+                <td data-bind="text: stats.users[user.username()].format"></td>
+                <!-- /ko -->
+                <!-- /ko -->
+              </tr>
+              <!-- /ko -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <div class="iteration-member-stats">
           <h3>1週間ごとメンバーごとの実働時間</h3>
           <div class="table-responsible">
