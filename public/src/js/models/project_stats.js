@@ -133,10 +133,12 @@ class ProjectStats {
             const works = this._works;
 
             const term = 14; // 2 weeks
-            const beginDate = moment().day(-term + 2);
-            const endDate = moment().day(1);
+            const beginDate = moment().day(-term + 3);
+            const endDate = moment().day(2);
             beginDate.set({'hours': 0, 'minutes': 0, 'seconds': 0});
             endDate.set({'hours': 23, 'minutes': 59, 'seconds': 59});
+            console.log(beginDate);
+            console.log(endDate);
             const now = moment();
 
             const maxt = endDate.diff(beginDate, 'minutes');
