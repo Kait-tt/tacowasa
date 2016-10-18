@@ -367,10 +367,8 @@ class Kanban extends EventEmitter2 {
         if (searchQuery) { // search
             const queries = util.splitSearchQuery(searchQuery);
             const userHasTask = {};
-            const usernameToUser = {};
 
             this.users().forEach(user => {
-                usernameToUser[user.username()] = user;
                 userHasTask[user.username()] = false;
             });
 
@@ -384,8 +382,8 @@ class Kanban extends EventEmitter2 {
                 }
             });
 
-            _.map(userHasTask, (has, username) => {
-                usernameToUser[username].hasSearchTask(has);
+            this.users().forEach(user => {
+                user.hasSearchTask(userHasTask[user.username()] || false);
             });
         } else { // all visible
             this.tasks().forEach(task => task.isVisible(true));
