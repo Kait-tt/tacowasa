@@ -364,18 +364,32 @@ class Kanban extends EventEmitter2 {
     }
 
     searchTasks (searchQuery = '') {
-        searchQuery = searchQuery.trim();
-
         if (searchQuery) { // search
             const queries = util.splitSearchQuery(searchQuery);
+            const userHasTask = {};
+            const usernameToUser = {};
+
+            this.users().forEach(user => {
+                usernameToUser[user.username()] = user;
+                userHasTask[user.username()] = false;
+            });
+
             this.tasks().forEach(task => {
                 const text = task.textForSearch();
-                task.isVisible(queries.every(q => _.includes(text, q)));
+                const hit = queries.every(q => _.includes(text, q));
+                task.isVisible(hit);
+                const assignee = task.user();
+                if (assignee) {
+                    userHasTask[assignee.username()] = hit;
+                }
+            });
+
+            _.map(userHasTask, (has, username) => {
+                usernameToUser[username].hasSearchTask(has);
             });
         } else { // all visible
-            this.tasks().forEach(task => {
-                task.isVisible(true);
-            });
+            this.tasks().forEach(task => task.isVisible(true));
+            this.users().forEach(user => user.hasSearchTask(true));
         }
     }
 

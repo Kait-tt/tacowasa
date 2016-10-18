@@ -31,6 +31,9 @@ class User {
             const username = this.username();
             return `/users/${username}/avatar`;
         });
+
+        // 検索結果のタスクを持っているか
+        this.hasSearchTask = ko.observable(true);
     }
 
     static get columnKeys () {
