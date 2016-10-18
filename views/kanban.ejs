@@ -83,7 +83,7 @@
 
         <div class="user-block-area">
             <ul class="user-blocks" data-bind="foreach: { data: users, as: 'user' }">
-                <li class="user-block" data-bind="visible: user.isVisible && (!$root.searchQuery() || user.hasSearchTask())">
+                <li class="user-block" data-bind="visible: user.isVisible() && (!$root.searchQuery() || user.hasSearchTask())">
                     <user-label params="user: user"></user-label>
 
                     <ul class="stage-blocks" data-bind="foreach: { data: $root.stages().filter(x => x.assigned()), as: 'stage' }">
