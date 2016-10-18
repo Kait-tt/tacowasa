@@ -380,7 +380,7 @@ class Kanban extends EventEmitter2 {
                 task.isVisible(hit);
                 const assignee = task.user();
                 if (assignee) {
-                    userHasTask[assignee.username()] = hit;
+                    userHasTask[assignee.username()] |= hit;
                 }
             });
 
