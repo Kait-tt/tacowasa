@@ -154,7 +154,7 @@ class GitHubAddonIssueHook {
     static unassigned (projectId, taskOnGitHub) {
         const isAssigned = taskOnGitHub.assignee || taskOnGitHub.assignees.length;
         if (isAssigned) {
-            return GitHubAddonIssueHook.assigned(projectId, taskOnGitHub);
+            return Promise.resolve({message: 'assigned? unassigned?'});
         }
 
         return db.sequelize.transaction(transaction => {
