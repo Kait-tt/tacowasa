@@ -152,6 +152,11 @@ class GitHubAddonIssueHook {
     }
 
     static unassigned (projectId, taskOnGitHub) {
+        const isAssigned = taskOnGitHub.assignee || taskOnGitHub.assignees.length;
+        if (isAssigned) {
+            return GitHubAddonIssueHook.assigned(projectId, taskOnGitHub);
+        }
+
         return db.sequelize.transaction(transaction => {
             return co(function*() {
                 const {task, justCreated} = yield GitHubAddonIssueHook.findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.User, as: 'user'}]});
