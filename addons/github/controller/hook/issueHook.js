@@ -15,10 +15,11 @@ class GitHubAddonIssueHook {
     }
 
     static opened (projectId, taskOnGitHub) {
-        return db.sequelize.transaction({
-            isolationLevel: db.Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE
-        }, transaction => {
+        return db.sequelize.transaction(transaction => {
             return co(function* () {
+                // lock
+                yield db.Project.update({updatedAt: Date()}, {where: {id: projectId}, transaction});
+
                 // exists task?
                 const existsGithubTask = yield db.GitHubTask.findOne({where: {projectId, number: taskOnGitHub.number}, transaction});
                 if (existsGithubTask) { return {message: 'task is already created'}; }
@@ -125,9 +126,7 @@ class GitHubAddonIssueHook {
     }
 
     static assigned (projectId, taskOnGitHub) {
-        return db.sequelize.transaction({
-            isolationLevel: db.Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE
-        }, transaction => {
+        return db.sequelize.transaction(transaction => {
             return co(function*() {
                 const {task, justCreated} = yield GitHubAddonIssueHook.findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.User, as: 'user'}]});
                 if (justCreated) { return {message: 'created task'}; }
@@ -187,11 +186,9 @@ class GitHubAddonIssueHook {
     }
 
     static labeled (projectId, taskOnGitHub) {
-        return db.sequelize.transaction({
-            isolationLevel: db.Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE
-        }, transaction => {
+        return db.sequelize.transaction(transaction => {
             return co(function*() {
-                yield GitHubAddonIssueHook.addProjectLabels(projectId, taskOnGitHub.labels || []);
+                yield GitHubAddonIssueHook.addProjectLabels(projectId, taskOnGitHub.labels || [], {transaction});
                 const {task, justCreated} = yield GitHubAddonIssueHook.findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.Label, as: 'labels'}]});
                 if (justCreated) { return {message: 'created task'}; }
 
@@ -206,7 +203,7 @@ class GitHubAddonIssueHook {
     static unlabeled (projectId, taskOnGitHub) {
         return db.sequelize.transaction(transaction => {
             return co(function*() {
-                yield GitHubAddonIssueHook.addProjectLabels(projectId, taskOnGitHub.labels || []);
+                yield GitHubAddonIssueHook.addProjectLabels(projectId, taskOnGitHub.labels || [], {transaction});
                 const {task, justCreated} = yield GitHubAddonIssueHook.findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.Label, as: 'labels'}]});
                 if (justCreated) { return {message: 'created task'}; }
 
@@ -241,6 +238,9 @@ class GitHubAddonIssueHook {
     static findOrCreateTask (projectId, taskOnGitHub, {transaction, include} = {}) {
         return db.sequelize.transaction({transaction}, transaction => {
             return co(function*() {
+                // lock
+                yield db.Project.update({updatedAt: Date()}, {where: {id: projectId}, transaction});
+
                 const existsGitHubTask = yield db.GitHubTask.findOne({where: {projectId, number: taskOnGitHub.number}, transaction});
                 if (!existsGitHubTask) {
                     const {task, githubTask} = yield GitHubAddonIssueHook.createTask(projectId, taskOnGitHub, {transaction});
