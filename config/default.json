@@ -27,6 +27,11 @@
     "secret": "secret"
   },
 
+  "addons": [
+    {"path": "./github"},
+    {"path": "tacowasa-mobile"}
+  ],
+
   "nightmare": {
     "show": false
   }
