@@ -56,36 +56,35 @@ describe('schemes', () => {
                 beforeEach(co.wrap(function* () {
                     const ends = yield [
                         db.coTransaction(function* (transaction) {
-                            yield updateProject({name: 'aaa'}, transaction);
-                            yield delay(100);
+                            yield db.lock(project.id, transaction);
+                            yield delay(200);
                             return new Date();
                         }),
                         db.coTransaction(function* (transaction) {
                             yield delay(10);
-                            yield updateProject({name: 'bbb'}, transaction);
+                            yield db.lock(project.id, transaction);
                             return new Date();
                         }),
                         db.coTransaction(function* (transaction) {
                             yield delay(20);
-                            yield updateProject({name: 'ccc'}, transaction);
+                            yield db.lock(project.id, transaction);
                             return new Date();
                         }),
                         db.coTransaction(function* (transaction) {
                             yield delay(30);
-                            yield updateProject({name: 'ddd'}, transaction);
+                            yield db.lock(project.id, transaction);
                             return new Date();
                         }),
                         db.coTransaction(function* (transaction) {
                             yield delay(40);
-                            yield updateProject({name: 'eee'}, transaction);
+                            yield db.lock(project.id, transaction);
                             return new Date();
-                        }),
+                        })
                     ];
                     diffTime = ends[4] - ends[0];
                 }));
 
                 it('should delayed second transaction', () => expect(diffTime).to.be.below(50));
-                it('should apply all transaction serially', () => lastProject().then(x => expect(x).to.have.property('name', 'eee')));
             });
         });
 
@@ -96,9 +95,9 @@ describe('schemes', () => {
                 const startTime = new Date();
                 const ends = yield [
                     db.coTransaction(function* (transaction) {
-                        yield updateProject({name: 'aaa'}, transaction);
+                        yield db.lock(project.id, transaction);
                         yield db.coTransaction({transaction}, function* (transaction2) {
-                            yield updateProject({name: 'ccc'}, transaction2);
+                            yield db.lock(project.id, transaction2);
                             console.log('transaction c was ended', new Date() - startTime);
                         });
                         yield delay(100);
@@ -107,7 +106,7 @@ describe('schemes', () => {
                     }),
                     db.coTransaction(function* (transaction) {
                         yield delay(20);
-                        yield updateProject({name: 'bbb'}, transaction);
+                        yield db.lock(project.id, transaction);
                         console.log('transaction b was ended', new Date() - startTime);
                         return new Date();
                     })
@@ -116,7 +115,22 @@ describe('schemes', () => {
             }));
 
             it('should delayed second transaction', () => expect(diffTime).to.be.below(50));
-            it('should apply all transaction serially', () => lastProject().then(x => expect(x).to.have.property('name', 'bbb')));
+        });
+
+        context('continuous lock', () => {
+            beforeEach(co.wrap(function* () {
+                yield [
+                    db.transaction(t => db.lock(project.id, t).then(() => delay(Math.random() * 100))),
+                    db.transaction(t => db.lock(project.id, t).then(() => delay(Math.random() * 100))),
+                    db.transaction(t => db.lock(project.id, t).then(() => delay(Math.random() * 100))),
+                    db.transaction(t => db.lock(project.id, t).then(() => delay(Math.random() * 100))),
+                    db.transaction(t => db.lock(project.id, t).then(() => delay(Math.random() * 100))),
+                    db.transaction(t => db.lock(project.id, t).then(() => delay(Math.random() * 100))),
+                    db.transaction(t => db.lock(project.id, t).then(() => delay(Math.random() * 100)))
+                ];
+            }));
+
+            it('should ok', () => {});
         });
     });
 });
