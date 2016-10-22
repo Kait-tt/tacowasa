@@ -59,8 +59,8 @@ class SocketProject {
 
     // / events
 
-    notifyText (user, text) {
-        return Activity.add(this.projectId, user ? user.username : null, text)
+    notifyText (user, text, {transaction} = {}) {
+        return Activity.add(this.projectId, user ? user.username : null, text, {transaction})
             .then(x => this.emits(user, 'notifyText', x));
     }
 
@@ -234,8 +234,8 @@ class SocketProject {
         });
     }
 
-    logging (username, action, content = {}) {
-        return db.Log.create({projectId: this.projectId, action, content: JSON.stringify(_.defaults(content, {operator: username}))});
+    logging (username, action, content = {}, {transaction} = {}) {
+        return db.Log.create({projectId: this.projectId, action, content: JSON.stringify(_.defaults(content, {operator: username}))}, {transaction});
     }
 
     get joinedUsernames () {

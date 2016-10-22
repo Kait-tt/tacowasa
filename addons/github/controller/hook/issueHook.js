@@ -337,9 +337,9 @@ class GitHubAddonIssueHook {
             const user = {isGitHub: true, username: 'github'};
             const socketProject = GitHubAddonIssueHook.socketProject(projectId);
             if (socketProject) {
-                yield socketProject.logging(user.username, name, logContent || {task});
+                yield socketProject.logging(user.username, name, logContent || {task}, {transaction});
                 socketProject.emits(user, name, _.assign(moreParams, {task}));
-                yield socketProject.notifyText(user, notifyText).catch(err => console.error(err));
+                yield socketProject.notifyText(user, notifyText, {transaction}).catch(err => console.error(err));
             }
         });
     }
