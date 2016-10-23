@@ -28,8 +28,7 @@
   },
 
   "addons": [
-    {"path": "./github"},
-    {"path": "tacowasa-mobile"}
+    {"path": "./github"}
   ],
 
   "nightmare": {
