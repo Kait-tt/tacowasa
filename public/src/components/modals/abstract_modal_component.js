@@ -3,7 +3,7 @@ const EventEmitter2 = require('eventemitter2');
 const ko = require('knockout');
 
 class AbstractModalComponent extends EventEmitter2 {
-    constructor ({eventEmitterOptions = {}}) {
+    constructor ({eventEmitterOptions = {}} = {}) {
         super(eventEmitterOptions);
     }
 
