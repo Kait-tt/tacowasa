@@ -2,7 +2,7 @@
 <ul class="task-card-list" data-bind="sortable: {
                             data: tasks }">
   <li class="task-card-wrap" draggable="true" data-bind="visible: ($index() < 2 || !$parent.isCollapse() || !$parent.user) && isVisible()">
-    <task-card params="task: $data"></task-card>
+    <task-card params="task: $data, element: $element"></task-card>
   </li>
 </ul>
 <!-- /ko -->

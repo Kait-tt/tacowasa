@@ -1,0 +1,14 @@
+@charset "UTF-8";
+
+.task-qr {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin-left: 12px;
+  display: inline-block;
+}
+
+.task-qr ~ .task-card-title-wrap {
+  width: 200px;
+  margin-left: 6px;
+}
