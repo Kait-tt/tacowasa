@@ -55,7 +55,9 @@ class SocketSerializer {
     }
 
     onUpdateUser ({username, user}) {
-        this.project.updateUser({username}, _.assign({}, user, user.member));
+        user.isVisible = user.member.isVisible;
+        user.wipLimit = user.member.wipLimit;
+        this.project.updateUser({username}, user);
     }
 
     onUpdateUserOrder ({username, beforeUsername}) {
