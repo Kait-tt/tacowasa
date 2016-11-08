@@ -44,6 +44,7 @@ const TaskCardMiniMenu = require('../../components/task_card_mini_menu');
 class Kanban extends EventEmitter2 {
     constructor ({eventEmitterOptions = {}, project}) {
         super(eventEmitterOptions);
+        localStorage.load();
 
         this.joinedUsers = ko.observableArray([]);
         this.joinedUniqueUsers = ko.computed(() => _.uniq(this.joinedUsers()));
