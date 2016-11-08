@@ -26,7 +26,8 @@
     "exclude": [
       "**/spec/**",
       "**/migrations/**",
-      "public/dist/**"
+      "public/dist/**",
+      "node_modules/"
     ],
     "require": [
       "babel-register",
