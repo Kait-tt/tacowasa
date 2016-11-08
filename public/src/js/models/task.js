@@ -84,10 +84,6 @@ class Task {
         ];
     }
 
-    static get calcAllWorkingIntervalTime () {
-        return 1000 * 20; // 20 seconds
-    }
-
     calcAllWorkTime () {
         const times = this.works().map(x => x.calcDuration());
         return _.sum(times);
@@ -115,6 +111,7 @@ class Task {
     stopCalcWorkTimeInterval () {
         if (this.calcWorkTimeIntervalId) {
             clearInterval(this.calcWorkTimeIntervalId);
+            this.calcWorkTimeIntervalId = null;
         }
 
         if (!this.isRunningCalcWorkTimeInterval) { return; }
