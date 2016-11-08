@@ -52,6 +52,7 @@ function decorateQR (taskCardViewModel) {
     const eles = taskCardViewModel.element.getElementsByClassName('task-card');
     if (!eles.length) { throw new Error('.task-card element was not found'); }
     const ele = eles[0];
+    ele.classList.add('have-task-qr');
 
     const taskCardTitleWraps = ele.getElementsByClassName('task-card-title-wrap');
     if (!taskCardTitleWraps.length) { throw new Error('.taskCardTitleWraps element was not found'); }
@@ -67,4 +68,8 @@ function undecorateAllQR () {
             qr.parentNode.removeChild(qr);
         }
     }
+
+    _.forEach(document.getElementsByClassName('task-card'), ele => {
+        ele.classList.remove('have-task-qr');
+    });
 }

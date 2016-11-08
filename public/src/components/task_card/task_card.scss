@@ -12,6 +12,7 @@
   cursor: pointer;
   display: block;
   border-top: 1px solid #f0f0f0;
+  transition: all .2s ease-in-out;
 
   .task-card-label-block {
     float: left;
