@@ -12,15 +12,23 @@ describe('models', () => {
     describe('task', () => {
         const usernames = ['owner', 'user1'];
         const taskTitles = ['task1', 'task2', 'task3', 'task4', 'task5'];
-        let project;
+        let project, project2;
 
         after(() => helper.db.clean());
-        before(() => Project.create('project1', usernames[0], {include: [
-            {model: db.User, as: 'users'},
-            {model: db.Stage, as: 'stages', separate: true},
-            {model: db.Cost, as: 'costs', separate: true},
-            {model: db.Label, as: 'labels'}
-        ]}).then(x => { project = x; }));
+        before(co.wrap(function* () {
+            project = yield Project.create('project1', usernames[0], {include: [
+                {model: db.User, as: 'users'},
+                {model: db.Stage, as: 'stages', separate: true},
+                {model: db.Cost, as: 'costs', separate: true},
+                {model: db.Label, as: 'labels'}
+            ]});
+            project2 = yield Project.create('project1', usernames[0]);
+        }));
+        beforeEach(co.wrap(function* () {
+            yield Task.create(project2.id, {title: 'other project task1', body: ''});
+            yield Task.create(project2.id, {title: 'other project task2', body: ''});
+            yield Task.create(project2.id, {title: 'other project task3', body: ''});
+        }));
         afterEach(() => db.Task.destroy({where: {}}));
 
         it('project should have no task', () => expectTaskSize(project.id, 0));
@@ -328,6 +336,35 @@ describe('models', () => {
                     it('should throw error', () => expect(Task.updateOrder(project.id, tasks[1].id, -1))
                         .to.be.rejectedWith(/was not found/));
                 });
+
+                context('with random update order and create', () => {
+                    it('should be ordered', co.wrap(function* () {
+                        const ids = _.map(yield Task.getAllSorted(project.id), 'id');
+                        for (let i = 0; i < 10; i++) {
+                            if (_.random(5)) {
+                                const from = _.random(0, ids.length - 1);
+                                const to = _.random(3) ? _.random(0, 4) : null;
+                                const target = ids[from];
+                                const before = _.isNumber(to) ? ids[to] : null;
+                                if (from !== to) {
+                                    if (_.isNumber(to)) {
+                                        ids.splice(from, 1);
+                                        ids.splice(ids.indexOf(before), 0, target);
+                                    } else {
+                                        ids.splice(from, 1);
+                                        ids.push(target);
+                                    }
+                                }
+                                yield Task.updateOrder(project.id, target, before);
+                            } else {
+                                const newTask = yield Task.create(project.id, {title: '', body: ''});
+                                ids.unshift(newTask.id);
+                            }
+
+                            yield expectOrder(project.id, ids);
+                        }
+                    }));
+                });
             });
 
             describe('#updateStatusAndOrder', () => {
@@ -363,7 +400,7 @@ function expectOrder (projectId, ids) {
         tasks.forEach(({id, prevTaskId, nextTaskId}, idx) => {
             expect(id).to.equal(ids[idx]);
             expect(prevTaskId).to.equal(idx ? ids[idx - 1] : null);
-            expect(nextTaskId).to.equal(idx + 1 < 5 ? ids[idx + 1] : null);
+            expect(nextTaskId).to.equal(idx + 1 < ids.length ? ids[idx + 1] : null);
         });
     });
 }
