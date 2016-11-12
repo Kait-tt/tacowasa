@@ -216,7 +216,7 @@ class GitHubAPI {
                 for (let taskOnGitHub of tasksOnGitHub) {
                     const githubTask = yield db.GitHubTask.findOne({where: {number: String(taskOnGitHub.number)}, transaction});
                     if (!githubTask) { continue; }
-                    const task = yield db.Task.findOne({where: {id: githubTask.taskId}, transaction});
+                    const task = yield db.Task.findOne({where: {id: githubTask.taskId, projectId}, transaction});
                     if (!task) { continue; }
                     for (let taskLabelOnGitHub of taskOnGitHub.labels || []) {
                         const label = _.find(labels, {name: taskLabelOnGitHub.name});
