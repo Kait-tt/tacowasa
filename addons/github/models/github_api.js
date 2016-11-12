@@ -214,7 +214,7 @@ class GitHubAPI {
 
                 // attach all task labels
                 for (let taskOnGitHub of tasksOnGitHub) {
-                    const githubTask = yield db.GitHubTask.findOne({where: {number: String(taskOnGitHub.number)}, transaction});
+                    const githubTask = yield db.GitHubTask.findOne({where: {number: String(taskOnGitHub.number), projectId}, transaction});
                     if (!githubTask) { continue; }
                     const task = yield db.Task.findOne({where: {id: githubTask.taskId, projectId}, transaction});
                     if (!task) { continue; }
