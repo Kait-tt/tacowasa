@@ -50,6 +50,9 @@ class TaskCardMiniMenu extends EventEmitter2 {
                 this.onClickTaskAssign = taskCardMiniMenu.onClickTaskAssign.bind(taskCardMiniMenu, this.task);
                 this.onClickTaskPrevStage = taskCardMiniMenu.onClickTaskPrevStage.bind(taskCardMiniMenu, this.task);
 
+                this.initRendered = ko.observable(false);
+                this.initRender = () => { this.initRendered(true); };
+
                 this.view = new TaskCardMiniMenuView(this.element);
 
                 taskCardMiniMenu.onLoad(this);

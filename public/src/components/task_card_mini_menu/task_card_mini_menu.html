@@ -1,10 +1,10 @@
 <div class="mini-menu">
-  <div class="mini-menu-default">
+  <div class="mini-menu-default" data-bind="event: { 'mouseover': initRender }">
     <button type="button" class="btn btn-sm btn-default">
       <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
     </button>
   </div>
-  <ul class="mini-menu-list">
+  <ul class="mini-menu-list" data-bind="if: initRendered">
     <li class="mini-menu-item" data-bind="click: onClickTaskDetail,
                         tooltip: { title: 'Detail', placement:'left', delay: { show: 200, hide: 100 } }">
       <button type="button" class="btn btn-sm btn-default">
