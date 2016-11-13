@@ -45,7 +45,9 @@ const webpackConfig = {
         ]
     },
     htmlLoader: {
-        attrs: ['minimize']
+        attrs: ['minimize'],
+        removeComments: false,
+        minimize: true
     },
     sassLoader: {
         includePaths: [path.join(__dirname, '/public/src/scss')]
@@ -71,15 +73,13 @@ const webpackConfig = {
 };
 
 // production
-// TODO: why throw runtime error with knockout?
-// if (process.env.NODE_ENV === 'production') {
-//     const uglifyJsPlugin = new webpack.optimize.UglifyJsPlugin({
-//         compress: {
-//             warnings: false
-//         },
-//         test: /\.(js|json)$/
-//     });
-//     webpackConfig.plugins.push(uglifyJsPlugin);
-// }
+if (process.env.NODE_ENV === 'production') {
+    const uglifyJsPlugin = new webpack.optimize.UglifyJsPlugin({
+        compress: {
+            warnings: false
+        }
+    });
+    webpackConfig.plugins.push(uglifyJsPlugin);
+}
 
 module.exports = webpackConfig;
