@@ -33,7 +33,7 @@ class GitHubAddonController {
         const projectId = req.params && req.params.projectId;
 
         co(function* () {
-            const project = yield db.Project.findOne({where: {id: projectId}});
+            const project = yield db.Project.findOne({where: {id: projectId}, include: []});
             if (!project) {
                 res.status(404).json({message: 'project was not found'});
                 return;

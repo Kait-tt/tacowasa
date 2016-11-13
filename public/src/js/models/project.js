@@ -49,9 +49,8 @@ class Project {
         _.reverse(opts.tasks || []).forEach(x => this.addTask(x));
 
         // defaultValue init
-        this.defaultStage = ko.pureComputed(() => this.stages().find(x => x.id() === opts.defaultStage.id));
-        this.defaultCost = ko.pureComputed(() => this.costs().find(x => x.id() === opts.defaultCost.id));
-        this.defaultStage = ko.pureComputed(() => this.stages().find(x => x.id() === opts.defaultStage.id));
+        this.defaultStage = ko.pureComputed(() => this.stages().find(x => this.getStage({id: x.id()})));
+        this.defaultCost = ko.pureComputed(() => this.costs().find(x => this.getCost({id: x.id()})));
 
         // getTasksのmemo
         this.memoGetTasks = {};
@@ -142,11 +141,11 @@ class Project {
 
     addTask (taskParams) {
         taskParams.labels = (taskParams.labels || []).map(x => this.getLabel({id: x.id}));
-        taskParams.user = taskParams.user && this.getUser({id: taskParams.user.id});
-        taskParams.cost = taskParams.cost && this.getCost({id: taskParams.cost.id});
-        taskParams.stage = taskParams.stage && this.getStage({id: taskParams.stage.id});
+        taskParams.user = this.getUser({id: taskParams.userId || (taskParams.user && taskParams.user.id) || null});
+        taskParams.cost = this.getCost({id: taskParams.costId || taskParams.cost.id});
+        taskParams.stage = this.getStage({id: taskParams.stageId || taskParams.stage.id});
         taskParams.works = (taskParams.works || []).map(workParams => {
-            workParams.user = workParams.user && this.getUser({id: workParams.user.id});
+            workParams.user = this.getUser({id: workParams.userId || (workParams.user && workParams.user.id || null)});
             return new Work(workParams);
         });
         const task = new Task(taskParams);
@@ -262,7 +261,7 @@ class Project {
                 const val = ko.unwrap(user[whereKey]);
                 return val === whereValue;
             });
-        });
+        }) || null;
     }
 
     addUser (userParam) {
@@ -314,7 +313,7 @@ class Project {
                 const val = ko.unwrap(label[whereKey]);
                 return val === whereValue;
             });
-        });
+        }) || null;
     }
 
     addLabel (labelParams) {
@@ -360,7 +359,7 @@ class Project {
                 const val = ko.unwrap(stage[whereKey]);
                 return val === whereValue;
             });
-        });
+        }) || null;
     }
 
     addStage (stageParams) {
@@ -376,7 +375,7 @@ class Project {
                 const val = ko.unwrap(cost[whereKey]);
                 return val === whereValue;
             });
-        });
+        }) || null;
     }
 
     addCost (costParams) {
