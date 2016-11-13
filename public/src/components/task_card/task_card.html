@@ -1,4 +1,6 @@
-<div class="task-card" draggable="true" data-bind="visible: task.isVisible">
+<div class="task-card" draggable="true" data-bind="visible: task.isVisible,
+                                                   attr: { draggable: isInitialized() ? 'true' : 'false' }">
+  <!-- ko if: isInitialized -->
   <div class="task-card-right-wrapper">
     <task-card-mini-menu params="task: task, element: $element"></task-card-mini-menu>
     <div class="task-weight-badge" data-bind="text: task.cost().value, css: {
@@ -22,4 +24,8 @@
     <!-- /ko -->
     <span class="card-title" data-bind="text: task.displayTitle, css: { 'is-working': task.stage().canWork }"></span>
   </div>
+  <!-- /ko -->
+  <!-- ko ifnot: isInitialized -->
+  <div class="loader"></div>
+  <!-- /ko -->
 </div>

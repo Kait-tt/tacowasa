@@ -14,6 +14,13 @@
   border-top: 1px solid #f0f0f0;
   transition: all .2s ease-in-out;
 
+  .loader {
+    width: 38px;
+    height: 38px;
+    border-width: 0.4em;
+    margin: 0 auto;
+  }
+
   .task-card-label-block {
     float: left;
     position: relative;
