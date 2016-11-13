@@ -35,11 +35,8 @@ new Scroller({
     cancelSelector: ['.task-card', '.activity-wrap', '.modal'].join(',')
 });
 
-console.time('fetch');
 Project.fetch(projectId)
     .then(_project => {
-        console.timeEnd('fetch');
-        console.time('apply');
         project = _project;
         kanban = new Kanban({project});
         new AlertHub({alert, kanban, socket: kanban.socket});
@@ -57,8 +54,6 @@ Project.fetch(projectId)
         ko.applyBindings(vm);
 
         setConfirmTransition();
-
-        kanban.socket.on('connect', () => console.timeEnd('apply'))
     });
 
 // 作業中で画面遷移しようとしたら確認ダイアログを表示する
