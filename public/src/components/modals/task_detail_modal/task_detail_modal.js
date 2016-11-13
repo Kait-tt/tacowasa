@@ -31,7 +31,7 @@ class TaskDetailModal extends AbstractModalComponent {
             this.editWorkHistoryMode('view');
         });
 
-        this.overWipLimit = ko.computed(() => {
+        this.overWipLimit = ko.pureComputed(() => {
             const task = this.task();
             const user = task && task.user();
             const cost = this.cost();
@@ -39,11 +39,11 @@ class TaskDetailModal extends AbstractModalComponent {
             return task && user && cost && user.willBeOverWipLimit(cost.value - task.cost().value);
         });
 
-        this.canSaveWorkHistory = ko.computed(() => {
+        this.canSaveWorkHistory = ko.pureComputed(() => {
             return this.works().every(work => work.isValidStartTime() && work.isValidEndTime());
         });
 
-        this.canUpdate = ko.computed(() => {
+        this.canUpdate = ko.pureComputed(() => {
             return this.canSaveWorkHistory() && !this.overWipLimit();
         });
 

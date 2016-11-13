@@ -9,7 +9,7 @@ class CreateTaskModal extends AbstractModalComponent {
         this.title = ko.observable('');
         this.body = ko.observable('');
 
-        this.stages = ko.computed(() => project.stages().filter(x => !x.assigned()));
+        this.stages = ko.pureComputed(() => project.stages().filter(x => !x.assigned()));
         this.stage = ko.observable(project.defaultStage());
 
         this.costs = project.costs;

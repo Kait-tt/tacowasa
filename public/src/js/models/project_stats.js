@@ -10,15 +10,15 @@ class ProjectStats {
         this.stages = project.stages;
 
         // 全作業時間の合計
-        this.totalTime = ko.computed(() => {
+        this.totalTime = ko.pureComputed(() => {
             const times = this.project.tasks().map(x => x.allWorkTime());
             return _.sum(times);
         });
 
-        this.totalTimeFormat = ko.computed(() => util.dateFormatHM(this.totalTime()));
+        this.totalTimeFormat = ko.pureComputed(() => util.dateFormatHM(this.totalTime()));
 
         // ラベルごとの全作業時間の合計
-        this.totalTimeLabels = ko.computed(() => {
+        this.totalTimeLabels = ko.pureComputed(() => {
             const noneKey = '(none)';
             const res = {};
             res[noneKey] = 0;

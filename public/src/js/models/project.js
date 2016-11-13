@@ -49,15 +49,15 @@ class Project {
         _.reverse(opts.tasks || []).forEach(x => this.addTask(x));
 
         // defaultValue init
-        this.defaultStage = ko.computed(() => this.stages().find(x => x.id() === opts.defaultStage.id));
-        this.defaultCost = ko.computed(() => this.costs().find(x => x.id() === opts.defaultCost.id));
-        this.defaultStage = ko.computed(() => this.stages().find(x => x.id() === opts.defaultStage.id));
+        this.defaultStage = ko.pureComputed(() => this.stages().find(x => x.id() === opts.defaultStage.id));
+        this.defaultCost = ko.pureComputed(() => this.costs().find(x => x.id() === opts.defaultCost.id));
+        this.defaultStage = ko.pureComputed(() => this.stages().find(x => x.id() === opts.defaultStage.id));
 
         // getTasksのmemo
         this.memoGetTasks = {};
 
         // url of kanban board page
-        this.url = ko.computed(() => {
+        this.url = ko.pureComputed(() => {
             const username = this.createUser().username;
             const id = this.id();
             const name = this.name();
@@ -131,7 +131,7 @@ class Project {
         const stageKey = stage ? stage.id() : '(none)';
         const key = `${userKey}__${stageKey}`;
         if (!this.memoGetTasks[key]) {
-            this.memoGetTasks[key] = ko.computed(() => {
+            this.memoGetTasks[key] = ko.pureComputed(() => {
                 return this.tasks().filter(task => {
                     return (!user || task.user() === user) && (!stage || task.stage() === stage);
                 });

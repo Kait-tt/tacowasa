@@ -14,9 +14,9 @@ class AssignTaskModal extends AbstractModalComponent {
             }
         });
 
-        this.canAssignUsers = ko.computed(() => project.users().filter(user => !user.isWipLimited()));
+        this.canAssignUsers = ko.pureComputed(() => project.users().filter(user => !user.isWipLimited()));
 
-        this.canAssign = ko.computed(() => this.user());
+        this.canAssign = ko.pureComputed(() => this.user());
     }
 
     assign () {

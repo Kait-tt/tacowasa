@@ -7,7 +7,7 @@ class Label {
         Label.columnKeys.forEach(key => { this[key] = ko.observable(opts[key]); });
 
         // colorに対して見やすい文字色（白or黒）
-        this.invertMonoColor = ko.computed(() => {
+        this.invertMonoColor = ko.pureComputed(() => {
             const color = parseInt(this.color(), 16);
             const mono = Math.floor(((color & 0xff) + (color >> 8 & 0xff) + (color >> 16 & 0xff)) / 3);
             const invert = mono < 0x88 ? 0xff : 0x00;

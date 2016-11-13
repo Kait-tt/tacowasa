@@ -10,13 +10,13 @@ class User {
         this.workingTask = ko.observable(false);
 
         // 作業開始からどのくらいの時間がたっているか
-        this.workingTime = ko.computed(() => {
+        this.workingTime = ko.pureComputed(() => {
             const task = this.workingTask();
             return task ? task.lastWorkTime() : 0;
         });
 
         // 作業開始からどのくらいの時間がたっているか (h時間m分)
-        this.workingTimeFormat = ko.computed(() => {
+        this.workingTimeFormat = ko.pureComputed(() => {
             return util.dateFormatHM(this.workingTime());
         });
 
@@ -24,10 +24,10 @@ class User {
         this.wip = ko.observable(0);
 
         // 仕掛数MAX
-        this.isWipLimited = ko.computed(() => this.wip() >= this.wipLimit());
+        this.isWipLimited = ko.pureComputed(() => this.wip() >= this.wipLimit());
 
         // アバターURL
-        this.avatarUrl = ko.computed(() => {
+        this.avatarUrl = ko.pureComputed(() => {
             const username = this.username();
             return `/users/${username}/avatar`;
         });

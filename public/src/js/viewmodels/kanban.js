@@ -47,7 +47,7 @@ class Kanban extends EventEmitter2 {
         localStorage.load();
 
         this.joinedUsers = ko.observableArray([]);
-        this.joinedUniqueUsers = ko.computed(() => _.uniq(this.joinedUsers()));
+        this.joinedUniqueUsers = ko.pureComputed(() => _.uniq(this.joinedUsers()));
 
         this.activities = ko.observableArray();
 
@@ -64,9 +64,9 @@ class Kanban extends EventEmitter2 {
         this.stages = project.stages;
         this.stats = new ProjectStats({project});
 
-        this.loginUser = ko.computed(() => this.users().find(user => user.username() === global.username));
+        this.loginUser = ko.pureComputed(() => this.users().find(user => user.username() === global.username));
 
-        this.canAssignUsers = ko.computed(() => this.users().filter(user => !user.isWipLimited()));
+        this.canAssignUsers = ko.pureComputed(() => this.users().filter(user => !user.isWipLimited()));
 
         this.selectedTask = ko.observable();
         this.selectedUser = ko.observable();

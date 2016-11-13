@@ -13,11 +13,11 @@ class Work {
             opts.isEnded(true);
         }
 
-        this.isValidStartTime = ko.computed(() => this.validateStartTime());
-        this.isValidEndTime = ko.computed(() => this.validateEndTime());
-        this.isValidUser = ko.computed(() => this.validateUser());
+        this.isValidStartTime = ko.pureComputed(() => this.validateStartTime());
+        this.isValidEndTime = ko.pureComputed(() => this.validateEndTime());
+        this.isValidUser = ko.pureComputed(() => this.validateUser());
 
-        this.startTimeFormat = ko.computed({
+        this.startTimeFormat = ko.pureComputed({
             read: () => {
                 return util.dateFormatYMDHM(this.startTime());
             },
@@ -28,7 +28,7 @@ class Work {
             owner: this
         });
 
-        this.endTimeFormat = ko.computed({
+        this.endTimeFormat = ko.pureComputed({
             read: () => {
                 return this.endTime() ? util.dateFormatYMDHM(this.endTime()) : null;
             },
@@ -40,12 +40,12 @@ class Work {
             owner: this
         });
 
-        this.duration = ko.computed(() => {
+        this.duration = ko.pureComputed(() => {
             const duration = this.calcDuration(false);
             return _.isNumber(duration) ? util.dateFormatHM(duration) : null;
         });
 
-        this.username = ko.computed(() => {
+        this.username = ko.pureComputed(() => {
             const user = this.user();
             return user && user.username();
         }, this);

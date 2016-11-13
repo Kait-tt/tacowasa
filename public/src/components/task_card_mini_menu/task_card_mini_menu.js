@@ -41,8 +41,8 @@ class TaskCardMiniMenu extends EventEmitter2 {
                 this.task = params.task;
                 this.element = params.element;
 
-                this.enabledNextStageItem = ko.computed(() => !_.includes(['backlog', 'archive'], this.task.stage().name()));
-                this.enabledPrevStageItem = ko.computed(() => !_.includes(['issue', 'done'], this.task.stage().name()));
+                this.enabledNextStageItem = ko.pureComputed(() => !_.includes(['backlog', 'archive'], this.task.stage().name()));
+                this.enabledPrevStageItem = ko.pureComputed(() => !_.includes(['issue', 'done'], this.task.stage().name()));
 
                 this.onClickTaskDetail = taskCardMiniMenu.onClickTaskDetail.bind(taskCardMiniMenu, this.task);
                 this.onClickTaskNextStage = taskCardMiniMenu.onClickTaskNextStage.bind(taskCardMiniMenu, this.task);

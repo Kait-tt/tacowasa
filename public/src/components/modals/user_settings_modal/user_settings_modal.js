@@ -12,8 +12,8 @@ class UserSettingsModal extends AbstractModalComponent {
             this.wipLimit(user.wipLimit());
         });
 
-        this.canRemove = ko.computed(() => this.user() && this.user().wip() === 0);
-        this.canUpdate = ko.computed(() => this.user() && this.user().wip() <= this.wipLimit());
+        this.canRemove = ko.pureComputed(() => this.user() && this.user().wip() === 0);
+        this.canUpdate = ko.pureComputed(() => this.user() && this.user().wip() <= this.wipLimit());
     }
 
     remove () {

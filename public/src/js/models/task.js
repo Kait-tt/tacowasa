@@ -14,13 +14,13 @@ class Task {
 
         this.isVisible = ko.observable(true); // local
 
-        this.displayTitle = ko.computed(() => this.title());
+        this.displayTitle = ko.pureComputed(() => this.title());
 
         // 合計作業時間 (ms)
         this.allWorkTime = ko.observable(0);
 
         // 合計作業時間 (h時間m分)
-        this.allWorkTimeFormat = ko.computed(() => {
+        this.allWorkTimeFormat = ko.pureComputed(() => {
             return util.dateFormatHM(this.allWorkTime());
         });
 
@@ -28,7 +28,7 @@ class Task {
         this.lastWorkTime = ko.observable(0);
 
         // 検索用テキスト
-        this.textForSearch = ko.computed(() => {
+        this.textForSearch = ko.pureComputed(() => {
             const res = [this.title(), this.body()];
 
             // cost
