@@ -47,12 +47,8 @@ class ProjectStats {
         return db.coTransaction({transaction}, function* () {
             const projectStats = yield db.ProjectStats.findOne({where: {projectId}, transaction});
             if (!projectStats) { return false; }
-            return Date.now() - new Date(projectStats.updatedAt) < ProjectStats.cacheTime;
+            return Date.now() - new Date(projectStats.updatedAt) < config.get('stats.cacheTime');
         });
-    }
-
-    static get cacheTime () {
-        return config.get('stats.cacheTime');
     }
 }
 

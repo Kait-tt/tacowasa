@@ -1,5 +1,4 @@
 'use strict';
-const _ = require('lodash');
 const co = require('co');
 const sinon = require('sinon');
 const config = require('config');

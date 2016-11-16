@@ -1,11 +1,12 @@
 'use strict';
 const co = require('co');
+const config = require('config');
 const AddonSocketOn = require('../addon/socket_on');
 const ProjectStats = require('./models/project_stats');
 
 class StatsSocketOn extends AddonSocketOn {
     static get statsIntervalTime () {
-        return 30000;
+        return config.get('stats.cacheTime') / 2;
     }
 
     static get socketEventKeys () {
