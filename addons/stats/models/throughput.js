@@ -7,8 +7,6 @@ const Project = require('../../../lib/models/project');
 class Throughput {
     static calcAll (projectId, {transaction} = {}) {
         return db.coTransaction({transaction}, function* () {
-            yield Throughput.lock(projectId, {transaction});
-
             const project = yield Throughput._fetchProject(projectId, {transaction});
 
             const doneStageIds = project.stages
@@ -41,10 +39,6 @@ class Throughput {
 
             return memberThroughput;
         });
-    }
-
-    static lock (projectId, {transaction} = {}) {
-        return db.ProjectStats.update({updatedAt: Date()}, {where: {projectId}, transaction});
     }
 
     static _calcMemberThroughput (tasks) {

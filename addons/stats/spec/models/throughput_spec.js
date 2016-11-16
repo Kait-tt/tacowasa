@@ -13,7 +13,7 @@ const EPS = 1e-6;
 describe('addons', () => {
     describe('stats', () => {
         describe('models', () => {
-            describe('throughput', () => {
+            describe('Throughput', () => {
                 let project;
                 let userIds;
                 let stageIds;
