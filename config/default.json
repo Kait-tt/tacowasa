@@ -32,6 +32,10 @@
     {"path": "./path"}
   ],
 
+  "stats": {
+    "cacheTime": 300000
+  },
+
   "nightmare": {
     "show": false
   }

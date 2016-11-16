@@ -1,6 +1,5 @@
 'use strict';
 const _ = require('lodash');
-const co = require('co');
 const db = require('../schemas');
 const Project = require('../../../lib/models/project');
 
@@ -53,7 +52,7 @@ class Throughput {
     }
 
     static _updateThroughput (projectId, userId, throughput, {transaction} = {}) {
-        return co(function* () {
+        return db.coTransaction({transaction}, function* () {
             const member = yield db.Member.findOne({where: {projectId, userId}, transaction});
             yield db.MemberStats.upsert({
                 memberId: member.id,
