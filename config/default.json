@@ -28,7 +28,8 @@
   },
 
   "addons": [
-    {"path": "./github"}
+    {"path": "./github"},
+    {"path": "./path"}
   ],
 
   "nightmare": {
