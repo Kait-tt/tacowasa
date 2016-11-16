@@ -57,10 +57,12 @@ class ThroughputTableComponent extends EventEmitter2 {
       </thead>
       <tbody>
         <!-- ko foreach: {data: users, as: 'user'} -->
+        <!-- ko if: isVisible -->
         <tr>
           <td data-bind="text: user.username"></td>
           <td data-bind="text: $component.throughputs[user.id()]"></td>
         </tr>
+        <!-- /ko -->
         <!-- /ko -->
       </tbody>
     </table>
