@@ -4,7 +4,7 @@ const AddonSocketOn = require('../addon/socket_on');
 
 class StatsSocketOn extends AddonSocketOn {
     static get throughputIntervalTime () {
-        return 5000;
+        return 30000;
     }
 
     static get socketEventKeys () {
