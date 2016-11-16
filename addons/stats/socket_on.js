@@ -1,38 +1,40 @@
 'use strict';
 const co = require('co');
 const AddonSocketOn = require('../addon/socket_on');
+const ProjectStats = require('./models/project_stats');
 
 class StatsSocketOn extends AddonSocketOn {
-    static get throughputIntervalTime () {
+    static get statsIntervalTime () {
         return 30000;
     }
 
     static get socketEventKeys () {
-        return ['fetchThroughput'];
+        return ['fetchStats'];
     }
 
-    static fetchThroughput (socketProject, user, params) {
+    static fetchStats (socketProject, user, params) {
         return co(function* () {
-            yield socketProject.logging(user.username, 'throughput');
-            StatsSocketOn.startThroughputInterval(socketProject, user);
+            yield socketProject.logging(user.username, 'fetchStats');
+            StatsSocketOn.stats(socketProject, user);
+            StatsSocketOn.startStatsInterval(socketProject, user);
         });
     }
 
-    static startThroughputInterval (socketProject, user) {
+    static startStatsInterval (socketProject, user) {
         const _id = setInterval(() => {
             if (user.active) {
-                StatsSocketOn.throughput(socketProject, user);
+                StatsSocketOn.stats(socketProject, user);
             } else {
                 clearInterval(_id);
             }
-        }, StatsSocketOn.throughputIntervalTime);
+        }, StatsSocketOn.statsIntervalTime);
         return _id;
     }
 
-    static throughput (socketProject, user) {
+    static stats (socketProject, user) {
         return co(function* () {
-            yield socketProject.logging(user.username, 'throughput');
-            user.socket.emit('throughput', {});
+            const stats = yield ProjectStats.calcAll(socketProject.projectId);
+            user.socket.emit('stats', stats);
         });
     }
 }
