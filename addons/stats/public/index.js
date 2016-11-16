@@ -8,6 +8,7 @@ module.exports = {
         throughputTableComponent.register();
 
         socket.on('stats', req => {
+            console.debug('on stats', req);
             throughputTableComponent.updateThroughputs(req.members);
         });
 
