@@ -1,0 +1,39 @@
+<div class="project-iterations">
+  <h3>イテレーション</h3>
+
+  <div class="create-iteration-block">
+    <form class="form-inline">
+      <div class="form-group">
+        <label for="new-iteration-start-time">Start</label>
+        <input type="date" id="new-iteration-start-time" class="form-control" data-bind="value: newStartTime">
+      </div>
+      <div class="form-group">
+        <label for="new-iteration-end-time">End</label>
+        <input type="date" id="new-iteration-end-time" class="form-control" data-bind="value: newEndTime">
+      </div>
+      <button class="btn btn-sm add-iteration-btn btn-primary" data-bind="
+            click: createIteration">
+        <span class="glyphicon glyphicon-plus"></span> Create new iteration
+      </button>
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Start</th>
+          <th>End</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- ko foreach: {data: iterations, as: 'it'} -->
+        <tr>
+          <td data-bind="text: it.startTime"></td>
+          <td data-bind="text: it.endTime"></td>
+        </tr>
+        <!-- /ko -->
+      </tbody>
+    </table>
+  </div>
+</div>

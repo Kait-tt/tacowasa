@@ -14,7 +14,7 @@ class StatsSocketOn extends AddonSocketOn {
         return ['fetchStats', 'createIteration', 'removeIteration', 'updateIteration'];
     }
 
-    static fetchStats (socketProject, user, params) {
+    static fetchStats (socketProject, user) {
         return co(function* () {
             yield socketProject.logging(user.username, 'fetchStats');
             StatsSocketOn.stats(socketProject, user);
@@ -64,7 +64,7 @@ class StatsSocketOn extends AddonSocketOn {
         return co(function* () {
             const stats = yield ProjectStats.calcAll(socketProject.projectId);
             user.socket.emit('stats', stats);
-        });
+        }).catch(err => console.error(err));
     }
 }
 

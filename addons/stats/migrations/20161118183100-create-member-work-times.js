@@ -1,23 +1,51 @@
 'use strict';
 module.exports = {
     up: function(queryInterface, Sequelize) {
-        return queryInterface.changeColumn(
-            'projectStats',
-            'projectId',
-            {
+        return queryInterface.createTable('memberWorkTimes', {
+            id: {
                 allowNull: false,
-                type: Sequelize.STRING
-            }
-        )
-    },
-    down: function(queryInterface, Sequelize) {
-        return queryInterface.changeColumn(
-            'projectStats',
-            'projectId',
-            {
+                autoIncrement: true,
+                primaryKey: true,
+                type: Sequelize.INTEGER
+            },
+            memberId: {
                 allowNull: false,
                 type: Sequelize.INTEGER
+            },
+            promisedMinutes: {
+                allowNull: false,
+                type: Sequelize.INTEGER
+            },
+            actualMinutes: {
+                allowNull: false,
+                defaultValue: 0,
+                type: Sequelize.INTEGER
+            },
+            iterationId: {
+                allowNull: false,
+                type: Sequelize.INTEGER
+            },
+            startTime: {
+                allowNull: false,
+                type: Sequelize.DATE
+            },
+            endTime: {
+                allowNull: false,
+                type: Sequelize.DATE
+            },
+            createdAt: {
+                allowNull: false,
+                type: Sequelize.DATE
+            },
+            updatedAt: {
+                allowNull: false,
+                type: Sequelize.DATE
             }
-        );
+        }, {
+            engine: process.env.NODE_ENV === 'test' ? 'MYISAM' : 'InnoDB',
+        });
+    },
+    down: function(queryInterface, Sequelize) {
+        return queryInterface.dropTable('memberWorkTimes');
     }
 };
