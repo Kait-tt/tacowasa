@@ -1,4 +1,5 @@
 'use strict';
+const _ = require('lodash');
 const db = require('../schemas');
 
 const INVALID_DATE = 'Invalid Date';
@@ -34,9 +35,46 @@ class Iteration {
         });
     }
 
+    static update (projectId, iterationId, {startTime, endTime}, {transaction} = {}) {
+        return db.coTransaction({transaction}, function* () {
+            const start = new Date(startTime);
+            const end = new Date(endTime);
+            if (!Iteration._isValidDate(start)) {
+                throw new Error(`invalid start time : ${startTime}`);
+            }
+            if (!Iteration._isValidDate(end)) {
+                throw new Error(`invalid end time : ${endTime}`);
+            }
+            if (start >= end) {
+                throw new Error(`invalid term : ${startTime} - ${endTime}`);
+            }
+
+            const iterations = yield db.Iteration.findAll({where: {projectId}, transaction});
+            const otherIterations = iterations.filter(x => x.id !== iterationId);
+            const isDuplicated = otherIterations.some(it => {
+                const s = new Date(it.startTime);
+                const e = new Date(it.endTime);
+                return Iteration._isDuplicated(start, end, s, e);
+            });
+
+            if (isDuplicated) {
+                throw new Error('iteration terms are duplicated');
+            }
+
+            yield db.Iteration.update({startTime, endTime}, {where: {iterationId, projectId}, transaction});
+
+            const iteration = yield db.Iteration.findOne({where: {iterationId, projectId}, transaction});
+            return iteration ? iteration.toJSON() : null;
+        });
+    }
+
+    static remove (projectId, iterationId, {transaction} = {}) {
+        return db.Iteration.destroy({where: {projectId, iterationId}, transaction});
+    }
+
     static findByProjectId (projectId, {transaction} = {}) {
         return db.Iteration.findAll({where: {projectId}, transaction})
-            .then(xs => xs.map(x => x.toJSON()));
+            .then(xs => _.chain(xs).map(x => x.toJSON()).sortBy('startTime').value());
     }
 
     static _isValidDate (value) {
