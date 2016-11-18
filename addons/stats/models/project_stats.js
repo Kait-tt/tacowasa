@@ -3,6 +3,8 @@ const _ = require('lodash');
 const config = require('config');
 const db = require('../schemas');
 const Throughput = require('./throughput');
+const Iteration = require('./iteration');
+const MemberWorkTime = require('./member_work_time');
 
 class ProjectStats {
     static calcAll (projectId, {transaction, force = false} = {}) {
@@ -24,7 +26,9 @@ class ProjectStats {
 
             return {
                 project: projectStats ? projectStats.toJSON() : null,
-                members: yield ProjectStats.findEachMembers(projectId, {transaction})
+                members: yield ProjectStats.findEachMembers(projectId, {transaction}),
+                iterations: yield Iteration.findByProjectId(projectId, {transaction}),
+                workTimes: yield MemberWorkTime.findByProjectId(projectId, {transaction})
             };
         });
     }

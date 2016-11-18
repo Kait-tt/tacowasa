@@ -28,10 +28,12 @@ describe('addons', () => {
                         subject = yield ProjectStats.calcAll(project.id);
                     }));
 
-                    it('should return throughputs', () => {
+                    it('should return all params', () => {
                         expect(subject).to.have.deep.property('project.throughput');
                         expect(subject).to.have.deep.property('members[0].userId');
                         expect(subject).to.have.deep.property('members[0].throughput');
+                        expect(subject).to.have.property('iterations');
+                        expect(subject).to.have.property('workTimes');
                     });
 
                     it('should create project stats record', co.wrap(function* () {
