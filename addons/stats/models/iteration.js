@@ -1,5 +1,4 @@
 'use strict';
-const _ = require('lodash');
 const db = require('../schemas');
 
 const INVALID_DATE = 'Invalid Date';

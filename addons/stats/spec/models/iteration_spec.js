@@ -1,5 +1,4 @@
 'use strict';
-const _ = require('lodash');
 const co = require('co');
 const db = require('../../schemas');
 const Iteration = require('../../models/iteration');
