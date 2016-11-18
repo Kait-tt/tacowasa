@@ -1,6 +1,6 @@
 'use strict';
 module.exports = function (sequelize, DataTypes) {
-    const MemberStats = sequelize.define('memberStats', {
+    const MemberWorkTime = sequelize.define('memberWorkTime', {
         promisedMinutes: {
             allowNull: false,
             type: DataTypes.INTEGER
@@ -21,7 +21,7 @@ module.exports = function (sequelize, DataTypes) {
     }, {
         classMethods: {
             associate: function (models) {
-                MemberStats.belongsTo(models.Member, {
+                MemberWorkTime.belongsTo(models.Member, {
                     foreignKey: {
                         allowNull: true
                     }
@@ -29,5 +29,5 @@ module.exports = function (sequelize, DataTypes) {
             }
         }
     });
-    return MemberStats;
+    return MemberWorkTime;
 };
