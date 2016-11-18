@@ -4,6 +4,11 @@ module.exports = function (sequelize, DataTypes) {
         throughput: {
             allowNull: false,
             type: DataTypes.FLOAT
+        },
+        promisedWorkTime: {
+            allowNull: false,
+            defaultValue: 0,
+            type: DataTypes.INTEGER
         }
     }, {
         classMethods: {
