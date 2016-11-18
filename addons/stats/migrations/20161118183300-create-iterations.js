@@ -1,25 +1,16 @@
 'use strict';
 module.exports = {
     up: function(queryInterface, Sequelize) {
-        return queryInterface.createTable('memberWorkTimes', {
+        return queryInterface.createTable('iterations', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            memberId: {
+            projectId: {
                 allowNull: false,
-                type: Sequelize.INTEGER
-            },
-            promisedMinutes: {
-                allowNull: false,
-                type: Sequelize.INTEGER
-            },
-            actualMinutes: {
-                allowNull: false,
-                defaultValue: 0,
-                type: Sequelize.INTEGER
+                type: Sequelize.STRING
             },
             startTime: {
                 allowNull: false,
@@ -42,6 +33,6 @@ module.exports = {
         });
     },
     down: function(queryInterface, Sequelize) {
-        return queryInterface.dropTable('memberWorkTimes');
+        return queryInterface.dropTable('iterations');
     }
 };

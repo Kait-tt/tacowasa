@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
     up: function(queryInterface, Sequelize) {
-        return queryInterface.createTable('projectStats', {
+        return queryInterface.createTable('iterations', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -12,9 +12,13 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.STRING
             },
-            throughput: {
+            startTime: {
                 allowNull: false,
-                type: Sequelize.FLOAT
+                type: Sequelize.DATE
+            },
+            endTime: {
+                allowNull: false,
+                type: Sequelize.DATE
             },
             createdAt: {
                 allowNull: false,
@@ -29,6 +33,6 @@ module.exports = {
         });
     },
     down: function(queryInterface, Sequelize) {
-        return queryInterface.dropTable('projectStats');
+        return queryInterface.dropTable('iterations');
     }
 };
