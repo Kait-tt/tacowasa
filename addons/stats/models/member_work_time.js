@@ -18,26 +18,25 @@ class MemberWorkTime {
             const res = [];
             for (let member of members) {
                 const workTimes = yield db.MemberWorkTime.findAll(_.assign({where: {memberId: member.id}}, options, {transaction}));
-                res.push({
-                    userId: member.id,
-                    memberId: member.id,
-                    memberWorkTimes: workTimes.map(x => x.toJSON())
+                workTimes.forEach(workTime => {
+                    res.push(_.assign(workTime.toJSON(), {userId: member.userId}));
                 });
             }
             return res;
         });
     }
 
-    static create (projectId, userId, {startTime, endTime, promisedMinutes}, {transaction} = {}) {
+    static create (projectId, userId, iterationId, {promisedMinutes, actualMinutes = 0}, {transaction} = {}) {
         return db.coTransaction({transaction}, function* (transaction) {
             const member = yield db.Member.findOne({where: {projectId, userId}, transaction});
             if (!member) { throw new Error(`member was not found given {projectId: ${projectId}, userId: ${userId}}`); }
 
             const res = yield db.MemberWorkTime.create({
                 memberId: member.id,
+                projectId,
+                iterationId,
                 promisedMinutes,
-                startTime,
-                endTime
+                actualMinutes
             });
 
             return res.toJSON();
