@@ -28,7 +28,7 @@ class StatsSocketOn extends AddonSocketOn {
             yield socketProject.logging(user.username, 'createIteration', {startTime, endTime});
             socketProject.emits(user, 'createIteration', {iteration});
             yield socketProject.notifyText(user, `createIteration: ${startTime} - ${endTime}`);
-            yield StatsSocketOn.stats(socketProject, user);
+            yield StatsSocketOn.stats(socketProject, user, {force: true});
         });
     }
 
@@ -47,7 +47,7 @@ class StatsSocketOn extends AddonSocketOn {
             yield socketProject.logging(user.username, 'updateIteration', {iterationId, startTime, endTime});
             socketProject.emits(user, 'updateIteration', {iteration});
             yield socketProject.notifyText(user, `updateIteration: ${iterationId}, ${startTime} - ${endTime}`);
-            yield StatsSocketOn.stats(socketProject, user);
+            yield StatsSocketOn.stats(socketProject, user, {force: true});
         });
     }
 
@@ -62,9 +62,9 @@ class StatsSocketOn extends AddonSocketOn {
         return _id;
     }
 
-    static stats (socketProject, user) {
+    static stats (socketProject, user, {force = false} = {}) {
         return co(function* () {
-            const stats = yield ProjectStats.calcAll(socketProject.projectId);
+            const stats = yield ProjectStats.calcAll(socketProject.projectId, {force});
             user.socket.emit('stats', stats);
         }).catch(err => console.error(err));
     }

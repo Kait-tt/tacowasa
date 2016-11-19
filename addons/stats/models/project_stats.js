@@ -14,10 +14,8 @@ class ProjectStats {
             if (doCalc) {
                 // create or update project stats, and lock
                 yield db.ProjectStats.upsert({
-                    projectId,
-                    throughput: 0,
-                    updatedAt: Date()
-                }, {where: {projectId}, transaction});
+                    projectId
+                }, {fields: ['projectId'], transaction});
 
                 yield Throughput.calcAll(projectId, {transaction});
                 yield MemberWorkTime.calcAll(projectId, {transaction});

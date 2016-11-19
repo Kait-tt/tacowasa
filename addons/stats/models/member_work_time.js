@@ -50,7 +50,7 @@ class MemberWorkTime {
                 include: [{model: db.Work, as: 'works', separate: true}],
                 transaction
             });
-            const works = _.chain(tasks).filter(x => x.works).flatten().filter(x => x.isEnded).value();
+            const works = _.chain(tasks).map(x => x.works || []).flatten().filter(x => x.isEnded).value();
 
             const members = yield db.Member.findAll({where: {projectId}, transaction});
             const iterations = yield db.Iteration.findAll({where: {projectId}, transaction});
@@ -75,7 +75,7 @@ class MemberWorkTime {
                     transaction
                 });
 
-                const actualMinutes = Math.floor(time / 60 * 1000);
+                const actualMinutes = Math.floor(time / 60 / 1000);
 
                 if (memberWorkTime) {
                     yield db.MemberWorkTime.update({actualMinutes}, {where: {id: memberWorkTime.id}}, transaction);

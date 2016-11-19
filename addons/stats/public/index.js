@@ -9,11 +9,12 @@ module.exports = {
         const socket = kanban.socket;
 
         const iterations = ko.observableArray();
+        const workTimes = ko.observable();
 
         const throughputTableComponent = new ThroughputTableComponent(kanban.project.users);
         throughputTableComponent.register();
 
-        const iterationTableComponent = new IterationTableComponent(iterations, kanban.project.users);
+        const iterationTableComponent = new IterationTableComponent(iterations, kanban.project.users, workTimes);
         iterationTableComponent.register();
         iterationTableComponent.on('createIteration', ({startTime, endTime}) => {
             socket.emit('createIteration', {startTime, endTime});
@@ -29,6 +30,7 @@ module.exports = {
         socket.on('stats', req => {
             console.debug('on stats', req);
             throughputTableComponent.updateThroughputs(req.members);
+            workTimes(req.workTimes);
             if (first) {
                 first = false;
                 req.iterations.forEach(iterationParams => {

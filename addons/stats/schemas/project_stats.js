@@ -3,6 +3,7 @@ module.exports = function (sequelize, DataTypes) {
     const ProjectStats = sequelize.define('projectStats', {
         throughput: {
             allowNull: false,
+            defaultValue: 0,
             type: DataTypes.FLOAT
         }
     }, {
@@ -13,7 +14,13 @@ module.exports = function (sequelize, DataTypes) {
                         allowNull: true
                     }
                 });
-            }
+            },
+            indexes: [
+                {
+                    unique: true,
+                    fields: ['projectId']
+                }
+            ]
         }
     });
     return ProjectStats;
