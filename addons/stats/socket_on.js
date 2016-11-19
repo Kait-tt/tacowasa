@@ -1,9 +1,12 @@
 'use strict';
 const co = require('co');
 const config = require('config');
+const moment = require('moment');
 const AddonSocketOn = require('../addon/socket_on');
 const ProjectStats = require('./models/project_stats');
 const Iteration = require('./models/iteration');
+const MemberWorkTime = require('./models/member_work_time');
+const db = require('./schemas');
 
 class StatsSocketOn extends AddonSocketOn {
     static get statsIntervalTime () {
@@ -11,7 +14,7 @@ class StatsSocketOn extends AddonSocketOn {
     }
 
     static get socketEventKeys () {
-        return ['fetchStats', 'createIteration', 'removeIteration', 'updateIteration'];
+        return ['fetchStats', 'createIteration', 'removeIteration', 'updateIteration', 'updatePromisedWorkTime'];
     }
 
     static fetchStats (socketProject, user) {
@@ -48,6 +51,18 @@ class StatsSocketOn extends AddonSocketOn {
             socketProject.emits(user, 'updateIteration', {iteration});
             yield socketProject.notifyText(user, `updateIteration: ${iterationId}, ${startTime} - ${endTime}`);
             yield StatsSocketOn.stats(socketProject, user, {force: true});
+        });
+    }
+
+    static updatePromisedWorkTime (socketProject, user, {userId, iterationId, promisedMinutes}) {
+        return co(function* () {
+            const memberWorkTime = yield MemberWorkTime.updatePromisedWorkTime(socketProject.projectId, userId, iterationId, promisedMinutes);
+            yield socketProject.logging(user.username, 'updatePromisedWorkTime', {userId, iterationId, promisedMinutes});
+            socketProject.emits(user, 'updatePromisedWorkTime', {memberWorkTime});
+            const iteration = yield db.Iteration.findOne({where: {id: iterationId}});
+            const start = moment(iteration.startTime).format('YYYY-MM-DD');
+            const end = moment(iteration.endTime).format('YYYY-MM-DD');
+            yield socketProject.notifyText(user, `updatePromisedWorkTime: ${userId}, ${start} - ${end}, ${promisedMinutes}`);
         });
     }
 

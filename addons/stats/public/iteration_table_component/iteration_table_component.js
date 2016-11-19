@@ -10,14 +10,14 @@ class IterationTableComponent extends EventEmitter2 {
         this.users = users;
         this.iterations = iterations;
         this.memberWorkTimes = memberWorkTimes;
-        this.memoActualWorkTime = {};
+        this.memoMemberWorkTime = {};
     }
 
     createIteration ({startTime, endTime}) {
         this.emit('createIteration', {startTime, endTime});
     }
 
-    updateIteration (iterationId, startTime, endTime) {
+    updateIteration ({iterationId, startTime, endTime}) {
         this.emit('updateIteration', {iterationId, startTime, endTime});
     }
 
@@ -25,22 +25,23 @@ class IterationTableComponent extends EventEmitter2 {
         this.emit('removeIteration', {iterationId: id});
     }
 
-    getActualWorkTime (userId, iterationId) {
+    updatePromisedWorkTime ({userId, iterationId, promisedMinutes}) {
+        this.emit('updatePromisedWorkTime', {userId, iterationId, promisedMinutes});
+    }
+
+    _dateFormat (minutes) {
+        const x = minutes;
+        const h = Math.floor(x / 60);
+        const m = x % 60;
+        return h ? `${h}h${m}m` : `${m}m`;
+    }
+
+    getMemberWorkTime (userId, iterationId) {
         const key = userId + '__' + iterationId;
-        if (!this.memoActualWorkTime[key]) {
-            this.memoActualWorkTime[key] = ko.computed(() => {
-                const memberWorkTime = _.find(this.memberWorkTimes(), {userId, iterationId});
-                if (memberWorkTime) {
-                    const x = memberWorkTime.actualMinutes;
-                    const h = Math.floor(x / 60);
-                    const m = x % 60;
-                    return h ? `${h}時間${m}分` : `${m}分`;
-                } else {
-                    return '-';
-                }
-            });
+        if (!this.memoMemberWorkTime[key]) {
+            this.memoMemberWorkTime[key] = ko.pureComputed(() => _.find(this.memberWorkTimes(), {userId, iterationId}));
         }
-        return this.memoActualWorkTime[key];
+        return this.memoMemberWorkTime[key];
     }
 
     get componentName () {
@@ -51,19 +52,24 @@ class IterationTableComponent extends EventEmitter2 {
         const that = this;
         ko.components.register(this.componentName, {
             viewModel: function () {
-                this.iterations = ko.computed(() => {
+                this.iterations = ko.pureComputed(() => {
                     return _.chain(that.iterations())
                         .map(it => ({
                             id: it.id,
-                            startTime: ko.computed(() => moment(it.startTime()).format('YYYY-MM-DD')),
-                            endTime: ko.computed(() => moment(it.endTime()).format('YYYY-MM-DD')),
+                            startTime: ko.pureComputed(() => moment(it.startTime()).format('YYYY-MM-DD')),
+                            endTime: ko.pureComputed(() => moment(it.endTime()).format('YYYY-MM-DD')),
                             tempStartTime: ko.observable(),
                             tempEndTime: ko.observable(),
+                            tempPromisedMinutes: ko.observable(),
                             isEditMode: ko.observable(false),
                             edit: function () {
-                                this.isEditMode(true);
                                 this.tempStartTime(this.startTime());
                                 this.tempEndTime(this.endTime());
+                                this.tempPromisedMinutes(_.fromPairs(that.users().map(user => {
+                                    const memberWorkTime = that.getMemberWorkTime(user.id(), it.id());
+                                    return [user.id(), memberWorkTime() ? memberWorkTime().promisedMinutes : 0];
+                                })));
+                                this.isEditMode(true);
                             },
                             cancelEdit: function () {
                                 this.isEditMode(false);
@@ -71,8 +77,20 @@ class IterationTableComponent extends EventEmitter2 {
                             update: function () {
                                 if (this.tempStartTime() !== this.startTime() ||
                                     this.tempEndTime() !== this.endTime()) {
-                                    that.updateIteration(this.id(), this.tempStartTime(), this.tempEndTime());
+                                    that.updateIteration({
+                                        iterationId: this.id(),
+                                        startTime: this.tempStartTime(),
+                                        endTime: this.tempEndTime()
+                                    });
                                 }
+
+                                _.forEach(this.tempPromisedMinutes(), (promisedMinutes, userId) => {
+                                    const memberWorkTime = that.getMemberWorkTime(userId, it.id());
+                                    if (memberWorkTime().promisedMinutes !== promisedMinutes) {
+                                        that.updatePromisedWorkTime({userId, iterationId: it.id(), promisedMinutes});
+                                    }
+                                });
+
                                 this.isEditMode(false);
                             },
                             remove: () => that.removeIteration(it.id())
@@ -94,7 +112,15 @@ class IterationTableComponent extends EventEmitter2 {
 
                 this.users = that.users;
 
-                this.actualWorkTime = that.getActualWorkTime.bind(that);
+                this.actualWorkTime = (userId, iterationId) => {
+                    const memberWorkTime = that.getMemberWorkTime(userId, iterationId);
+                    return ko.pureComputed(() => memberWorkTime() ? that._dateFormat(memberWorkTime().actualMinutes) : '-');
+                };
+
+                this.promisedWorkTime = (userId, iterationId) => {
+                    const memberWorkTime = that.getMemberWorkTime(userId, iterationId);
+                    return ko.pureComputed(() => memberWorkTime() ? that._dateFormat(memberWorkTime().promisedMinutes) : '-');
+                };
             },
             template: require('html!./iteration_table_component.html')
         });

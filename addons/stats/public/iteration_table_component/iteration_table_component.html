@@ -53,7 +53,10 @@
 
           <!-- ko foreach: {data: $component.users, as: 'user'} -->
           <!-- ko if: user.isVisible -->
-          <td><span data-bind="text: $component.actualWorkTime(user.id(), it.id())"></span></td>
+          <td>
+            <span data-bind="text: $component.actualWorkTime(user.id(), it.id())"></span> <br>/
+            <span data-bind="text: $component.promisedWorkTime(user.id(), it.id())"></span>
+          </td>
           <!-- /ko -->
           <!-- /ko -->
 
@@ -76,6 +79,14 @@
           <td>
             <input type="date" class="form-control" data-bind="value: it.tempEndTime">
           </td>
+
+          <!-- ko foreach: {data: $component.users, as: 'user'} -->
+          <!-- ko if: user.isVisible -->
+          <td>
+            <input type="number" class="form-control" data-bind="value: it.tempPromisedMinutes()[user.id()]"> m
+          </td>
+          <!-- /ko -->
+          <!-- /ko -->
           <!-- /ko -->
         </tr>
         <!-- /ko -->

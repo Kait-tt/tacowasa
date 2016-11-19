@@ -25,6 +25,9 @@ module.exports = {
         iterationTableComponent.on('updateIteration', ({iterationId, startTime, endTime}) => {
             socket.emit('updateIteration', {iterationId, startTime, endTime});
         });
+        iterationTableComponent.on('updatePromisedWorkTime', ({userId, iterationId, promisedMinutes}) => {
+            socket.emit('updatePromisedWorkTime', {userId, iterationId, promisedMinutes});
+        });
 
         let first = true;
         socket.on('stats', req => {
@@ -61,6 +64,13 @@ module.exports = {
             iteration.update(iterationParams);
         });
 
+        socket.on('updatePromisedWorkTime', ({memberWorkTime}) => {
+            const _workTimes = workTimes().map(x => {
+                return x.id === memberWorkTime.id ? memberWorkTime : x;
+            });
+            workTimes(_workTimes);
+        });
+
         kanban.projectStatsModal.on('load', () => {
             const modal = document.getElementById('project-stats-modal');
             const modalBody = modal.getElementsByClassName('modal-body')[0];
@@ -72,9 +82,5 @@ module.exports = {
             const iterationElement = document.createElement(iterationTableComponent.componentName);
             modalBody.insertBefore(iterationElement, throughputElement);
         });
-
-        setTimeout(() => {
-            $('#project-stats-modal').modal('show');
-        }, 200);
     }
 };

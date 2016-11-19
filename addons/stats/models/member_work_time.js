@@ -43,6 +43,32 @@ class MemberWorkTime {
         });
     }
 
+    static updatePromisedWorkTime (projectId, userId, iterationId, promisedMinutes, {transaction} = {}) {
+        return db.coTransaction({transaction}, function* (transaction) {
+            const member = yield db.Member.findOne({where: {projectId, userId}, transaction});
+            if (!member) { throw new Error(`member was not found by {projectId: ${projectId}, userId: ${userId}}`); }
+
+            const memberWorkTime = yield db.MemberWorkTime.findOne({
+                where: {memberId: member.id, iterationId},
+                transaction
+            });
+
+            let res;
+            if (memberWorkTime) {
+                yield db.MemberWorkTime.update({promisedMinutes}, {where: {id: memberWorkTime.id}}, transaction);
+                res = yield db.MemberWorkTime.findOne({where: {id: memberWorkTime.id}}, transaction);
+            } else {
+                res = yield db.MemberWorkTime.create({
+                    memberId: member.id,
+                    iterationId,
+                    promisedMinutes
+                }, {transaction});
+            }
+
+            return _.assign(res.toJSON(), {userId: member.userId});
+        });
+    }
+
     static calcAll (projectId, {transaction} = {}) {
         return db.coTransaction({transaction}, function* (transaction) {
             const tasks = yield db.Task.findAll({
@@ -70,10 +96,7 @@ class MemberWorkTime {
             }
 
             for (let {memberId, iterationId, time} of actualTimes) {
-                const memberWorkTime = yield db.MemberWorkTime.findOne({
-                    where: {memberId: memberId, iterationId: iterationId},
-                    transaction
-                });
+                const memberWorkTime = yield db.MemberWorkTime.findOne({where: {memberId, iterationId}, transaction});
 
                 const actualMinutes = Math.floor(time / 60 / 1000);
 
