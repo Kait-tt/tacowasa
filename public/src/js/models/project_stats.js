@@ -41,12 +41,6 @@ class ProjectStats {
         }, this);
 
         // 過去1週間ごと人ごとの作業時間
-        // iterationWorkTime()[iteration]
-        // iteration = {start, startFormat, end, endFormat, users}
-        // users[username] = {minutes, format}
-        this.iterationWorkTime = ko.observableArray([]);
-
-        // 過去1週間ごと人ごとの作業時間
         // lastTwoWeekWorkTime()[iteration]
         // iteration = {day, dayFormat, users}
         // users[username] = {minutes, format}
@@ -64,66 +58,6 @@ class ProjectStats {
         });
 
         return res;
-    }
-
-    // TODO: refactoring
-    // 過去1週間ごと人ごとの作業時間の計算
-    calcIterationWorkTime () {
-        return new Promise(resolve => setTimeout(() => {
-            const usernames = this.project.users().map(x => x.username());
-            const works = this._works;
-
-            const iterationTimes = 10;
-            const beginDate = moment().day(-7 * (iterationTimes - 1));
-            const endDate = moment().day(7);
-            beginDate.set({'hours': 0, 'minutes': 0, 'seconds': 0});
-            endDate.set({'hours': 0, 'minutes': 0, 'seconds': 0});
-            const now = moment();
-
-            const maxt = endDate.diff(beginDate, 'minutes');
-            const ts = {};
-            const n = maxt + 2;
-            usernames.forEach(username => { ts[username] = _.fill(Array(n), 0); });
-
-            works.forEach(work => {
-                const username = work.username();
-                if (username && _.isArray(ts[username])) {
-                    const s = Math.max(0, moment(work.startTime()).diff(beginDate, 'minutes'));
-                    const t = Math.max(0, moment(work.endTime() || now).diff(beginDate, 'minutes'));
-                    ts[username][s]++;
-                    ts[username][t]--;
-                }
-            });
-
-            usernames.forEach(username => {
-                _.times(2, () => {
-                    let sum = 0;
-                    _.times(n, i => {
-                        sum += ts[username][i];
-                        ts[username][i] = sum;
-                    });
-                });
-            });
-
-            const res = [];
-            _.times(iterationTimes, i => {
-                const start = moment(beginDate).add(i * 7, 'days');
-                const end = moment(start).add(7, 'days').subtract(1, 'minutes');
-                const startFormat = start.format('MM/DD(ddd)');
-                const endFormat = end.format('MM/DD(ddd)');
-                const users = {};
-                const s = start.diff(beginDate, 'minutes');
-                const t = end.diff(beginDate, 'minutes');
-                usernames.forEach(username => {
-                    const minutes = ts[username][t] - ts[username][s];
-                    users[username] = {minutes, format: util.secondsFormatHM(minutes * 60)};
-                });
-                res.push({start, end, startFormat, endFormat, users});
-            });
-
-            this.iterationWorkTime(res);
-            resolve(res);
-        }, 0));
     }
 
     // 過去2週間の人ごとの作業時間の計算

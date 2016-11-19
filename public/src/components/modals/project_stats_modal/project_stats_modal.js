@@ -11,7 +11,6 @@ class ProjectStatsModal extends AbstractModalComponent {
             // 統計モーダルを開いたら統計を計算
             $('#project-stats-modal').on('show.bs.modal', () => {
                 this.stats.calcLastTwoWeekWorkTime();
-                this.stats.calcIterationWorkTime();
             });
         });
     }

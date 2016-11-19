@@ -36,35 +36,6 @@
           </div>
         </div>
 
-        <div class="iteration-member-stats">
-          <h3>1週間ごとメンバーごとの実働時間</h3>
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-              <tr>
-                <th>week/username</th>
-                <!-- ko foreach: project.users -->
-                <!-- ko if: isVisible -->
-                <th data-bind="text: username"></th>
-                <!-- /ko -->
-                <!-- /ko -->
-              </tr>
-              </thead>
-              <tbody>
-              <!-- ko foreach: {data: stats.iterationWorkTime, as: 'stats'} -->
-              <tr>
-                <th data-bind="text: stats.startFormat + ' - ' + stats.endFormat"></th>
-                <!-- ko foreach: {data: $parent.project.users, as: 'user'} -->
-                <!-- ko if: user.isVisible -->
-                <td data-bind="text: stats.users[user.username()].format"></td>
-                <!-- /ko -->
-                <!-- /ko -->
-              </tr>
-              <!-- /ko -->
-              </tbody>
-            </table>
-          </div>
-        </div>
         <hr>
         <div class="label-stats">
           <h3>ラベルごとの合計実働時間</h3>
