@@ -74,6 +74,31 @@ describe('addons', () => {
                     });
                 });
             });
+
+            describe('_calcOneIterationWorkTime', () => {
+                let subject;
+                beforeEach(() => {
+                    const now = Date.now();
+                    const works = [
+                        // not in iteration
+                        {startTime: now - 24, endTime: now - 14},
+                        // in 2
+                        {startTime: now - 13, endTime: now - 10},
+                        // in 5
+                        {startTime: now - 9, endTime: now - 4},
+                        // in 2
+                        {startTime: now - 2, endTime: now + 5}
+                    ];
+
+                    // 12
+                    const start = now - 12;
+                    const end = now;
+
+                    subject = MemberWorkTime._calcOneIterationWorkTime(works, start, end);
+                });
+
+                it('should return work time in the iteration', () => expect(subject).to.be.eq(9));
+            });
         });
     });
 });

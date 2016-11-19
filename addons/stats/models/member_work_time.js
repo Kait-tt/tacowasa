@@ -95,16 +95,17 @@ class MemberWorkTime {
 
     static _calcOneIterationWorkTime (works, start, end) {
         return works.reduce((sum, work) => {
-            const s = new Date(work.startTime);
-            const e = new Date(work.endTime);
-            return sum + MemberWorkTime._calcDuplicationTime(start, end, s, e);
+            const s = Number(new Date(work.startTime));
+            const e = Number(new Date(work.endTime));
+            const time = MemberWorkTime._calcDuplicationTime(start, end, s, e);
+            return sum + time;
         }, 0);
     }
 
     static _calcDuplicationTime (s1, e1, s2, e2) {
         if (s1 > s2) { return MemberWorkTime._calcDuplicationTime(s2, e2, s1, e1); }
         if (e1 <= s2) { return 0; }
-        if (e2 < e1) { return e1 - s2; }
+        if (e1 < e2) { return e1 - s2; }
         return e2 - s2;
     }
 }
