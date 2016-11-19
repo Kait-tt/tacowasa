@@ -24,7 +24,13 @@ module.exports = function (sequelize, DataTypes) {
                         allowNull: true
                     }
                 });
-            }
+            },
+            indexes: [
+                {
+                    unique: true,
+                    fields: ['memberId', 'iterationId']
+                }
+            ]
         }
     });
     return MemberWorkTime;
