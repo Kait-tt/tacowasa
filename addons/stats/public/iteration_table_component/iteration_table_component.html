@@ -15,6 +15,7 @@
             click: createIteration">
         <span class="glyphicon glyphicon-plus"></span> Create new iteration
       </button>
+      <span class="hint">※Endの日は含まない</span>
     </form>
   </div>
 
@@ -23,8 +24,14 @@
       <thead>
         <tr>
           <th>#</th>
-          <th>Start</th>
-          <th>End</th>
+          <th>#</th>
+          <th>(Start)</th>
+          <th>(End)</th>
+          <!-- ko foreach: {data: users, as: 'user'} -->
+          <!-- ko if: user.isVisible -->
+          <th data-bind="text: user.username"></th>
+          <!-- /ko -->
+          <!-- /ko -->
         </tr>
       </thead>
       <tbody>
@@ -32,29 +39,36 @@
         <tr>
           <!-- ko ifnot: isEditMode -->
           <td>
-            <div class="btn-group" role="group">
               <button type="button" class="btn btn-sm btn-info glyphicon glyphicon-edit"
                       data-bind="click: it.edit,
                       tooltip: { title: 'Edit', placement: 'bottom' }"></button>
-              <button type="button" class="btn btn-sm btn-danger glyphicon glyphicon-trash"
-                      data-bind="click: it.remove,
+          </td>
+          <td>
+            <button type="button" class="btn btn-sm btn-danger glyphicon glyphicon-trash"
+                    data-bind="click: it.remove,
                       tooltip: { title: 'Remove', placement: 'bottom' }"></button>
-            </div>
           </td>
           <td data-bind="text: it.startTime"></td>
           <td data-bind="text: it.endTime"></td>
+
+          <!-- ko foreach: {data: $component.users, as: 'user'} -->
+          <!-- ko if: user.isVisible -->
+          <td><span data-bind="text: $component.actualWorkTime(user.id(), it.id())"></span></td>
+          <!-- /ko -->
+          <!-- /ko -->
+
           <!-- /ko -->
 
           <!-- ko if: isEditMode -->
           <td>
-            <div class="btn-group" role="group">
-              <button type="button" class="btn btn-sm btn-primary glyphicon glyphicon-ok"
-                      data-bind="click: it.update,
-                                 tooltip: { title: 'Update', placement: 'bottom' }"></button>
-              <button type="button" class="btn btn-sm btn-danger glyphicon glyphicon-remove"
-                      data-bind="click: it.cancelEdit,
-                                 tooltip: { title: 'Cancel', placement: 'bottom' }"></button>
-            </div>
+            <button type="button" class="btn btn-sm btn-primary glyphicon glyphicon-ok"
+                    data-bind="click: it.update,
+                               tooltip: { title: 'Update', placement: 'bottom' }"></button>
+          </td>
+          <td>
+            <button type="button" class="btn btn-sm btn-danger glyphicon glyphicon-remove"
+                    data-bind="click: it.cancelEdit,
+                               tooltip: { title: 'Cancel', placement: 'bottom' }"></button>
           </td>
           <td>
             <input type="date" class="form-control" data-bind="value: it.tempStartTime">

@@ -10,6 +10,7 @@ class IterationTableComponent extends EventEmitter2 {
         this.users = users;
         this.iterations = iterations;
         this.memberWorkTimes = memberWorkTimes;
+        this.memoActualWorkTime = {};
     }
 
     createIteration ({startTime, endTime}) {
@@ -22,6 +23,24 @@ class IterationTableComponent extends EventEmitter2 {
 
     removeIteration (id) {
         this.emit('removeIteration', {iterationId: id});
+    }
+
+    getActualWorkTime (userId, iterationId) {
+        const key = userId + '__' + iterationId;
+        if (!this.memoActualWorkTime[key]) {
+            this.memoActualWorkTime[key] = ko.computed(() => {
+                const memberWorkTime = _.find(this.memberWorkTimes(), {userId, iterationId});
+                if (memberWorkTime) {
+                    const x = memberWorkTime.actualMinutes;
+                    const h = Math.floor(x / 60);
+                    const m = x % 60;
+                    return h ? `${h}時間${m}分` : `${m}分`;
+                } else {
+                    return '-';
+                }
+            });
+        }
+        return this.memoActualWorkTime[key];
     }
 
     get componentName () {
@@ -72,6 +91,10 @@ class IterationTableComponent extends EventEmitter2 {
                         endTime: this.newEndTime()
                     });
                 };
+
+                this.users = that.users;
+
+                this.actualWorkTime = that.getActualWorkTime.bind(that);
             },
             template: require('html!./iteration_table_component.html')
         });
