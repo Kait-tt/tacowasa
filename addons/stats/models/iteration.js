@@ -83,7 +83,7 @@ class Iteration {
 
     static _isDuplicated (s1, e1, s2, e2) {
         if (s1 > s2) { return Iteration._isDuplicated(s2, e2, s1, e1); }
-        return e1 >= s2;
+        return e1 > s2;
     }
 }
 

@@ -45,19 +45,24 @@ describe('addons', () => {
 
                     before(() => { now = Date.now(); });
 
-                    context('with e1 = s2', () => {
+                    context('with s1 < e1 = s2 < e2', () => {
                         before(() => setTerms(now - 100, now - 50, now - 50, now));
-                        it('should return true', () => expected().to.be.ok);
-                    });
-
-                    context('with s1 > s2', () => {
-                        before(() => setTerms(now - 50, now, now - 100, now - 50));
-                        it('should return true', () => expected().to.be.ok);
-                    });
-
-                    context('with e1 > e2', () => {
-                        before(() => setTerms(now - 100, now - 70, now - 30, now));
                         it('should return false', () => expected().to.be.not.ok);
+                    });
+
+                    context('with s2 < e2 = s1 < e1', () => {
+                        before(() => setTerms(now - 50, now, now - 100, now - 50));
+                        it('should return false', () => expected().to.be.not.ok);
+                    });
+
+                    context('with s1 < s2 < e2 < e1', () => {
+                        before(() => setTerms(now - 100, now, now - 70, now - 30));
+                        it('should return true', () => expected().to.be.ok);
+                    });
+
+                    context('with s1 < s2 < e1 < e2', () => {
+                        before(() => setTerms(now - 100, now - 30, now - 70, now));
+                        it('should return true', () => expected().to.be.ok);
                     });
                 });
 
