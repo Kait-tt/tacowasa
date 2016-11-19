@@ -28,6 +28,7 @@ class StatsSocketOn extends AddonSocketOn {
             yield socketProject.logging(user.username, 'createIteration', {startTime, endTime});
             socketProject.emits(user, 'createIteration', {iteration});
             yield socketProject.notifyText(user, `createIteration: ${startTime} - ${endTime}`);
+            yield StatsSocketOn.stats(socketProject, user);
         });
     }
 
@@ -46,6 +47,7 @@ class StatsSocketOn extends AddonSocketOn {
             yield socketProject.logging(user.username, 'updateIteration', {iterationId, startTime, endTime});
             socketProject.emits(user, 'updateIteration', {iteration});
             yield socketProject.notifyText(user, `updateIteration: ${iterationId}, ${startTime} - ${endTime}`);
+            yield StatsSocketOn.stats(socketProject, user);
         });
     }
 

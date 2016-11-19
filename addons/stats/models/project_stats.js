@@ -20,6 +20,7 @@ class ProjectStats {
                 }, {where: {projectId}, transaction});
 
                 yield Throughput.calcAll(projectId, {transaction});
+                yield MemberWorkTime.calcAll(projectId, {transaction});
             }
 
             const projectStats = yield db.ProjectStats.findOne({where: {projectId}, transaction});
