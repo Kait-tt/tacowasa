@@ -21,6 +21,9 @@ module.exports = {
         iterationTableComponent.on('removeIteration', ({iterationId}) => {
             socket.emit('removeIteration', {iterationId});
         });
+        iterationTableComponent.on('updateIteration', ({iterationId, startTime, endTime}) => {
+            socket.emit('updateIteration', {iterationId, startTime, endTime});
+        });
 
         let first = true;
         socket.on('stats', req => {
@@ -51,7 +54,7 @@ module.exports = {
         });
 
         socket.on('updateIteration', ({iteration: iterationParams}) => {
-            const iteration = iterations().find(x => x.id === iterationParams.id);
+            const iteration = iterations().find(x => x.id() === iterationParams.id);
             if (!iteration) { throw new Error(`iteration is not found by ${iterationParams.id}`); }
             iteration.update(iterationParams);
         });

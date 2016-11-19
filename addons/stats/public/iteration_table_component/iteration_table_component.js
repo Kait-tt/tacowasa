@@ -14,8 +14,8 @@ class IterationTableComponent extends EventEmitter2 {
         this.emit('createIteration', {startTime, endTime});
     }
 
-    updateIteration (id, startTime, endTime) {
-        this.emit('updateIteration', {iteration: {id, startTime, endTime}});
+    updateIteration (iterationId, startTime, endTime) {
+        this.emit('updateIteration', {iterationId, startTime, endTime});
     }
 
     removeIteration (id) {
@@ -35,9 +35,24 @@ class IterationTableComponent extends EventEmitter2 {
                         id: it.id,
                         startTime: ko.computed(() => moment(it.startTime()).format('YYYY-MM-DD')),
                         endTime: ko.computed(() => moment(it.endTime()).format('YYYY-MM-DD')),
+                        tempStartTime: ko.observable(),
+                        tempEndTime: ko.observable(),
                         isEditMode: ko.observable(false),
-                        startEdit: function () { this.isEditMode(true); },
-                        endEdit: function () { this.isEditMode(false); },
+                        edit: function () {
+                            this.isEditMode(true);
+                            this.tempStartTime(this.startTime());
+                            this.tempEndTime(this.endTime());
+                        },
+                        cancelEdit: function () {
+                            this.isEditMode(false);
+                        },
+                        update: function () {
+                            if (this.tempStartTime() !== this.startTime() ||
+                                this.tempEndTime() !== this.endTime()) {
+                                that.updateIteration(this.id(), this.tempStartTime(), this.tempEndTime());
+                            }
+                            this.isEditMode(false);
+                        },
                         remove: () => that.removeIteration(it.id())
                     }));
                 });

@@ -30,16 +30,39 @@
       <tbody>
         <!-- ko foreach: {data: iterations, as: 'it'} -->
         <tr>
+          <!-- ko ifnot: isEditMode -->
           <td>
             <div class="btn-group" role="group">
               <button type="button" class="btn btn-sm btn-info glyphicon glyphicon-edit"
-                      data-bind="click: it.startEdit"></button>
+                      data-bind="click: it.edit,
+                      tooltip: { title: 'Edit', placement: 'bottom' }"></button>
               <button type="button" class="btn btn-sm btn-danger glyphicon glyphicon-trash"
-                      data-bind="click: it.remove"></button>
+                      data-bind="click: it.remove,
+                      tooltip: { title: 'Remove', placement: 'bottom' }"></button>
             </div>
           </td>
           <td data-bind="text: it.startTime"></td>
           <td data-bind="text: it.endTime"></td>
+          <!-- /ko -->
+
+          <!-- ko if: isEditMode -->
+          <td>
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-sm btn-primary glyphicon glyphicon-ok"
+                      data-bind="click: it.update,
+                                 tooltip: { title: 'Update', placement: 'bottom' }"></button>
+              <button type="button" class="btn btn-sm btn-danger glyphicon glyphicon-remove"
+                      data-bind="click: it.cancelEdit,
+                                 tooltip: { title: 'Cancel', placement: 'bottom' }"></button>
+            </div>
+          </td>
+          <td>
+            <input type="date" class="form-control" data-bind="value: it.tempStartTime">
+          </td>
+          <td>
+            <input type="date" class="form-control" data-bind="value: it.tempEndTime">
+          </td>
+          <!-- /ko -->
         </tr>
         <!-- /ko -->
       </tbody>

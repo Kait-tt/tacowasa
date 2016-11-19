@@ -61,9 +61,9 @@ class Iteration {
                 throw new Error('iteration terms are duplicated');
             }
 
-            yield db.Iteration.update({startTime, endTime}, {where: {iterationId, projectId}, transaction});
+            yield db.Iteration.update({startTime, endTime}, {where: {id: iterationId, projectId}, transaction});
 
-            const iteration = yield db.Iteration.findOne({where: {iterationId, projectId}, transaction});
+            const iteration = yield db.Iteration.findOne({where: {id: iterationId, projectId}, transaction});
             return iteration ? iteration.toJSON() : null;
         });
     }
