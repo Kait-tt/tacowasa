@@ -18,6 +18,9 @@ module.exports = {
         iterationTableComponent.on('createIteration', ({startTime, endTime}) => {
             socket.emit('createIteration', {startTime, endTime});
         });
+        iterationTableComponent.on('removeIteration', ({iterationId}) => {
+            socket.emit('removeIteration', {iterationId});
+        });
 
         let first = true;
         socket.on('stats', req => {
@@ -27,7 +30,6 @@ module.exports = {
                 first = false;
                 req.iterations.forEach(iterationParams => {
                     const iteration = new Iteration(iterationParams);
-                    console.log(iteration);
                     iterations.push(iteration);
                 });
             }
@@ -43,14 +45,14 @@ module.exports = {
         });
 
         socket.on('removeIteration', ({iterationId}) => {
-            const iteration = iterations().find(x => x.id === iterationId);
-            if (!iteration) { new Error(`iteration is not found by ${iterationId}`); }
+            const iteration = iterations().find(x => x.id() === iterationId);
+            if (!iteration) { throw new Error(`iteration is not found by ${iterationId}`); }
             iterations.remove(iteration);
         });
 
         socket.on('updateIteration', ({iteration: iterationParams}) => {
             const iteration = iterations().find(x => x.id === iterationParams.id);
-            if (!iteration) { new Error(`iteration is not found by ${iterationParams.id}`); }
+            if (!iteration) { throw new Error(`iteration is not found by ${iterationParams.id}`); }
             iteration.update(iterationParams);
         });
 
@@ -65,5 +67,9 @@ module.exports = {
             const iterationElement = document.createElement(iterationTableComponent.componentName);
             modalBody.insertBefore(iterationElement, throughputElement);
         });
+
+        setTimeout(() => {
+            $('#project-stats-modal').modal('show');
+        }, 200);
     }
 };

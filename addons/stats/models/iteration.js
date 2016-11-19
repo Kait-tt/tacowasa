@@ -69,7 +69,7 @@ class Iteration {
     }
 
     static remove (projectId, iterationId, {transaction} = {}) {
-        return db.Iteration.destroy({where: {projectId, iterationId}, transaction});
+        return db.Iteration.destroy({where: {projectId, id: iterationId}, transaction});
     }
 
     static findByProjectId (projectId, {transaction} = {}) {
