@@ -12,6 +12,7 @@ class Throughput {
                 .filter(x => _.includes(['done', 'archive'], x.name))
                 .map(x => x.id);
             const doneTasks = project.tasks
+                .filter(x => x.cost.value && x.cost.value < 99)
                 .filter(x => x.works.length)
                 .filter(x => _.includes(doneStageIds, x.stageId));
 
