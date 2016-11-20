@@ -3,6 +3,7 @@ const ko = require('knockout');
 const Iteration = require('./models/iteration');
 const ThroughputTableComponent = require('./throughput_table_component');
 const IterationTableComponent = require('./iteration_table_component');
+const PredicateCompletionTimeComponent = require('./predicate_completion_time_component');
 
 module.exports = {
     init: (kanban, {alert}) => {
@@ -13,6 +14,10 @@ module.exports = {
 
         const throughputTableComponent = new ThroughputTableComponent(kanban.project.users);
         throughputTableComponent.register();
+
+        const predicateCompletionTimeComponent = new PredicateCompletionTimeComponent(kanban.project.users);
+        kanban.selectedTask.subscribe(x => predicateCompletionTimeComponent.task(x));
+        predicateCompletionTimeComponent.register();
 
         const iterationTableComponent = new IterationTableComponent(iterations, kanban.project.users, workTimes);
         iterationTableComponent.register();
@@ -29,10 +34,13 @@ module.exports = {
             socket.emit('updatePromisedWorkTime', {userId, iterationId, promisedMinutes});
         });
 
+        // init socket events
+
         let first = true;
         socket.on('stats', req => {
             console.debug('on stats', req);
             throughputTableComponent.updateThroughputs(req.members);
+            predicateCompletionTimeComponent.updateMemberStats(req.members);
             workTimes(req.workTimes);
             if (first) {
                 first = false;
@@ -71,16 +79,30 @@ module.exports = {
             workTimes(_workTimes);
         });
 
+        // init rendering
+
         kanban.projectStatsModal.on('load', () => {
-            const modal = document.getElementById('project-stats-modal');
-            const modalBody = modal.getElementsByClassName('modal-body')[0];
-            const firstChild = Array.prototype.slice.call(modalBody.childNodes).find(x => x.nodeType === 1);
+            insertNodeIntoFirstOnModal(throughputTableComponent.componentName, 'project-stats-modal');
+            insertNodeIntoFirstOnModal(iterationTableComponent.componentName, 'project-stats-modal');
+        });
 
-            const throughputElement = document.createElement(throughputTableComponent.componentName);
-            modalBody.insertBefore(throughputElement, firstChild);
-
-            const iterationElement = document.createElement(iterationTableComponent.componentName);
-            modalBody.insertBefore(iterationElement, throughputElement);
+        kanban.assignTaskModal.on('load', () => {
+            insertNodeIntoLastOnModal(predicateCompletionTimeComponent.componentName, 'assign-task-modal');
         });
     }
 };
+
+function insertNodeIntoFirstOnModal (componentName, modalId) {
+    const modal = document.getElementById(modalId);
+    const modalBody = modal.getElementsByClassName('modal-body')[0];
+    const firstChild = Array.prototype.slice.call(modalBody.childNodes).find(x => x.nodeType === 1);
+    const component = document.createElement(componentName);
+    modalBody.insertBefore(component, firstChild);
+}
+
+function insertNodeIntoLastOnModal (componentName, modalId) {
+    const modal = document.getElementById(modalId);
+    const modalBody = modal.getElementsByClassName('modal-body')[0];
+    const component = document.createElement(componentName);
+    modalBody.append(component);
+}

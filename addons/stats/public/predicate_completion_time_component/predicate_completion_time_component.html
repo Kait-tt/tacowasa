@@ -1,0 +1,18 @@
+<div class="predicate-completion-time-table table-responsive">
+  <table class="table">
+    <thead>
+    <tr>
+      <th>ユーザ名</th>
+      <th>予測必要時間</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- ko foreach: predicates -->
+    <tr>
+      <td data-bind="text: username"></td>
+      <td data-bind="text: requiredTimeFormat"></td>
+    </tr>
+    <!-- /ko -->
+    </tbody>
+  </table>
+</div>
