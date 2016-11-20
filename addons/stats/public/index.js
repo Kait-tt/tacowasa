@@ -39,7 +39,7 @@ module.exports = {
         let first = true;
         socket.on('stats', req => {
             console.debug('on stats', req);
-            throughputTableComponent.updateThroughputs(req.members);
+            throughputTableComponent.updateMemberStats(req.members);
             predicateCompletionTimeComponent.updateMemberStats(req.members);
             workTimes(req.workTimes);
             if (first) {
