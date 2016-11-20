@@ -51,8 +51,8 @@ class ThroughputTableComponent extends EventEmitter2 {
     <table class="table">
       <thead>
         <tr>
-          <th>username</th>
-          <th>throughput = costs / hours</th>
+          <th>ユーザ名</th>
+          <th>スループット(1時間あたりにこなすタスクのコスト)</th>
         </tr>
       </thead>
       <tbody>
