@@ -16,7 +16,7 @@ class StagnationTask {
         return db.coTransaction({transaction}, function* (transaction) {
             const members = yield db.Member.findAll({where: {projectId}, transaction});
             const memberStats = yield db.MemberStats.findAll({where: {memberId: {in: _.map(members, 'id')}}, transaction});
-            const workStages = yield db.Stage.findAll({where: {projectId, canWork: true}, transaction});
+            const assignedStages = yield db.Stage.findAll({where: {projectId, assigned: true}, transaction});
             const tasks = yield db.Task.findAll({
                 where: {projectId},
                 include: [
@@ -29,7 +29,7 @@ class StagnationTask {
             const stagnantTaskIds = [];
             const notStagnantTaskIds = [];
             for (let task of tasks) {
-                if (!_.includes(workStages.map(x => x.id), task.stageId) || task.cost.value === 0 || !task.userId) {
+                if (!_.includes(assignedStages.map(x => x.id), task.stageId) || task.cost.value === 0 || !task.userId) {
                     notStagnantTaskIds.push(task.id);
                     continue;
                 }
