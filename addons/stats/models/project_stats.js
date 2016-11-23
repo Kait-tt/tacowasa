@@ -29,7 +29,8 @@ class ProjectStats {
                 project: projectStats ? projectStats.toJSON() : null,
                 members: yield ProjectStats.findEachMembers(projectId, {transaction}),
                 iterations: yield Iteration.findByProjectId(projectId, {transaction}),
-                workTimes: yield MemberWorkTime.findByProjectId(projectId, {transaction})
+                workTimes: yield MemberWorkTime.findByProjectId(projectId, {transaction}),
+                stagnantTaskIds: yield StagnationTask.findByProjectId(projectId, {transaction})
             };
         });
     }

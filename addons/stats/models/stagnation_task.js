@@ -1,13 +1,20 @@
 'use strict';
 const _ = require('lodash');
-const ProjectStats = require('./project_stats');
 const db = require('../schemas');
 const Util = require('../modules/util');
 
 class StagnationTask {
+    static findByProjectId (projectId, {transaction} = {}) {
+        return db.coTransaction({transaction}, function* () {
+            const tasks = yield db.Task.findAll({where: {projectId}, transaction});
+            return db.TaskStats.findAll({where: {taskId: {in: _.map(tasks, 'id')}, isStagnation: true}, transaction});
+        });
+    }
+
     static calcAll (projectId, {transaction} = {}) {
         return db.coTransaction({transaction}, function* (transaction) {
-            const memberStats = yield ProjectStats.findEachMembers(projectId, {transaction});
+            const members = yield db.Member.findAll({where: {projectId}, transaction});
+            const memberStats = yield db.MemberStats.findAll({where: {memberId: {in: _.map(members, 'id')}}, transaction});
             const workStages = yield db.Stage.findAll({where: {projectId, canWork: true}, transaction});
             const tasks = yield db.Task.findAll({
                 where: {projectId},
@@ -17,18 +24,30 @@ class StagnationTask {
                 ],
                 transaction
             });
-            const workingTasks = tasks
-                .filter(x => _.includes(workStages.map(y => y.id), x.stageId))
-                .filter(x => x.cost.value > 0);
 
             const stagnantTaskIds = [];
-            for (let task of workingTasks) {
-                const stats = memberStats.find(x => x.userId === task.userId);
+            const notStagnantTaskIds = [];
+            for (let task of tasks) {
+                if (!_.includes(workStages.map(x => x.id), task.stageId) || task.cost.value === 0 || !task.userId) {
+                    notStagnantTaskIds.push(task.id);
+                    continue;
+                }
+
+                const member = members.find(x => x.userId === task.userId);
+                const stats = memberStats.find(x => x.memberId === member.id);
                 const isStagnation = yield StagnationTask._isStagnationTask(task, stats);
 
                 if (isStagnation) {
                     stagnantTaskIds.push(task.id);
+                } else {
+                    notStagnantTaskIds.push(task.id);
                 }
+            }
+
+            // update all
+            yield db.TaskStats.update({isStagnant: false}, {where: {taskId: {in: notStagnantTaskIds}}, transaction});
+            for (let taskId of stagnantTaskIds) {
+                yield db.TaskStats.upsert({isStagnant: true, taskId}, {field: ['taskId'], transaction});
             }
 
             return stagnantTaskIds;
