@@ -22,21 +22,21 @@ class PredicateCompletionTimeComponent extends EventEmitter2 {
     }
 
     get componentName () {
-        return 'predicate_completion_time_component';
+        return 'prediction_completion_time_component';
     }
 
     register () {
         const that = this;
         ko.components.register(this.componentName, {
             viewModel: function () {
-                this.predicates = ko.pureComputed(() => {
+                this.predictions = ko.pureComputed(() => {
                     const users = that.users().filter(x => x.isVisible());
                     const memberStats = that.memberStats();
                     const task = that.task();
                     if (!task) { return []; }
                     const taskCost = Number(task.cost().value());
 
-                    const predicates = users.map(({id: userId, username}) => {
+                    const predictions = users.map(({id: userId, username}) => {
                         const stats = memberStats.find(x => x.userId === userId());
                         if (!taskCost || !stats || !stats.throughput) {
                             return {username, requiredTime: 0, requiredTimeFormat: '-'};
@@ -48,10 +48,10 @@ class PredicateCompletionTimeComponent extends EventEmitter2 {
                         return {username, requiredMinutes, requiredTimeFormat};
                     });
 
-                    return _.sortBy(predicates, 'requiredMinutes');
+                    return _.sortBy(predictions, 'requiredMinutes');
                 });
             },
-            template: require('html!./predicate_completion_time_component.html')
+            template: require('html!./prediction_completion_time_component.html')
         });
     }
 }
