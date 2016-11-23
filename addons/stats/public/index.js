@@ -3,7 +3,8 @@ const ko = require('knockout');
 const Iteration = require('./models/iteration');
 const ThroughputTableComponent = require('./throughput_table_component');
 const IterationTableComponent = require('./iteration_table_component');
-const PredicateCompletionTimeComponent = require('./predicate_completion_time_component');
+const PredicateCompletionTimeComponent = require('./prediction_completion_time_component');
+const StagnationTaskViewModel = require('./viewmodels/stagnation_task');
 
 module.exports = {
     init: (kanban, {alert}) => {
@@ -11,6 +12,11 @@ module.exports = {
 
         const iterations = ko.observableArray();
         const workTimes = ko.observable();
+        const stagnantTaskIds = ko.observableArray([]);
+
+        const stagnationTaskViewModel = new StagnationTaskViewModel(stagnantTaskIds);
+        stagnationTaskViewModel.initDecorateTask(kanban.project.tasks);
+        stagnationTaskViewModel.initDecorateTaskCard(kanban.taskCard);
 
         const throughputTableComponent = new ThroughputTableComponent(kanban.project.users);
         throughputTableComponent.register();
@@ -41,6 +47,7 @@ module.exports = {
             console.debug('on stats', req);
             throughputTableComponent.updateMemberStats(req.members);
             predicateCompletionTimeComponent.updateMemberStats(req.members);
+            stagnantTaskIds(req.stagnantTaskIds);
             workTimes(req.workTimes);
             if (first) {
                 first = false;

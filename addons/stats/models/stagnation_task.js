@@ -7,7 +7,8 @@ class StagnationTask {
     static findByProjectId (projectId, {transaction} = {}) {
         return db.coTransaction({transaction}, function* () {
             const tasks = yield db.Task.findAll({where: {projectId}, transaction});
-            return db.TaskStats.findAll({where: {taskId: {in: _.map(tasks, 'id')}, isStagnation: true}, transaction});
+            const stagnatTasks = yield db.TaskStats.findAll({where: {taskId: {in: _.map(tasks, 'id')}, isStagnation: true}, transaction});
+            return _.map(stagnatTasks, 'taskId');
         });
     }
 
@@ -35,7 +36,7 @@ class StagnationTask {
 
                 const member = members.find(x => x.userId === task.userId);
                 const stats = memberStats.find(x => x.memberId === member.id);
-                const isStagnation = yield StagnationTask._isStagnationTask(task, stats);
+                const isStagnation = StagnationTask._isStagnationTask(task, stats);
 
                 if (isStagnation) {
                     stagnantTaskIds.push(task.id);
@@ -45,9 +46,9 @@ class StagnationTask {
             }
 
             // update all
-            yield db.TaskStats.update({isStagnant: false}, {where: {taskId: {in: notStagnantTaskIds}}, transaction});
+            yield db.TaskStats.update({isStagnation: false}, {where: {taskId: {in: notStagnantTaskIds}}, transaction});
             for (let taskId of stagnantTaskIds) {
-                yield db.TaskStats.upsert({isStagnant: true, taskId}, {field: ['taskId'], transaction});
+                yield db.TaskStats.upsert({isStagnation: true, taskId}, {field: ['taskId'], transaction});
             }
 
             return stagnantTaskIds;

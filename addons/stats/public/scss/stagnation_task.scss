@@ -1,0 +1,11 @@
+@charset "UTF-8";
+
+.task-card.stagnant-task {
+  border: 2px solid #e74c3c;
+  padding: 5px;
+
+  .task-card-label-block {
+    height: 51px;
+    padding-top: 1px;
+  }
+}
