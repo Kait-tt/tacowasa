@@ -2,6 +2,7 @@
 const _ = require('lodash');
 const db = require('../schemas');
 const Project = require('../../../lib/models/project');
+const Util = require('../modules/util');
 
 class Throughput {
     static calcAll (projectId, {transaction} = {}) {
@@ -46,7 +47,7 @@ class Throughput {
         let sumTime = 0;
         tasks.forEach(task => {
             sumCost += task.cost.value;
-            sumTime += _.sum(task.works.map(x => Number(new Date(x.endTime) - new Date(x.startTime))));
+            sumTime += Util.calcSumWorkTime(task.works);
         });
         sumTime /= 1000 * 60 * 60; // to hour
         return sumTime ? sumCost / sumTime : 0;

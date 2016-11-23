@@ -5,10 +5,11 @@ const db = require('../schemas');
 const Throughput = require('./throughput');
 const Iteration = require('./iteration');
 const MemberWorkTime = require('./member_work_time');
+const StagnationTask = require('./stagnation_task');
 
 class ProjectStats {
     static calcAll (projectId, {transaction, force = false} = {}) {
-        return db.coTransaction({transaction}, function* () {
+        return db.coTransaction({transaction}, function* (transaction) {
             let doCalc = force || !(yield ProjectStats.checkCache(projectId, {transaction}));
 
             if (doCalc) {
@@ -19,6 +20,7 @@ class ProjectStats {
 
                 yield Throughput.calcAll(projectId, {transaction});
                 yield MemberWorkTime.calcAll(projectId, {transaction});
+                yield StagnationTask.calcAll(projectId, {transaction});
             }
 
             const projectStats = yield db.ProjectStats.findOne({where: {projectId}, transaction});
