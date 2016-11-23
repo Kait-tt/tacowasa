@@ -49,7 +49,6 @@ class StagnationTaskViewModel {
         task.isDecoratedStagnation = true;
 
         task.isStagnant = ko.computed(() => _.includes(this.stagnantTaskIds(), task.id()));
-        task.isStagnant.subscribe(x => console.log(x));
     }
 }
 
