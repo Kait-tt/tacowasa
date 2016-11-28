@@ -9,6 +9,12 @@ class AbstractModalComponent extends EventEmitter2 {
 
     onLoad () {
         this.emit('load', this);
+        $('#' + this.modalName)
+            .on('show.bs.modal', () => { this.emit('bs.showModal', this); })
+            .on('shown.bs.modal', () => { this.emit('shownModal', this); })
+            .on('hide.bs.modal', () => { this.emit('hideModal', this); })
+            .on('hidden.bs.modal', () => { this.emit('hiddenModal', this); })
+            .on('loaded.bs.modal', () => { this.emit('loadedModal', this); });
     }
 
     showModal () {

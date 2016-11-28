@@ -34,7 +34,7 @@ describe('addons', () => {
                         expect(subject).to.have.deep.property('members[0].throughput');
                         expect(subject).to.have.property('iterations');
                         expect(subject).to.have.property('workTimes');
-                        expect(subject).to.have.property('burn_down_chart');
+                        expect(subject).to.have.property('burnDownChart');
                     });
 
                     it('should create project stats record', co.wrap(function* () {

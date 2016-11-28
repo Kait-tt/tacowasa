@@ -5,6 +5,7 @@ const ThroughputTableComponent = require('./throughput_table_component');
 const IterationTableComponent = require('./iteration_table_component');
 const PredicateCompletionTimeComponent = require('./prediction_completion_time_component');
 const StagnationTaskViewModel = require('./viewmodels/stagnation_task');
+const BurnDownChartComponent = require('./burn_down_chart_component');
 
 module.exports = {
     init: (kanban, {alert}) => {
@@ -40,6 +41,12 @@ module.exports = {
             socket.emit('updatePromisedWorkTime', {userId, iterationId, promisedMinutes});
         });
 
+        const burnDownChartComponent = new BurnDownChartComponent();
+        kanban.projectStatsModal.on('shownModal', () => {
+            burnDownChartComponent.drawChart();
+        });
+        burnDownChartComponent.register();
+
         // init socket events
 
         let first = true;
@@ -49,6 +56,8 @@ module.exports = {
             predicateCompletionTimeComponent.updateMemberStats(req.members);
             stagnantTaskIds(req.stagnantTaskIds);
             workTimes(req.workTimes);
+            burnDownChartComponent.bdc(req.burnDownChart);
+            burnDownChartComponent.drawChart();
             if (first) {
                 first = false;
                 req.iterations.forEach(iterationParams => {
@@ -91,6 +100,7 @@ module.exports = {
         kanban.projectStatsModal.on('load', () => {
             insertNodeIntoFirstOnModal(throughputTableComponent.componentName, 'project-stats-modal');
             insertNodeIntoFirstOnModal(iterationTableComponent.componentName, 'project-stats-modal');
+            insertNodeIntoFirstOnModal(burnDownChartComponent.componentName, 'project-stats-modal');
         });
 
         kanban.assignTaskModal.on('load', () => {

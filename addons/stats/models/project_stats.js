@@ -11,7 +11,7 @@ const BurnDownChart = require('./burn_down_chart');
 class ProjectStats {
     static calcAll (projectId, {transaction, force = false} = {}) {
         return db.coTransaction({transaction}, function* (transaction) {
-            let doCalc = force || !(yield ProjectStats.checkCache(projectId, {transaction})) || true;
+            let doCalc = force || !(yield ProjectStats.checkCache(projectId, {transaction}));
 
             if (doCalc) {
                 // create or update project stats, and lock
@@ -33,7 +33,7 @@ class ProjectStats {
                 iterations: yield Iteration.findByProjectId(projectId, {transaction}),
                 workTimes: yield MemberWorkTime.findByProjectId(projectId, {transaction}),
                 stagnantTaskIds: yield StagnationTask.findByProjectId(projectId, {transaction}),
-                burn_down_chart: yield BurnDownChart.findByProjectId(projectId, {transaction})
+                burnDownChart: yield BurnDownChart.findByProjectId(projectId, {transaction})
             };
         });
     }

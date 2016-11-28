@@ -84,8 +84,8 @@ class BurnDownChart {
                     {name: '1_endWork', time: Number(work.endTime), workId: work.id}
                 ])
                 .flatten()
-                .concat([{name: '2_createTask', time: Number(task.createdAt), taskId: task.id}])
-                .concat(task.isCompleted ? [{name: '3_completionTask', time: Number(task.completedTime), taskId: task.id}] : [])
+                .concat([{name: '2_createTask', time: Number(task.createdAt), taskId: task.id, cost: task.cost.value}])
+                .concat(task.isCompleted ? [{name: '3_completionTask', time: Number(task.completedTime), taskId: task.id, cost: task.cost.value}] : [])
                 .forEach(event => {
                     const pos = Util.lowerBound(_times, event.time);
                     times[pos].events.push(event);
@@ -122,10 +122,10 @@ class BurnDownChart {
                         _.pull(workingWorkIds, event.workId);
                         break;
                     case '2_createTask':
-                        ++taskNum;
+                        taskNum += event.cost;
                         break;
                     case '3_completionTask':
-                        ++completedTaskNum;
+                        completedTaskNum += event.cost;
                         break;
                     }
                 })
@@ -133,7 +133,7 @@ class BurnDownChart {
 
             beforeTime = time;
 
-            return {taskNum, completedTaskNum, totalWorkTime: Math.floor(totalWorkTime / 1000 / 60 / 60)};
+            return {taskNum, completedTaskNum, totalWorkTime: Math.floor(totalWorkTime / 1000 / 60)};
         });
 
         return points;

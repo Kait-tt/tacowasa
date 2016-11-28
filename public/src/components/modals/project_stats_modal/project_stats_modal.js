@@ -7,11 +7,9 @@ class ProjectStatsModal extends AbstractModalComponent {
         this.project = project;
         this.stats = stats;
 
-        this.on('load', () => {
-            // 統計モーダルを開いたら統計を計算
-            $('#project-stats-modal').on('show.bs.modal', () => {
-                this.stats.calcLastTwoWeekWorkTime();
-            });
+        // 統計モーダルを開いたら統計を計算
+        this.on('shownModal', () => {
+            this.stats.calcLastTwoWeekWorkTime();
         });
     }
 
