@@ -1,7 +1,7 @@
 'use strict';
 const _ = require('lodash');
 const db = require('../schemas');
-const Util = require('../modules/Util');
+const Util = require('../modules/util');
 
 class BurnDownChart {
     static findByProjectId (projectId, {transaction} = {}) {
