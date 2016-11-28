@@ -1,12 +1,16 @@
 'use strict';
 const _ = require('lodash');
-const db = require('../../schemas');
-const Util = require('../../modules/Util');
+const db = require('../schemas');
+const Util = require('../modules/Util');
 
 class BurnDownChart {
+    static findByProjectId (projectId, {transaction} = {}) {
+        return db.BurnDownChart.findAll({where: {projectId}, transaction});
+    }
+
     static calc (projectId, {transaction} = {}) {
         return db.coTransaction({transaction}, function* (transaction) {
-            const tasks = yield db.Task.findAll({
+            let tasks = yield db.Task.findAll({
                 where: {projectId},
                 include: [
                     {model: db.Stage, as: 'stage'},
@@ -15,23 +19,27 @@ class BurnDownChart {
                 ],
                 transaction
             });
+            tasks = tasks.map(x => x.toJSON());
 
-            const logs = yield db.Log.findAll({
+            let logs = yield db.Log.findAll({
                 where: {
                     projectId,
                     action: {in: ['archiveTask', 'updateTaskStatus', 'updateTaskStatusAndOrder']}
                 },
                 transaction
             });
+            logs = logs.map(x => x.toJSON());
+
             const completedTimes = BurnDownChart._calcTaskCompletedTime(logs);
+
             tasks.forEach(task => {
                 const completedTime = completedTimes.find(x => x.taskId === task.id);
-                if (completedTime && completedTime.time) {
+                if (completedTime) {
+                    task.isCompleted = completedTime.isCompleted;
+                    task.completedTime = Number(completedTime.time);
+                } else if (_.includes(['done', 'archive'], task.stage.name)) {
                     task.isCompleted = true;
-                    task.completedTime = completedTime.time;
-                } else if (_.includes(['done', 'archive'], task.stage.value)) {
-                    task.isCompleted = true;
-                    task.completedTime = task.createdAt;
+                    task.completedTime = Number(task.createdAt);
                 } else {
                     task.isCompleted = false;
                 }
@@ -41,17 +49,26 @@ class BurnDownChart {
 
             const bdc = BurnDownChart._calc(tasks, iterations);
 
-            // TODO: update
+            yield db.BurnDownChart.destroy({where: {projectId}, transaction});
+            yield db.BurnDownChart.bulkCreate(bdc.map(x => _.assign(x, {projectId})), {transaction});
+
+            return bdc;
         });
     }
 
     static _calc (tasks, iterations) {
         // イベントを持つユニークな時間
-        const times = _.chain(tasks.works)
+        const times = _.chain(tasks)
             .map('works')
-            .concat(iterations)
-            .map(x => [x.startTime, x.endTime, x.createdAt])
             .flatten()
+            .map(x => [x.startTime, x.endTime])
+            .flatten()
+            .concat(_.map(tasks, 'createdAt'))
+            .concat(_.map(tasks, 'completedTime'))
+            .concat(_.map(iterations, 'startTime'))
+            .concat(_.map(iterations, 'endTime'))
+            .push(Number(Date.now()))
+            .compact()
             .map(x => Number(x))
             .sortBy()
             .uniq()
@@ -63,11 +80,12 @@ class BurnDownChart {
         tasks.forEach(task => {
             _.chain(task.works)
                 .map(work => [
-                    {name: '0_startWork', time: Number(work.startTime), work},
-                    {name: '1_endWork', time: Number(work.endTime), work}
+                    {name: '0_startWork', time: Number(work.startTime), workId: work.id},
+                    {name: '1_endWork', time: Number(work.endTime), workId: work.id}
                 ])
-                .concat([{name: '2_createTask', time: Number(task.createdAt), task}])
-                .concat(task.isCompleted ? [] : [{name: '3_completionTask', time: Number(task.completedTime), task}])
+                .flatten()
+                .concat([{name: '2_createTask', time: Number(task.createdAt), taskId: task.id}])
+                .concat(task.isCompleted ? [{name: '3_completionTask', time: Number(task.completedTime), taskId: task.id}] : [])
                 .forEach(event => {
                     const pos = Util.lowerBound(_times, event.time);
                     times[pos].events.push(event);
@@ -77,8 +95,8 @@ class BurnDownChart {
 
         iterations.forEach(iteration => {
             [
-                {name: '4_startIteration', time: Number(iteration.startTime), iteration},
-                {name: '5_endIteration', time: Number(iteration.endTime), iteration}
+                {name: '4_startIteration', time: Number(iteration.startTime), iterationId: iteration.id},
+                {name: '5_endIteration', time: Number(iteration.endTime), iterationId: iteration.id}
             ].forEach(event => {
                 const pos = Util.lowerBound(_times, event.time);
                 times[pos].events.push(event);
@@ -87,18 +105,21 @@ class BurnDownChart {
 
         let taskNum = 0;
         let completedTaskNum = 0;
-        let sumWorkTime = 0;
-        let workingWorks = [];
+        let totalWorkTime = 0;
+        let workingWorkIds = [];
+        let beforeTime = times.length ? times[0].time : 0;
         const points = times.map(({time, events}) => {
+            totalWorkTime += (Number(time) - Number(beforeTime)) * workingWorkIds.length;
+
             _.chain(events)
                 .sortBy('name')
                 .forEach(event => {
                     switch (event.name) {
                     case '0_startWork':
-                        workingWorks.push(event.work);
+                        workingWorkIds.push(event.workId);
                         break;
                     case '1_endWork':
-                        _.pull(workingWorks, event.work);
+                        _.pull(workingWorkIds, event.workId);
                         break;
                     case '2_createTask':
                         ++taskNum;
@@ -110,11 +131,9 @@ class BurnDownChart {
                 })
                 .value();
 
-            workingWorks.forEach(work => {
-                sumWorkTime += Number(time) - Number(work.startTime);
-            });
+            beforeTime = time;
 
-            return {taskNum, completedTaskNum, remainingTaskNum: taskNum - completedTaskNum, sumWorkTime};
+            return {taskNum, completedTaskNum, totalWorkTime: Math.floor(totalWorkTime / 1000 / 60 / 60)};
         });
 
         return points;
@@ -122,26 +141,24 @@ class BurnDownChart {
 
     static _calcTaskCompletedTime (logs) {
         return _.chain(logs)
-            .map(log => log.toJSON())
             .map(log => {
                 log.content = JSON.parse(log.content);
                 log.taskId = log.content.task.id;
-                log.status = log.content.task.status.name;
-                log.time = Number(log.createdAt);
+                return log;
             })
             .groupBy('taskId')
-            .map(({statusLogs, taskId}) => {
+            .map((statusLogs, taskId) => {
                 let lastCompletedTime = 0;
                 statusLogs.forEach(log => {
-                    if (_.includes(['done', 'archive'], log.status)) {
+                    if (_.includes(['done', 'archive'], log.content.task.stage.name)) {
                         if (!lastCompletedTime) {
-                            lastCompletedTime = log.time;
+                            lastCompletedTime = Number(log.createdAt);
                         }
                     } else {
                         lastCompletedTime = 0;
                     }
                 });
-                return {taskId, time: lastCompletedTime, isCompleted: lastCompletedTime > 0};
+                return {taskId: Number(taskId), time: lastCompletedTime, isCompleted: lastCompletedTime > 0};
             })
             .value();
     }

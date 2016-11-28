@@ -6,11 +6,12 @@ const Throughput = require('./throughput');
 const Iteration = require('./iteration');
 const MemberWorkTime = require('./member_work_time');
 const StagnationTask = require('./stagnation_task');
+const BurnDownChart = require('./burn_down_chart');
 
 class ProjectStats {
     static calcAll (projectId, {transaction, force = false} = {}) {
         return db.coTransaction({transaction}, function* (transaction) {
-            let doCalc = force || !(yield ProjectStats.checkCache(projectId, {transaction}));
+            let doCalc = force || !(yield ProjectStats.checkCache(projectId, {transaction})) || true;
 
             if (doCalc) {
                 // create or update project stats, and lock
@@ -21,6 +22,7 @@ class ProjectStats {
                 yield Throughput.calcAll(projectId, {transaction});
                 yield MemberWorkTime.calcAll(projectId, {transaction});
                 yield StagnationTask.calcAll(projectId, {transaction});
+                yield BurnDownChart.calc(projectId, {transaction});
             }
 
             const projectStats = yield db.ProjectStats.findOne({where: {projectId}, transaction});
@@ -30,7 +32,8 @@ class ProjectStats {
                 members: yield ProjectStats.findEachMembers(projectId, {transaction}),
                 iterations: yield Iteration.findByProjectId(projectId, {transaction}),
                 workTimes: yield MemberWorkTime.findByProjectId(projectId, {transaction}),
-                stagnantTaskIds: yield StagnationTask.findByProjectId(projectId, {transaction})
+                stagnantTaskIds: yield StagnationTask.findByProjectId(projectId, {transaction}),
+                burn_down_chart: yield BurnDownChart.findByProjectId(projectId, {transaction})
             };
         });
     }
