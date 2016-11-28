@@ -13,11 +13,15 @@ co(function* () {
 
     for (let project of projects) {
         console.log(`Start ${project.name} ${project.id}`);
-        try {
-            yield Task.validateTaskOrder(project.id);
-            console.log('Successful');
-        } catch (e) {
-            console.error(e);
+
+        const res = yield Task.validateTaskOrder(project.id);
+        if (res.errors.length) {
+            console.log('Errors are found :');
+            console.log(res.errors.map(x => '  ' + x).join('\n'));
+            console.log('  ' + res.connections.map(xs => xs.join(' ')));
+            console.log('// end');
+        } else {
+            console.log('Successful\n');
         }
     }
 }).catch(e => console.error(e));
