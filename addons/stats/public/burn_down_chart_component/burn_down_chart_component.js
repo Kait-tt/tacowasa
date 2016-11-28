@@ -35,8 +35,8 @@ class BurnDownChartComponent {
                 crosshairs: true
             },
             series: [{
-                name: '全タスクコスト',
-                data: data.map(p => [p.totalWorkTime, p.taskNum])
+                name: '完了タスクコスト',
+                data: data.map(p => [p.totalWorkTime, p.completedTaskNum])
             }, {
                 name: '残りタスクコスト',
                 data: data.map(p => [p.totalWorkTime, p.taskNum - p.completedTaskNum])
