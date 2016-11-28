@@ -57,7 +57,7 @@ class StagnationTask {
 
     static _isStagnationTask (task, memberStats) {
         const sumTimeMinutes = Util.calcSumWorkTime(task.works) / 1000 / 60;
-        const predictionTimeMinutes = memberStats.throughput * task.cost.value * 60;
+        const predictionTimeMinutes = task.cost.value / memberStats.throughput * 60;
         return sumTimeMinutes > predictionTimeMinutes;
     }
 }
