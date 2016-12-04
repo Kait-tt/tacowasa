@@ -1,7 +1,8 @@
 # coding:utf-8
 from statistics import mean
 
-class AveragePredicate:
+
+class AveragePredictor:
     @classmethod
     def predicate(cls, tasks, user_id, cost):
         user_tasks = [x for x in tasks if x['userId'] == user_id]
