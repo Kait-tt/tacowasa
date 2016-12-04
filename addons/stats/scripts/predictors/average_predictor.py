@@ -1,12 +1,17 @@
 # coding:utf-8
-from statistics import mean
+from . import AbstractPredictor
+from .util import *
 
 
-class AveragePredictor:
+class AveragePredictor(AbstractPredictor):
     @classmethod
     def predicate(cls, tasks, user_id, cost):
-        user_tasks = [x for x in tasks if x['userId'] == user_id]
-        if len(user_tasks) == 0:
-            return None
-        readtime = mean([x['actualWorkTime'] / x['cost'] for x in tasks])
-        return readtime * cost
+        if len(tasks) == 0:
+            return float('inf')
+
+        same_user_tasks = filter_user_id(tasks, user_id)
+        if len(same_user_tasks) > 0:
+            tasks = same_user_tasks
+
+        lt = lead_time(tasks)
+        return lt * cost

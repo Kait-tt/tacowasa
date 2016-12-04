@@ -1,3 +1,10 @@
 # coding:utf-8
 
+from .util import *
+from .abstract_predictor import AbstractPredictor
 from .average_predictor import AveragePredictor
+from .average_predictor_without_outliers import AveragePredictorWithoutOutliers
+from .average_predictor_without_outliers2 import AveragePredictorWithoutOutliers2
+from .average_predictor_each_cost import AveragePredictorEachCost
+from .average_predictor_with_other_users import AveragePredictorWithOtherUsers
+from .regression_prediction import RegressionPrediction
