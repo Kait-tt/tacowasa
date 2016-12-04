@@ -61,7 +61,7 @@ class BurnDownChart {
                 ])
                 .flatten()
                 .concat([{name: '2_createTask', time: Number(task.createdAt), taskId: task.id, cost: task.cost.value}])
-                .concat(task.isCompleted ? [{name: '3_completionTask', time: Number(task.completedAt), taskId: task.id, cost: task.cost.value}] : [])
+                .concat(task.completedAt ? [{name: '3_completionTask', time: Number(task.completedAt), taskId: task.id, cost: task.cost.value}] : [])
                 .forEach(event => {
                     const pos = Util.lowerBound(_times, event.time);
                     times[pos].events.push(event);

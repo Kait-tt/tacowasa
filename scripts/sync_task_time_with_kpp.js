@@ -45,7 +45,7 @@ db.coTransaction({}, function* (transaction) {
             if (!githubTask) {
                 throw new Error(`github task was not found : ${title}`);
             }
-            const task = yield db.Task.findOne({where: {id: githubTask.taskId}, include: [{model: db.Stage, as: 'stage'}], transaction});
+            let task = yield db.Task.findOne({where: {id: githubTask.taskId}, include: [{model: db.Stage, as: 'stage'}], transaction});
             if (!task) {
                 throw new Error(`task was not found: ${title}`);
             }
@@ -57,19 +57,22 @@ db.coTransaction({}, function* (transaction) {
                 yield db.sequelize.query(`update tasks set createdAt = "${createdAtStr}" where id = ${task.id}`);
             }
 
+            task = yield db.Task.findOne({where: {id: githubTask.taskId}, include: [{model: db.Stage, as: 'stage'}], transaction});
+
             // update completed at
             const taskLogs = _.filter(changeLogs, {issueId: _id});
             let completedAt = 0;
             taskLogs.forEach(x => {
                 if (_.includes(['done', 'archive'], x.stage)) {
-                    completedAt = x.createdAt;
+                    if (!completedAt) {
+                        completedAt = x.createdAt;
+                    }
                 } else {
                     completedAt = 0;
                 }
             });
 
-            if (completedAt && (!task.completedAt || Number(task.createdAt) >= Number(task.completedAt)) &&
-                _.includes(['done', 'archive'], task.stage.name)) {
+            if (completedAt && _.includes(['done', 'archive'], task.stage.name)) {
                 console.log(`fix completedAt of ${task.id} to ${new Date(completedAt)} from ${new Date(task.completedAt)}`);
                 yield task.update({completedAt: new Date(completedAt)}, {transaction});
             }
@@ -89,10 +92,10 @@ function pickChangeStateLog (logs) {
         .filter(x => x.values.action && x.values.action === 'emit')
         .filter(x => _.includes(['update-stage', 'remove-issue'], x.values.key))
         .map(x => {
-            const res = x.values.res || x.values.req;
+            const req = x.values.req;
             return {
-                issueId: res.issueId || res.issue._id,
-                stage: res.toStage || res.issue.stage,
+                issueId: req.issueId || req.issue._id,
+                stage: req.toStage || req.issue.stage,
                 createdAt: new Date(x.created_at)
             };
         })
@@ -103,5 +106,6 @@ function pickChangeStateLog (logs) {
                 }
             });
         })
+        .sortBy('createdAt')
         .value();
 }
