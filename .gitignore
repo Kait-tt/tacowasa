@@ -26,3 +26,5 @@ coverage/
 !/config/db.js
 
 .nyc_output/
+
+__pycache__
