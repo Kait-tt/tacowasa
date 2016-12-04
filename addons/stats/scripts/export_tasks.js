@@ -66,6 +66,7 @@ db.coTransaction({}, function* (transaction) {
             fs.writeFileSync(output, outstr);
             console.log(`Created ${output}`);
         } else {
+            // res.forEach(x => console.log(x.projectName, x.tasks.length));
             console.log(outstr);
         }
     })

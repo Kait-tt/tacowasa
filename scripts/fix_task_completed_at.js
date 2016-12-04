@@ -22,20 +22,18 @@ db.coTransaction({}, function* (transaction) {
 
         for (let task of tasks) {
             const log = completedTimes.find(x => x.taskId === task.id);
-            let completedAt = null;
             if (log) {
-                completedAt = log.time;
-            } else if (_.includes(['done', 'archive'], task.stage.name)) {
-                completedAt = task.createdAt;
-            }
-
-            if (completedAt) {
-                console.log(`fix ${task.id}.completedAt to ${completedAt}`);
-                yield db.Task.update({completedAt}, {where: {id: task.id}, transaction});
+                if (Number(task.completedAt) !== Number(log.time)) {
+                    console.log(`fix ${task.id}.completedAt to ${new Date(log.time)}`);
+                    yield db.Task.update({completedAt: new Date(log.time)}, {where: {id: task.id}, transaction});
+                }
+            } else if (!task.completedAt && _.includes(['done', 'archive'], task.stage.name)) {
+                console.log(`fix ${task.id}.completedAt to createdAt`);
+                yield db.Task.update({completedAt: task.createdAt}, {where: {id: task.id}, transaction});
             }
         }
     }
-});
+}).then(() => console.log('Successful!'));
 
 function calcTaskCompletedTime (logs) {
     return _.chain(logs)
