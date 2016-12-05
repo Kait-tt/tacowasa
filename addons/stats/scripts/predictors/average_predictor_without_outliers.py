@@ -12,7 +12,7 @@ class AveragePredictorWithoutOutliers(AbstractPredictor):
             return float('inf')
 
         same_user_tasks = filter_user_id(tasks, user_id)
-        if len(same_user_tasks) > 0:
+        if len(same_user_tasks) > 4:
             tasks = same_user_tasks
 
         tasks2 = cls.filter_outliers(tasks)

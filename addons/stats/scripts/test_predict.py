@@ -12,7 +12,7 @@ methods = [
     # {'klass': predictors.AveragePredictorWithoutOutliers2, 'name': 'AverageWithoutOutliers(std)'},
     {'klass': predictors.AveragePredictorEachCost, 'name': 'AverageEachCost'},
     {'klass': predictors.AveragePredictorWithOtherUsers, 'name': 'AverageWithOtherUsers'},
-    # {'klass': predictors.RegressionPrediction, 'name': 'Regression'}
+    {'klass': predictors.RegressionPrediction, 'name': 'Regression'}
 ]
 
 MAX_E = 10
@@ -78,8 +78,8 @@ def plot_timeline(projects, methods, results):
 
         for method in methods:
             es = [x for x in results
-                      if x['projectName'] == project['projectName'] and x['methodName'] == method['name']
-                      ][0]['rel_es']
+                  if x['projectName'] == project['projectName'] and x['methodName'] == method['name']
+                  ][0]['rel_es']
             plt.ylim(0, MAX_E + 0.5)
             plt.plot(range(len(es)), es, label=method['name'])
 
