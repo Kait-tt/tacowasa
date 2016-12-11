@@ -8,3 +8,5 @@ from .average_predictor_without_outliers2 import AveragePredictorWithoutOutliers
 from .average_predictor_each_cost import AveragePredictorEachCost
 from .average_predictor_with_other_users import AveragePredictorWithOtherUsers
 from .regression_prediction import RegressionPrediction
+
+from .average_predictor_each_cost_interval import AveragePredictorEachCostInterval
