@@ -1,10 +1,12 @@
 'use strict';
 const co = require('co');
 const tableName = 'memberStats';
+const db = require('../schemas');
 
 module.exports = {
     up: function(queryInterface, Sequelize) {
         return co(function* () {
+            yield db.sequelize.query(`delete from ${tableName}`);
             yield queryInterface.removeColumn(tableName, 'throughput');
             yield queryInterface.addColumn(tableName, 'costId', {
                 allowNull: false,
