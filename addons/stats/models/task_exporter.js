@@ -37,7 +37,7 @@ class TaskExporter {
         return db.coTransaction({transaction}, function* (transaction) {
             const res = [];
             for (let projectId of projectIds) {
-                res.push(TaskExporter.exportOne(projectId, {transaction}));
+                res.push(yield TaskExporter.exportOne(projectId, {transaction}));
             }
             return res;
         });
