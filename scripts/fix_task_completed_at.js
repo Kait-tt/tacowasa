@@ -58,5 +58,4 @@ function calcTaskCompletedTime (logs) {
         })
         .filter(x => x.time)
         .value();
-
 }

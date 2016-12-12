@@ -29,7 +29,6 @@ describe('addons', () => {
                     }));
 
                     it('should return all params', () => {
-                        console.log(subject);
                         expect(subject).to.have.deep.property('members[0].userId');
                         expect(subject).to.have.deep.property('members[0].low');
                         expect(subject).to.have.deep.property('members[0].high');
