@@ -104,6 +104,12 @@ const util = {
         return hour ? (hour + '時間' + minute + '分') : minute + '分';
     },
 
+    minutesFormatHM: minutes => {
+        const minute = Math.floor(minutes % 60);
+        const hour = Math.floor(minutes / 60);
+        return hour ? `${hour}時間${minute}分` : `${minute}分`;
+    },
+
     dateFormatYMDHM: time => {
         return (moment.isMoment(time) ? time : moment(new Date(time))).format('YYYY/MM/DD HH:mm:ss');
     },

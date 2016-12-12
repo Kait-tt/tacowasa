@@ -1,0 +1,9 @@
+<!-- ko if: predictTimeFormat -->
+<div class="all-work-time-wrapper alert"
+     data-bind="tooltip: { placement:'right', title: '予測作業時間' },
+                css: { 'alert-danger': isStagnant(),
+                         'alert-info': !isStagnant() }">
+  <span class="glyphicon glyphicon-hourglass"></span>
+  <span data-bind="text: predictTimeFormat"></span>
+</div>
+<!-- /ko -->

@@ -2,6 +2,7 @@
 const _ = require('lodash');
 const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
+const Util = require('../../../../public/src/js/modules/util');
 
 class PredicateCompletionTimeComponent extends EventEmitter2 {
     constructor (users, {eventEmitterOptions} = {}) {
@@ -13,12 +14,6 @@ class PredicateCompletionTimeComponent extends EventEmitter2 {
 
     updateMemberStats (memberStats) {
         this.memberStats(memberStats);
-    }
-
-    _formatFromMinutes (minutes) {
-        const m = Math.floor(minutes % 60);
-        const h = Math.floor(minutes / 60);
-        return h ? `${h}時間${m}分` : `${m}分`;
     }
 
     get componentName () {
@@ -44,7 +39,7 @@ class PredicateCompletionTimeComponent extends EventEmitter2 {
 
                         const requiredMean = stats.mean;
                         const requiredTimeFormat = [stats.low, stats.high]
-                                .map(that._formatFromMinutes)
+                                .map(Util.minutesFormatHM)
                                 .join('～');
 
                         return {username, requiredMean, requiredTimeFormat};

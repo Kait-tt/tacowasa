@@ -5,6 +5,7 @@ const IterationTableComponent = require('./iteration_table_component');
 const PredicateCompletionTimeComponent = require('./prediction_completion_time_component');
 const StagnationTaskViewModel = require('./viewmodels/stagnation_task');
 const BurnDownChartComponent = require('./burn_down_chart_component');
+const TaskDetailPredictComponent = require('./task_detail_predict_component');
 
 module.exports = {
     init: (kanban, {alert}) => {
@@ -43,6 +44,10 @@ module.exports = {
         });
         burnDownChartComponent.register();
 
+        const taskDetailPredictComponent = new TaskDetailPredictComponent();
+        kanban.selectedTask.subscribe(x => taskDetailPredictComponent.task(x));
+        taskDetailPredictComponent.register();
+
         // init socket events
 
         let first = true;
@@ -53,6 +58,7 @@ module.exports = {
             workTimes(req.workTimes);
             burnDownChartComponent.bdc(req.burnDownChart);
             burnDownChartComponent.drawChart();
+            taskDetailPredictComponent.memberStats(req.members);
             if (first) {
                 first = false;
                 req.iterations.forEach(iterationParams => {
@@ -100,8 +106,20 @@ module.exports = {
         kanban.assignTaskModal.on('load', () => {
             insertNodeIntoLastOnModal(predicateCompletionTimeComponent.componentName, 'assign-task-modal');
         });
+
+        kanban.taskDetailModal.on('load', () => {
+            insertNodeAfterOnModal(taskDetailPredictComponent.componentName, 'task-detail-modal', '.all-work-time-wrapper');
+        });
     }
 };
+
+function insertNodeAfterOnModal (componentName, modalId, selector) {
+    const modal = document.getElementById(modalId);
+    const modalBody = modal.getElementsByClassName('modal-body')[0];
+    const child = modalBody.querySelector(selector);
+    const component = document.createElement(componentName);
+    child.parentNode.insertBefore(component, child.nextSibling);
+}
 
 function insertNodeIntoFirstOnModal (componentName, modalId) {
     const modal = document.getElementById(modalId);
