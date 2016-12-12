@@ -3,9 +3,10 @@ import json
 import argparse
 import matplotlib.pyplot as plt
 import predictors
+import math
 
 method = predictors.AveragePredictorEachCostInterval
-without_project_names = ['swkoubou.rms']
+without_project_names = []
 COLORS = ['green', 'blue', 'red']
 
 
@@ -53,11 +54,14 @@ def calc_all(projects, method):
     return results
 
 
+def uniq_users(project):
+    return list(set([x['userId'] for x in project['tasks']]))
+
+
 def uniq_all_users(projects):
     users = []
     for project in projects:
-        for task in project['tasks']:
-            users.append(task['userId'])
+        users.extend(uniq_users(project))
     return list(set(users))
 
 
@@ -72,8 +76,11 @@ def uniq_all_cost(projects):
 def plot_timeline(projects, results):
     users = uniq_all_users(projects)
     costs = uniq_all_cost(projects)
-    r = len(projects)
-    c = len(users)
+    n = sum([len(uniq_users(x)) for x in projects])
+    m = math.floor(math.sqrt(n))
+    r = math.floor(n / m)
+    c = math.floor((n + r - 1) / r)
+    idx = 0
 
     for pi, project in enumerate(projects):
         project_name = project['projectName']
@@ -84,6 +91,9 @@ def plot_timeline(projects, results):
 
         for ui, user in enumerate(users):
             ymax, xmax = 0, 0
+            if len([i for i in range(len(tasks)) if tasks[i]['userId'] == user]) > 0:
+                idx += 1
+
             for ci, cost in enumerate(costs):
                 idxes = [i for i in range(len(tasks)) if tasks[i]['userId'] == user and tasks[i]['cost'] == cost]
                 if len(idxes) == 0:
@@ -99,7 +109,7 @@ def plot_timeline(projects, results):
 
                 xmax = max(xmax, len(xs))
 
-                plt.subplot(r, c, pi * c + ui + 1)
+                plt.subplot(r, c, idx)
                 plt.xlim(-1, xmax + 1)
                 plt.title('{} {}'.format(project_name, user), fontsize=10)
                 plt.errorbar(range(len(means)), means, yerr=[mlows, mhighs], color=COLORS[ci], elinewidth=2)
