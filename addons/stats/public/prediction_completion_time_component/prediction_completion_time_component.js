@@ -34,21 +34,23 @@ class PredicateCompletionTimeComponent extends EventEmitter2 {
                     const memberStats = that.memberStats();
                     const task = that.task();
                     if (!task) { return []; }
-                    const taskCost = Number(task.cost().value());
+                    const costId = task.cost().id();
 
-                    const predictions = users.map(({id: userId, username}) => {
-                        const stats = memberStats.find(x => x.userId === userId());
-                        if (!taskCost || !stats || !stats.throughput) {
+                    const predicts = users.map(({id: userId, username}) => {
+                        const stats = memberStats.find(x => x.userId === userId() && x.costId === costId);
+                        if (!stats || !stats.mean) {
                             return {username, requiredTime: 0, requiredTimeFormat: '-'};
                         }
 
-                        const requiredMinutes = taskCost / stats.throughput * 60;
-                        const requiredTimeFormat = that._formatFromMinutes(requiredMinutes);
+                        const requiredMean = stats.mean;
+                        const requiredTimeFormat = [stats.low, stats.high]
+                                .map(that._formatFromMinutes)
+                                .join('～');
 
-                        return {username, requiredMinutes, requiredTimeFormat};
+                        return {username, requiredMean, requiredTimeFormat};
                     });
 
-                    return _.sortBy(predictions, 'requiredMinutes');
+                    return _.sortBy(predicts, 'requiredMean');
                 });
             },
             template: require('html!./prediction_completion_time_component.html')

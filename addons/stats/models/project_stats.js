@@ -43,9 +43,9 @@ class ProjectStats {
             const members = yield db.Member.findAll({where: {projectId}, transaction});
             const res = [];
             for (let member of members) {
-                const memberStats = yield db.MemberStats.findOne({where: {memberId: member.id}, transaction});
-                if (memberStats) {
-                    res.push(_.assign(memberStats.toJSON(), {userId: member.userId}));
+                const memberStats = yield db.MemberStats.findAll({where: {memberId: member.id}, transaction});
+                for (let stats of memberStats) {
+                    res.push(_.assign(stats.toJSON(), {userId: member.userId}));
                 }
             }
             return res;

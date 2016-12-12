@@ -1,7 +1,6 @@
 'use strict';
 const ko = require('knockout');
 const Iteration = require('./models/iteration');
-const ThroughputTableComponent = require('./throughput_table_component');
 const IterationTableComponent = require('./iteration_table_component');
 const PredicateCompletionTimeComponent = require('./prediction_completion_time_component');
 const StagnationTaskViewModel = require('./viewmodels/stagnation_task');
@@ -18,9 +17,6 @@ module.exports = {
         const stagnationTaskViewModel = new StagnationTaskViewModel(stagnantTaskIds);
         stagnationTaskViewModel.initDecorateTask(kanban.project.tasks);
         stagnationTaskViewModel.initDecorateTaskCard(kanban.taskCard);
-
-        const throughputTableComponent = new ThroughputTableComponent(kanban.project.users);
-        throughputTableComponent.register();
 
         const predicateCompletionTimeComponent = new PredicateCompletionTimeComponent(kanban.project.users);
         kanban.selectedTask.subscribe(x => predicateCompletionTimeComponent.task(x));
@@ -52,7 +48,6 @@ module.exports = {
         let first = true;
         socket.on('stats', req => {
             console.debug('on stats', req);
-            throughputTableComponent.updateMemberStats(req.members);
             predicateCompletionTimeComponent.updateMemberStats(req.members);
             stagnantTaskIds(req.stagnantTaskIds);
             workTimes(req.workTimes);
@@ -98,7 +93,6 @@ module.exports = {
         // init rendering
 
         kanban.projectStatsModal.on('load', () => {
-            insertNodeIntoFirstOnModal(throughputTableComponent.componentName, 'project-stats-modal');
             insertNodeIntoFirstOnModal(iterationTableComponent.componentName, 'project-stats-modal');
             insertNodeIntoFirstOnModal(burnDownChartComponent.componentName, 'project-stats-modal');
         });
