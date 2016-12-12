@@ -11,17 +11,44 @@ class Predictor {
 
             const {tasks} = yield TaskExporter.exportOne(project.id);
 
-            const members = yield db.Member.findAll({where: {projectId: project.id}, transaction});
+            const members = yield db.Member.findAll({where: {projectId}, transaction});
             const userIds = members.map(x => x.userId);
 
-            const costs = yield db.Cost.findAll({where: {projectId: project.id}, transaction});
+            const costs = yield db.Cost.findAll({where: {projectId}, transaction});
             const costValues = costs
                 .map(x => x.value)
                 .filter(x => x !== 0 && x !== 99);
 
-            const res = yield Predictor._execChild(tasks, userIds, costValues);
+            const predicts = yield Predictor._execChild(tasks, userIds, costValues);
 
-            return res;
+            yield Predictor._updateMemberStats(projectId, predicts, {transaction});
+
+            return predicts;
+        });
+    }
+
+    static _updateMemberStats (projectId, predicts, {transaction} = {}) {
+        return db.coTransaction({transaction}, function* (transaction) {
+            let members = yield db.Member.findAll({where: {projectId}, transaction});
+            members = members.map(x => x.toJSON());
+            const memberIds = members.map(x => x.id);
+
+            let costs = yield db.Cost.findAll({where: {projectId}, transaction});
+            costs = costs.map(x => x.toJSON());
+
+            yield db.MemberStats.destroy({where: {memberId: {in: memberIds}}, transaction});
+
+            for (let {userId, cost: costValue, mean, low, high} of predicts) {
+                const member = members.find(x => x.userId === userId);
+                if (!member) { throw new Error(`member was not found: userId=${userId}`); }
+                const memberId = member.id;
+
+                const cost = costs.find(x => x.value === costValue);
+                if (!cost) { throw new Error(`cost was not found: costValue=${costValue}`); }
+                const costId = cost.id;
+
+                yield db.MemberStats.create({memberId, costId, mean, low, high}, {transaction});
+            }
         });
     }
 
