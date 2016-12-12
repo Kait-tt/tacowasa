@@ -19,7 +19,7 @@ def main():
     for user_id in user_ids:
         for cost in costs:
             mean, mlow, mhigh, low, high = Predictor.predicate(tasks, user_id, cost)
-            results.append({'user_id': user_id, 'cost': cost, 'low': mlow, 'high': mhigh})
+            results.append({'user_id': user_id, 'cost': cost, 'mean': mean, 'low': mlow, 'high': mhigh})
 
     result_str = json.dumps(results)
     print(result_str)
