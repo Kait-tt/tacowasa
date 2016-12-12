@@ -30,7 +30,7 @@ db.coTransaction({}, function* (transaction) {
         if (!project) { throw new Error(`${projectName} was not found`); }
         projectIds.push(project.id);
     }
-    return TaskExporter.exportAll(projectNames);
+    return TaskExporter.exportAll(projectIds);
 })
     .then(res => {
         const outstr = JSON.stringify(res, null, pretty ? '  ' : '');
