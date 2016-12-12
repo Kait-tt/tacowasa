@@ -1,4 +1,5 @@
 'use strict';
+const config = require('config');
 const spawn = require('child_process').spawn;
 const db = require('../schemas');
 const TaskExporter = require('../models/task_exporter');
@@ -60,7 +61,7 @@ class Predictor {
 
         return new Promise((resolve, reject) => {
             let text = '';
-            const child = spawn('python', [Predictor._execPath]);
+            const child = spawn(config.get('python.path') || 'python', [Predictor._execPath]);
             child.stdout.on('data', data => { text += data; });
             child.stderr.on('data', data => { text += data; });
             child.on('close', code => {

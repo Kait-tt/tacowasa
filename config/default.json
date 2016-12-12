@@ -36,6 +36,10 @@
     "cacheTime": 300000
   },
 
+  "python": {
+    "path": "python"
+  },
+
   "nightmare": {
     "show": false
   }
