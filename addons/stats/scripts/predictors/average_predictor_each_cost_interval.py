@@ -15,7 +15,7 @@ class AveragePredictorEachCostInterval:
 
         # use only same user tasks?
         same_user_tasks = filter_user_id(tasks, user_id)
-        if len(same_user_tasks) > 4:
+        if len(same_user_tasks) > 3:
             tasks = same_user_tasks
 
         # use only same cost tasks?
