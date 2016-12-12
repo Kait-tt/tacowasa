@@ -1,7 +1,15 @@
 'use strict';
 module.exports = function (sequelize, DataTypes) {
     const MemberStats = sequelize.define('memberStats', {
-        throughput: {
+        mean: {
+            allowNull: false,
+            type: DataTypes.FLOAT
+        },
+        low: {
+            allowNull: false,
+            type: DataTypes.FLOAT
+        },
+        high: {
             allowNull: false,
             type: DataTypes.FLOAT
         }
@@ -9,6 +17,11 @@ module.exports = function (sequelize, DataTypes) {
         classMethods: {
             associate: function (models) {
                 MemberStats.belongsTo(models.Member, {
+                    foreignKey: {
+                        allowNull: true
+                    }
+                });
+                MemberStats.belongsTo(models.Cost, {
                     foreignKey: {
                         allowNull: true
                     }
