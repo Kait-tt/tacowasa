@@ -11,15 +11,15 @@ module.exports = {
     init: (kanban, {alert}) => {
         const socket = kanban.socket;
 
-        const iterations = ko.observableArray();
-        const workTimes = ko.observable();
+        const iterations = ko.observableArray([]);
+        const workTimes = ko.observableArray([]);
         const stagnantTaskIds = ko.observableArray([]);
 
         const stagnationTaskViewModel = new StagnationTaskViewModel(stagnantTaskIds);
         stagnationTaskViewModel.initDecorateTask(kanban.project.tasks);
         stagnationTaskViewModel.initDecorateTaskCard(kanban.taskCard);
 
-        const predictTimeComponent = new PredictTimeComponent(kanban.project.users);
+        const predictTimeComponent = new PredictTimeComponent(kanban.project.users, iterations, workTimes);
         kanban.selectedTask.subscribe(x => predictTimeComponent.task(x));
         predictTimeComponent.register();
 

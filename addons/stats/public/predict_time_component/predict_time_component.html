@@ -1,16 +1,18 @@
-<div class="prediction-completion-time-table table-responsive">
+<div class="predict-time-table table-responsive">
   <table class="table">
     <thead>
     <tr>
       <th>ユーザ名</th>
       <th>予測必要時間</th>
+      <th>予測完了日</th>
     </tr>
     </thead>
     <tbody>
-    <!-- ko foreach: predictions -->
+    <!-- ko foreach: predicts -->
     <tr>
       <td data-bind="text: username"></td>
-      <td data-bind="text: requiredTimeFormat"></td>
+      <td data-bind="text: predictTimeFormat"></td>
+      <td data-bind="text: completeDateFormat"></td>
     </tr>
     <!-- /ko -->
     </tbody>
