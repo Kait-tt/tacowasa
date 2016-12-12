@@ -13,15 +13,15 @@ module.exports = {
                 type: Sequelize.INTEGER
             });
             yield queryInterface.addColumn(tableName, 'mean', {
-                allowNull: false,
+                allowNull: true,
                 type: Sequelize.FLOAT
             });
             yield queryInterface.addColumn(tableName, 'low', {
-                allowNull: false,
+                allowNull: true,
                 type: Sequelize.FLOAT
             });
             yield queryInterface.addColumn(tableName, 'high', {
-                allowNull: false,
+                allowNull: true,
                 type: Sequelize.FLOAT
             });
             yield queryInterface.addIndex(tableName, ['memberId', 'costId'], {

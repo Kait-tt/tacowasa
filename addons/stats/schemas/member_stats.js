@@ -2,15 +2,15 @@
 module.exports = function (sequelize, DataTypes) {
     const MemberStats = sequelize.define('memberStats', {
         mean: {
-            allowNull: false,
+            allowNull: true,
             type: DataTypes.FLOAT
         },
         low: {
-            allowNull: false,
+            allowNull: true,
             type: DataTypes.FLOAT
         },
         high: {
-            allowNull: false,
+            allowNull: true,
             type: DataTypes.FLOAT
         }
     }, {

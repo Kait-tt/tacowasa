@@ -29,9 +29,11 @@ describe('addons', () => {
                     }));
 
                     it('should return all params', () => {
-                        expect(subject).to.have.deep.property('project.throughput');
+                        console.log(subject);
                         expect(subject).to.have.deep.property('members[0].userId');
-                        expect(subject).to.have.deep.property('members[0].throughput');
+                        expect(subject).to.have.deep.property('members[0].low');
+                        expect(subject).to.have.deep.property('members[0].high');
+                        expect(subject).to.have.deep.property('members[0].mean');
                         expect(subject).to.have.property('iterations');
                         expect(subject).to.have.property('workTimes');
                         expect(subject).to.have.property('burnDownChart');
