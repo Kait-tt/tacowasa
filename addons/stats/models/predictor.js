@@ -29,12 +29,9 @@ class Predictor {
 
     static _updateMemberStats (projectId, predicts, {transaction} = {}) {
         return db.coTransaction({transaction}, function* (transaction) {
-            let members = yield db.Member.findAll({where: {projectId}, transaction});
-            members = members.map(x => x.toJSON());
+            const members = yield db.Member.findAll({where: {projectId}, transaction});
             const memberIds = members.map(x => x.id);
-
-            let costs = yield db.Cost.findAll({where: {projectId}, transaction});
-            costs = costs.map(x => x.toJSON());
+            const costs = yield db.Cost.findAll({where: {projectId}, transaction});
 
             yield db.MemberStats.destroy({where: {memberId: {in: memberIds}}, transaction});
 

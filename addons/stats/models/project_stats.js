@@ -2,11 +2,11 @@
 const _ = require('lodash');
 const config = require('config');
 const db = require('../schemas');
-const Throughput = require('./throughput');
 const Iteration = require('./iteration');
 const MemberWorkTime = require('./member_work_time');
 const StagnationTask = require('./stagnation_task');
 const BurnDownChart = require('./burn_down_chart');
+const Predictor = require('./predictor');
 
 class ProjectStats {
     static calcAll (projectId, {transaction, force = false} = {}) {
@@ -19,8 +19,8 @@ class ProjectStats {
                     projectId
                 }, {fields: ['projectId'], transaction});
 
-                yield Throughput.calcAll(projectId, {transaction});
                 yield MemberWorkTime.calcAll(projectId, {transaction});
+                yield Predictor.calc(projectId, {transaction});
                 yield StagnationTask.calcAll(projectId, {transaction});
                 yield BurnDownChart.calc(projectId, {transaction});
             }

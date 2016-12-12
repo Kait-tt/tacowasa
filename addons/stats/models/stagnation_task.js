@@ -35,7 +35,7 @@ class StagnationTask {
                 }
 
                 const member = members.find(x => x.userId === task.userId);
-                const stats = memberStats.find(x => x.memberId === member.id);
+                const stats = memberStats.filter(x => x.memberId === member.id);
                 const isStagnation = StagnationTask._isStagnationTask(task, stats);
 
                 if (isStagnation) {
@@ -56,9 +56,13 @@ class StagnationTask {
     }
 
     static _isStagnationTask (task, memberStats) {
+        const predict = memberStats.find(x => x.costId === task.costId);
+        if (!predict) { return false; }
+        const predictHighMinutes = predict.high;
+
         const sumTimeMinutes = Util.calcSumWorkTime(task.works) / 1000 / 60;
-        const predictionTimeMinutes = task.cost.value / memberStats.throughput * 60;
-        return sumTimeMinutes > predictionTimeMinutes;
+
+        return sumTimeMinutes > predictHighMinutes;
     }
 }
 
