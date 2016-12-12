@@ -6,10 +6,20 @@ const TaskExporter = require('../models/task_exporter');
 class Predictor {
     static calc (projectId, {transaction} = {}) {
         return db.coTransaction([transaction], function* (transaction) {
-            const project = yield db.Project.findOne({where: {id: projectId}, transaction});
-            if (!project) { throw new Error(`${projectId} was not found`); }
+            const predicts = yield Predictor._calc(projectId, {transaction});
+            yield Predictor._updateMemberStats(projectId, predicts, {transaction});
+            return predicts;
+        });
+    }
 
-            const {tasks} = yield TaskExporter.exportOne(project.id);
+    static _calc (projectId, {transaction} = {}) {
+        return db.coTransaction([transaction], function* (transaction) {
+            const project = yield db.Project.findOne({where: {id: projectId}, transaction});
+            if (!project) {
+                throw new Error(`${projectId} was not found`);
+            }
+
+            const {tasks} = yield TaskExporter.exportOne(projectId);
 
             const members = yield db.Member.findAll({where: {projectId}, transaction});
             const userIds = members.map(x => x.userId);
@@ -19,11 +29,7 @@ class Predictor {
                 .map(x => x.value)
                 .filter(x => x !== 0 && x !== 99);
 
-            const predicts = yield Predictor._execChild(tasks, userIds, costValues);
-
-            yield Predictor._updateMemberStats(projectId, predicts, {transaction});
-
-            return predicts;
+            return yield Predictor._execChild(tasks, userIds, costValues);
         });
     }
 
