@@ -2,7 +2,7 @@
 const ko = require('knockout');
 const Iteration = require('./models/iteration');
 const IterationTableComponent = require('./iteration_table_component');
-const PredicateCompletionTimeComponent = require('./prediction_completion_time_component');
+const PredictTimeComponent = require('./predict_time_component');
 const StagnationTaskViewModel = require('./viewmodels/stagnation_task');
 const BurnDownChartComponent = require('./burn_down_chart_component');
 const TaskDetailPredictComponent = require('./task_detail_predict_component');
@@ -19,9 +19,9 @@ module.exports = {
         stagnationTaskViewModel.initDecorateTask(kanban.project.tasks);
         stagnationTaskViewModel.initDecorateTaskCard(kanban.taskCard);
 
-        const predicateCompletionTimeComponent = new PredicateCompletionTimeComponent(kanban.project.users);
-        kanban.selectedTask.subscribe(x => predicateCompletionTimeComponent.task(x));
-        predicateCompletionTimeComponent.register();
+        const predictTimeComponent = new PredictTimeComponent(kanban.project.users);
+        kanban.selectedTask.subscribe(x => predictTimeComponent.task(x));
+        predictTimeComponent.register();
 
         const iterationTableComponent = new IterationTableComponent(iterations, kanban.project.users, workTimes);
         iterationTableComponent.register();
@@ -53,7 +53,7 @@ module.exports = {
         let first = true;
         socket.on('stats', req => {
             console.debug('on stats', req);
-            predicateCompletionTimeComponent.updateMemberStats(req.members);
+            predictTimeComponent.updateMemberStats(req.members);
             stagnantTaskIds(req.stagnantTaskIds);
             workTimes(req.workTimes);
             burnDownChartComponent.bdc(req.burnDownChart);
@@ -104,7 +104,7 @@ module.exports = {
         });
 
         kanban.assignTaskModal.on('load', () => {
-            insertNodeIntoLastOnModal(predicateCompletionTimeComponent.componentName, 'assign-task-modal');
+            insertNodeIntoLastOnModal(predictTimeComponent.componentName, 'assign-task-modal');
         });
 
         kanban.taskDetailModal.on('load', () => {

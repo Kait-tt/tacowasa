@@ -4,7 +4,7 @@ const ko = require('knockout');
 const EventEmitter2 = require('eventemitter2');
 const Util = require('../../../../public/src/js/modules/util');
 
-class PredicateCompletionTimeComponent extends EventEmitter2 {
+class PredictTimeComponent extends EventEmitter2 {
     constructor (users, {eventEmitterOptions} = {}) {
         super(eventEmitterOptions);
         this.users = users;
@@ -17,7 +17,7 @@ class PredicateCompletionTimeComponent extends EventEmitter2 {
     }
 
     get componentName () {
-        return 'prediction_completion_time_component';
+        return 'predict-time-component';
     }
 
     register () {
@@ -48,9 +48,9 @@ class PredicateCompletionTimeComponent extends EventEmitter2 {
                     return _.sortBy(predicts, 'requiredMean');
                 });
             },
-            template: require('html!./prediction_completion_time_component.html')
+            template: require('html!./predict_time_component.html')
         });
     }
 }
 
-module.exports = PredicateCompletionTimeComponent;
+module.exports = PredictTimeComponent;
