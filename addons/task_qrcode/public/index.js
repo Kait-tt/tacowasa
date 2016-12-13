@@ -62,18 +62,6 @@ function addToggleQRButton (kanban) {
         beforeQrPickTask = task;
     });
 
-
-    setInterval(() => {
-        const tasks = _.sampleSize(kanban.project.tasks(), 10);
-        const taskIds = tasks.map(x => x.id());
-        socket.emit('qrHover', {taskIds});
-    }, 500);
-
-    setInterval(() => {
-        const task = _.sample(kanban.project.tasks());
-        socket.emit('qrPick', {taskId: task.id()});
-    }, 500);
-
     btns.appendChild(document.createElement(toggleQRButton.componentName));
 }
 
