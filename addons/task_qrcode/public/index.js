@@ -29,6 +29,8 @@ function addToggleQRButton (kanban) {
     });
     toggleQRButton.register();
 
+    btns.appendChild(document.createElement(toggleQRButton.componentName));
+
     let beforeQrHoverTasks = [];
     socket.on('qrHover', ({taskIds}) => {
         beforeQrHoverTasks.forEach(task => {
@@ -62,7 +64,17 @@ function addToggleQRButton (kanban) {
         beforeQrPickTask = task;
     });
 
-    btns.appendChild(document.createElement(toggleQRButton.componentName));
+    socket.on('qrScrollStage', ({stageId, dy}) => {
+        if (!enabledQr()) { return; }
+        const stage = kanban.project.getStage({id: stageId});
+        if (!stage) { throw new Error(`${stageId} was not found`); }
+        scrollStage(stage.name(), dy);
+    });
+
+    socket.on('qrScrollUser', ({dy}) => {
+        if (!enabledQr()) { return; }
+        scrollUser(dy);
+    });
 }
 
 function enableQR (kanban) {
@@ -138,4 +150,16 @@ function undecorateAllQR () {
     _.forEach(document.getElementsByClassName('task-card'), ele => {
         ele.classList.remove('have-task-qr');
     });
+}
+
+function scrollStage (stageName, dy) {
+    const ele = document.querySelector(`li.stage-block[data-stage-name=${stageName}] .task-card-list`);
+    if (!ele) { throw new Error(`${stageName} block was not found`); }
+    ele.scrollTop = ele.scrollTop + dy;
+}
+
+function scrollUser (dy) {
+    const ele = document.querySelector('.user-block-area');
+    if (!ele) { throw new Error('user block was not found'); }
+    ele.scrollTop = ele.scrollTop + dy;
 }
