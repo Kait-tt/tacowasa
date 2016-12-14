@@ -53,7 +53,7 @@
 
           <!-- ko foreach: {data: $component.users, as: 'user'} -->
           <!-- ko if: user.isVisible -->
-          <td>
+          <td class="user-iteration-td" data-bind="style: { background: $component.background(user.id(), it.id()) }">
             <span data-bind="text: $component.actualWorkTime(user.id(), it.id())"></span> <br>/
             <span data-bind="text: $component.promisedWorkTime(user.id(), it.id())"></span>
           </td>

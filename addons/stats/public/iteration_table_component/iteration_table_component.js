@@ -121,6 +121,22 @@ class IterationTableComponent extends EventEmitter2 {
                     const memberWorkTime = that.getMemberWorkTime(userId, iterationId);
                     return ko.pureComputed(() => memberWorkTime() ? that._dateFormat(memberWorkTime().promisedMinutes) : '-');
                 };
+
+                this.background = (userId, iterationId) => {
+                    const memberWorkTime = that.getMemberWorkTime(userId, iterationId);
+                    const {actualMinutes: x, promisedMinutes: y} = memberWorkTime();
+                    const successColor = '#d3f9cc';
+                    const failColor = '#eee';
+
+                    if (y) {
+                        const p = Math.floor(x / y * 100);
+                        return `linear-gradient(90deg, ${successColor} ${p}%, ${failColor} ${p}%)`;
+                    } else if (x) {
+                        return successColor;
+                    } else {
+                        return null;
+                    }
+                };
             },
             template: require('html!./iteration_table_component.html')
         });
