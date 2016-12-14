@@ -6,13 +6,13 @@ class TaskQRCodeSocketOn extends AddonSocketOn {
         return ['qrHover', 'qrPick', 'qrScrollStage', 'qrScrollUser'];
     }
 
-    static qrHover (socketProject, user, {taskIds}) {
-        socketProject.emits(user, 'qrHover', {taskIds});
+    static qrHover (socketProject, user, {taskId}) {
+        socketProject.emits(user, 'qrHover', {taskId});
         return Promise.resolve();
     }
 
-    static qrPick (socketProject, user, taskId) {
-        socketProject.emits(user, 'qrPick', taskId);
+    static qrPick (socketProject, user, {taskId}) {
+        socketProject.emits(user, 'qrPick', {taskId});
         return Promise.resolve();
     }
 

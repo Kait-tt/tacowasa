@@ -31,34 +31,33 @@ function addToggleQRButton (kanban) {
 
     btns.appendChild(document.createElement(toggleQRButton.componentName));
 
-    let beforeQrHoverTasks = [];
-    socket.on('qrHover', ({taskIds}) => {
-        beforeQrHoverTasks.forEach(task => {
-            if (task && _.isFunction(task.isQRHovered)) {
-                task.isQRHovered(false);
+    let beforeQrHoverTask = null;
+    socket.on('qrHover', ({taskId}) => {
+        if (beforeQrHoverTask) {
+            if (beforeQrHoverTask && _.isFunction(beforeQrHoverTask.isQRHovered)) {
+                beforeQrHoverTask.isQRHovered(false);
             }
-        });
-
-        beforeQrHoverTasks = [];
-
-        taskIds.forEach(taskId => {
-            const task = kanban.project.getTask({id: taskId});
-            if (task && _.isFunction(task.isQRHovered)) {
-                task.isQRHovered(true);
-            }
-            beforeQrHoverTasks.push(task);
-        });
-    });
-
-    let beforeQrPickTask = null;
-    socket.on('qrHover', (taskId) => {
-        if (beforeQrPickTask) {
-            beforeQrPickTask.isQRPicked(false);
         }
 
         const task = kanban.project.getTask({id: taskId});
         if (task && _.isFunction(task.isQRHovered)) {
             task.isQRHovered(true);
+        }
+
+        beforeQrHoverTask = task;
+    });
+
+    let beforeQrPickTask = null;
+    socket.on('qrPick', (taskId) => {
+        if (beforeQrPickTask) {
+            if (beforeQrPickTask && _.isFunction(beforeQrPickTask.isQRPicked)) {
+                beforeQrPickTask.isQRPicked(false);
+            }
+        }
+
+        const task = kanban.project.getTask({id: taskId});
+        if (task && _.isFunction(task.isQRPicked)) {
+            task.isQRPicked(true);
         }
 
         beforeQrPickTask = task;
