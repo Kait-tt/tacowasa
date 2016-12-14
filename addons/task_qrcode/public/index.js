@@ -56,12 +56,6 @@ module.exports = {
             if (!enabledQr()) { return; }
             scrollUser(dy);
         });
-
-        setInterval(() => {
-            const targets = kanban.project.tasks().filter(x => x.stage().name() === 'backlog').map(x => x.id());
-            socket.emit('qrHover', {taskId: _.sample(targets)});
-            socket.emit('qrPick', {taskId: _.sample(targets)});
-        }, 500);
     },
     enabledQr
 };
