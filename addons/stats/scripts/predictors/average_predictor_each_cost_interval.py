@@ -32,9 +32,8 @@ class AveragePredictorEachCostInterval:
         mlow, mhigh = mu + np.array([-t45, t45]) * (np.sqrt(s2) / np.sqrt(n))
 
         chi45a = sci_chi2.ppf(0.95, n - 1)
-        chi45b = sci_chi2.ppf(0.05, n - 1)
-        slow, shigh = np.sqrt((n - 1) * s2 / np.array([chi45a, chi45b]))
+        shigh = np.sqrt((n - 1) * s2 / chi45a)
 
-        low, high = mlow - slow, mhigh + shigh
+        low, high = mlow - shigh, mhigh + shigh
 
-        return mu * cost, mlow * cost, mhigh * cost, low * cost, high * cost
+        return (mlow + mhigh) / 2 * cost, mlow * cost, mhigh * cost, low * cost, high * cost
