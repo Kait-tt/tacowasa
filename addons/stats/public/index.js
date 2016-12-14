@@ -4,8 +4,9 @@ const Iteration = require('./models/iteration');
 const IterationTableComponent = require('./iteration_table_component');
 const PredictTimeComponent = require('./predict_time_component');
 const StagnationTaskViewModel = require('./viewmodels/stagnation_task');
-const BurnDownChartComponent = require('./burn_down_chart_component');
 const TaskDetailPredictComponent = require('./task_detail_predict_component');
+const BurnDownChartComponent = require('./burn_down_chart_component');
+const MembersPredictChartComponent = require('./members_predict_chart_component');
 
 module.exports = {
     init: (kanban, {alert}) => {
@@ -41,8 +42,12 @@ module.exports = {
         const burnDownChartComponent = new BurnDownChartComponent();
         kanban.projectStatsModal.on('shownModal', () => {
             burnDownChartComponent.drawChart();
+            membersPredictChartComponent.drawChart();
         });
         burnDownChartComponent.register();
+
+        const membersPredictChartComponent = new MembersPredictChartComponent(kanban.project.users, kanban.project.costs);
+        membersPredictChartComponent.register();
 
         const taskDetailPredictComponent = new TaskDetailPredictComponent();
         kanban.selectedTask.subscribe(x => taskDetailPredictComponent.task(x));
@@ -56,9 +61,11 @@ module.exports = {
             predictTimeComponent.updateMemberStats(req.members);
             stagnantTaskIds(req.stagnantTaskIds);
             workTimes(req.workTimes);
+            taskDetailPredictComponent.memberStats(req.members);
             burnDownChartComponent.bdc(req.burnDownChart);
             burnDownChartComponent.drawChart();
-            taskDetailPredictComponent.memberStats(req.members);
+            membersPredictChartComponent.memberStats(req.members);
+            membersPredictChartComponent.drawChart();
             if (first) {
                 first = false;
                 req.iterations.forEach(iterationParams => {
@@ -100,6 +107,7 @@ module.exports = {
 
         kanban.projectStatsModal.on('load', () => {
             insertNodeIntoFirstOnModal(iterationTableComponent.componentName, 'project-stats-modal');
+            insertNodeIntoFirstOnModal(membersPredictChartComponent.componentName, 'project-stats-modal');
             insertNodeIntoFirstOnModal(burnDownChartComponent.componentName, 'project-stats-modal');
         });
 
