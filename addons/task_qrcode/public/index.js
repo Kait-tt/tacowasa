@@ -122,14 +122,8 @@ function decorateQR (taskCardViewModel) {
         });
     }
 
-    task.qrState.subscribe(value => {
-        if (value === 'none') {
-            ele.classList.remove('task-qr-hovered');
-            ele.classList.remove('task-qr-picked');
-        }
-        if (value === 'hovered') { ele.classList.add('task-qr-hovered'); }
-        if (value === 'picked') { ele.classList.add('task-qr-picked'); }
-    });
+    decorateTaskCardState(task, ele);
+    task.qrState.subscribe(value => decorateTaskCardState(task, ele));
 
     const taskCardTitleWraps = ele.getElementsByClassName('task-card-title-wrap');
     if (!taskCardTitleWraps.length) { return; }
@@ -161,4 +155,16 @@ function scrollUser (dy) {
     const ele = document.querySelector('.user-block-area');
     if (!ele) { throw new Error('user block was not found'); }
     ele.scrollTop = ele.scrollTop + dy;
+}
+
+function decorateTaskCardState (task, ele) {
+    const state = task.qrState();
+    if (state === 'hovered') {
+        ele.classList.add('task-qr-hovered');
+    } else if (state === 'picked') {
+        ele.classList.add('task-qr-picked');
+    } else {
+        ele.classList.remove('task-qr-hovered');
+        ele.classList.remove('task-qr-picked');
+    }
 }
