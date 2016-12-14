@@ -48,7 +48,7 @@ function addToggleQRButton (kanban) {
     });
 
     let beforeQrPickTask = null;
-    socket.on('qrPick', (taskId) => {
+    socket.on('qrPick', ({taskId}) => {
         if (beforeQrPickTask) {
             if (beforeQrPickTask && _.isFunction(beforeQrPickTask.isQRPicked)) {
                 beforeQrPickTask.isQRPicked(false);
