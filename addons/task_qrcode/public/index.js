@@ -8,72 +8,75 @@ const enabledQr = ko.observable(false);
 
 module.exports = {
     init: (kanban) => {
+        const socket = kanban.socket;
+
+        decorateTaskAll(kanban);
         addToggleQRButton(kanban);
+
+        let beforeQrHoverTask = null;
+        socket.on('qrHover', ({taskId}) => {
+            if (beforeQrHoverTask) {
+                if (beforeQrHoverTask && _.isFunction(beforeQrHoverTask.isQRHovered)) {
+                    beforeQrHoverTask.isQRHovered(false);
+                }
+            }
+
+            const task = kanban.project.getTask({id: taskId});
+            if (task && _.isFunction(task.isQRHovered)) {
+                task.isQRHovered(true);
+            }
+
+            beforeQrHoverTask = task;
+        });
+
+        let beforeQrPickTask = null;
+        socket.on('qrPick', ({taskId}) => {
+            if (beforeQrPickTask) {
+                if (beforeQrPickTask && _.isFunction(beforeQrPickTask.isQRPicked)) {
+                    beforeQrPickTask.isQRPicked(false);
+                }
+            }
+
+            const task = kanban.project.getTask({id: taskId});
+            if (task && _.isFunction(task.isQRPicked)) {
+                task.isQRPicked(true);
+            }
+
+            beforeQrPickTask = task;
+        });
+
+        socket.on('qrScrollStage', ({stageId, dy}) => {
+            if (!enabledQr()) { return; }
+            const stage = kanban.project.getStage({id: stageId});
+            if (!stage) { throw new Error(`${stageId} was not found`); }
+            scrollStage(stage.name(), dy);
+        });
+
+        socket.on('qrScrollUser', ({dy}) => {
+            if (!enabledQr()) { return; }
+            scrollUser(dy);
+        });
+
+        setInterval(() => {
+            const targets = kanban.project.tasks().filter(x => x.stage().name() === 'backlog').map(x => x.id());
+            socket.emit('qrHover', {taskId: _.sample(targets)});
+            socket.emit('qrPick', {taskId: _.sample(targets)});
+        }, 500);
     },
     enabledQr
 };
 
 function addToggleQRButton (kanban) {
-    const socket = kanban.socket;
-
     const btns = document.getElementById('toolbar-btn-group');
     if (!btns) { throw new Error('#toolbar-btn-group was not found'); }
 
     const toggleQRButton = new ToggleQRButton();
     toggleQRButton.on('toggle', ({enabledQR}) => {
-        if (enabledQR) {
-            enableQR(kanban);
-        } else {
-            disableQR(kanban);
-        }
+        (enabledQR ? enableQR : disableQR)(kanban);
     });
     toggleQRButton.register();
 
     btns.appendChild(document.createElement(toggleQRButton.componentName));
-
-    let beforeQrHoverTask = null;
-    socket.on('qrHover', ({taskId}) => {
-        if (beforeQrHoverTask) {
-            if (beforeQrHoverTask && _.isFunction(beforeQrHoverTask.isQRHovered)) {
-                beforeQrHoverTask.isQRHovered(false);
-            }
-        }
-
-        const task = kanban.project.getTask({id: taskId});
-        if (task && _.isFunction(task.isQRHovered)) {
-            task.isQRHovered(true);
-        }
-
-        beforeQrHoverTask = task;
-    });
-
-    let beforeQrPickTask = null;
-    socket.on('qrPick', ({taskId}) => {
-        if (beforeQrPickTask) {
-            if (beforeQrPickTask && _.isFunction(beforeQrPickTask.isQRPicked)) {
-                beforeQrPickTask.isQRPicked(false);
-            }
-        }
-
-        const task = kanban.project.getTask({id: taskId});
-        if (task && _.isFunction(task.isQRPicked)) {
-            task.isQRPicked(true);
-        }
-
-        beforeQrPickTask = task;
-    });
-
-    socket.on('qrScrollStage', ({stageId, dy}) => {
-        if (!enabledQr()) { return; }
-        const stage = kanban.project.getStage({id: stageId});
-        if (!stage) { throw new Error(`${stageId} was not found`); }
-        scrollStage(stage.name(), dy);
-    });
-
-    socket.on('qrScrollUser', ({dy}) => {
-        if (!enabledQr()) { return; }
-        scrollUser(dy);
-    });
 }
 
 function enableQR (kanban) {
@@ -86,6 +89,36 @@ function disableQR (kanban) {
     enabledQr(false);
     kanban.taskCard.removeListener('load', decorateQR);
     undecorateAllQR();
+}
+
+function decorateTask (task) {
+    if (!task.isQRHovered) {
+        task.isQRHovered = ko.observable(false);
+    }
+
+    if (!task.isQRPicked) {
+        task.isQRPicked = ko.observable(false);
+    }
+
+    if (!task.qrState) {
+        task.qrState = ko.pureComputed(() => {
+            if (!enabledQr()) { return 'none'; }
+            if (task.isQRPicked()) { return 'picked'; }
+            if (task.isQRHovered()) { return 'hovered'; }
+            return 'none';
+        });
+    }
+}
+
+function decorateTaskAll (kanban) {
+    kanban.project.tasks().forEach(decorateTask);
+    kanban.project.tasks.subscribe(changes => {
+        _.chain(changes)
+            .filter({status: 'added'})
+            .map('value')
+            .forEach(decorateTask)
+            .value();
+    }, null, 'arrayChange');
 }
 
 function decorateAllQR () {
@@ -104,23 +137,6 @@ function decorateQR (taskCardViewModel) {
     if (!eles.length) { throw new Error('.task-card element was not found'); }
     const ele = eles[0];
     ele.classList.add('have-task-qr');
-
-    if (!task.isQRHovered) {
-        task.isQRHovered = ko.observable(false);
-    }
-
-    if (!task.isQRPicked) {
-        task.isQRPicked = ko.observable(false);
-    }
-
-    if (!task.qrState) {
-        task.qrState = ko.pureComputed(() => {
-            if (!enabledQr()) { return 'none'; }
-            if (task.isQRPicked()) { return 'picked'; }
-            if (task.isQRHovered()) { return 'hovered'; }
-            return 'none';
-        });
-    }
 
     decorateTaskCardState(task, ele);
     task.qrState.subscribe(value => decorateTaskCardState(task, ele));
@@ -159,12 +175,11 @@ function scrollUser (dy) {
 
 function decorateTaskCardState (task, ele) {
     const state = task.qrState();
+    ele.classList.remove('task-qr-hovered');
+    ele.classList.remove('task-qr-picked');
     if (state === 'hovered') {
         ele.classList.add('task-qr-hovered');
     } else if (state === 'picked') {
         ele.classList.add('task-qr-picked');
-    } else {
-        ele.classList.remove('task-qr-hovered');
-        ele.classList.remove('task-qr-picked');
     }
 }
