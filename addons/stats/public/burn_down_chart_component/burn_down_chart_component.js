@@ -30,16 +30,24 @@ class BurnDownChartComponent {
                         return `${workTime}<br>${time}`;
                     }
                 },
-                title: { text: '総作業時間 (分)' }
+                title: { text: '総作業時間 (分) , 日付' }
             },
-            yAxis: {
+            yAxis: [{
                 labels: {
                     formatter: function () {
                         return this.value + 'pts';
                     }
                 },
-                title: { text: 'タスクコスト (pts)' }
-            },
+                title: { text: '完了タスクコスト (pts)' }
+            }, {
+                labels: {
+                    formatter: function () {
+                        return this.value + 'pts';
+                    }
+                },
+                title: { text: '残りタスクコスト (pts)' },
+                opposite: true
+            }],
             tooltip: {
                 shared: true,
                 crosshairs: true
@@ -49,7 +57,8 @@ class BurnDownChartComponent {
                 data: data.map(p => [p.totalWorkTime, p.completedTaskNum])
             }, {
                 name: '残りタスクコスト',
-                data: data.map(p => [p.totalWorkTime, p.taskNum - p.completedTaskNum])
+                data: data.map(p => [p.totalWorkTime, p.taskNum - p.completedTaskNum]),
+                yAxis: 1
             }]
         });
     }
