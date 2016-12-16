@@ -12,6 +12,10 @@ module.exports = function (sequelize, DataTypes) {
         totalWorkTime: {
             allowNull: false,
             type: DataTypes.INTEGER
+        },
+        time: {
+            allowNull: false,
+            type: DataTypes.DATE
         }
     }, {
         classMethods: {

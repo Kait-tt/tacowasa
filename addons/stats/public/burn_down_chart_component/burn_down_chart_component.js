@@ -1,6 +1,9 @@
 'use strict';
 const ko = require('knockout');
 const Highcharts = require('highcharts');
+const moment = require('moment');
+const Util = require('../../../../public/src/js/modules/util');
+const Util2 = require('../../modules/util');
 
 class BurnDownChartComponent {
     constructor (bdc) {
@@ -12,22 +15,29 @@ class BurnDownChartComponent {
         const data = this.bdc();
         if (!data) { return; }
 
+        const workTimes = data.map(p => p.totalWorkTime);
+
         this.chart = Highcharts.chart(this.containerId, {
             chart: { type: 'line' },
             title: { text: 'Burn up and down chart' },
             xAxis: {
                 labels: {
                     formatter: function () {
-                        const v = this.value;
-                        const h = Math.floor(v / 60);
-                        const m = v % 60;
-                        return h ? `${h}時間${m}分` : `${m}分`;
+                        const pos = Util2.lowerBound(workTimes, this.value);
+                        const p = data[pos];
+                        const workTime = Util.minutesFormatHM(this.value);
+                        const time = moment(p.time).format('YYYY/MM/DD');
+                        return `${workTime}<br>${time}`;
                     }
                 },
                 title: { text: '総作業時間 (分)' }
             },
             yAxis: {
-                labels: { formatter: function () { return this.value + 'pts'; } },
+                labels: {
+                    formatter: function () {
+                        return this.value + 'pts';
+                    }
+                },
                 title: { text: 'タスクコスト (pts)' }
             },
             tooltip: {
