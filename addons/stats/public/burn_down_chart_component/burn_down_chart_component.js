@@ -4,6 +4,7 @@ const Highcharts = require('highcharts');
 const moment = require('moment');
 const Util = require('../../../../public/src/js/modules/util');
 const Util2 = require('../../modules/util');
+const colors = ['#2980b9', '#c0392b'];
 
 class BurnDownChartComponent {
     constructor (bdc) {
@@ -54,11 +55,14 @@ class BurnDownChartComponent {
             },
             series: [{
                 name: '完了タスクコスト',
-                data: data.map(p => [p.totalWorkTime, p.completedTaskNum])
+                data: data.map(p => [p.totalWorkTime, p.completedTaskNum]),
+                yAxis: 0,
+                color: colors[0]
             }, {
                 name: '残りタスクコスト',
                 data: data.map(p => [p.totalWorkTime, p.taskNum - p.completedTaskNum]),
-                yAxis: 1
+                yAxis: 1,
+                color: colors[1]
             }]
         });
     }
