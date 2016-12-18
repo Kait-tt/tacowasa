@@ -1,14 +1,17 @@
 'use strict';
+const _ = require('lodash');
 const ko = require('knockout');
 const Highcharts = require('highcharts');
 const moment = require('moment');
 const Util = require('../../../../public/src/js/modules/util');
 const Util2 = require('../../modules/util');
 const colors = ['#2980b9', '#c0392b'];
+const bandColors = _.shuffle(['#faebd9', '#f9fad9', '#e9fad9', '#d9f9fa', '#dad9fa', '#fad9e9']);
 
 class BurnDownChartComponent {
-    constructor (bdc) {
-        this.bdc = ko.observable(bdc);
+    constructor (bdc, iterations) {
+        this.bdc = bdc;
+        this.iterations = iterations;
         this.chart = null;
     }
 
@@ -17,6 +20,7 @@ class BurnDownChartComponent {
         if (!data) { return; }
 
         const workTimes = data.map(p => p.totalWorkTime);
+        const iterations = this.iterations();
 
         this.chart = Highcharts.chart(this.containerId, {
             chart: { type: 'line' },
@@ -31,6 +35,28 @@ class BurnDownChartComponent {
                         return `${workTime}<br>${time}`;
                     }
                 },
+                plotBands: _.chain(iterations)
+                    .map((it, idx) => {
+                        const ps =  data.map(p => Number(new Date(p.time)));
+                        const pos1 = Util2.lowerBound(ps, Number(new Date(it.startTime())));
+                        const pos2 = Util2.lowerBound(ps, Number(new Date(it.endTime())));
+                        if (_.isNil(pos1) || _.isNil(pos2)) { return; }
+                        if (pos1 === pos2) { return; }
+                        return {it, idx, from: data[pos1].totalWorkTime, to: data[pos2].totalWorkTime};
+                    })
+                    .compact()
+                    .groupBy('from')
+                    .values()
+                    .map((vs, idx) => ({
+                        label: {
+                            text: 'it ' + vs.map(v => v.idx + 1).join(', '),
+                            align: 'center'
+                        },
+                        color: bandColors[idx % bandColors.length],
+                        from: vs[0].from,
+                        to: vs[0].to
+                    }))
+                    .value(),
                 title: { text: '総作業時間 (分) , 日付' }
             },
             yAxis: [{

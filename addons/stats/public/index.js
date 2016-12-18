@@ -15,6 +15,7 @@ module.exports = {
         const iterations = ko.observableArray([]);
         const workTimes = ko.observableArray([]);
         const stagnantTaskIds = ko.observableArray([]);
+        const bdcData = ko.observableArray([]);
 
         const stagnationTaskViewModel = new StagnationTaskViewModel(stagnantTaskIds);
         stagnationTaskViewModel.initDecorateTask(kanban.project.tasks);
@@ -39,7 +40,7 @@ module.exports = {
             socket.emit('updatePromisedWorkTime', {userId, iterationId, promisedMinutes});
         });
 
-        const burnDownChartComponent = new BurnDownChartComponent();
+        const burnDownChartComponent = new BurnDownChartComponent(bdcData, iterations);
         kanban.projectStatsModal.on('shownModal', () => {
             burnDownChartComponent.drawChart();
             membersPredictChartComponent.drawChart();
@@ -61,11 +62,9 @@ module.exports = {
             predictTimeComponent.updateMemberStats(req.members);
             stagnantTaskIds(req.stagnantTaskIds);
             workTimes(req.workTimes);
+            bdcData(req.burnDownChart);
             taskDetailPredictComponent.memberStats(req.members);
-            burnDownChartComponent.bdc(req.burnDownChart);
-            burnDownChartComponent.drawChart();
             membersPredictChartComponent.memberStats(req.members);
-            membersPredictChartComponent.drawChart();
             if (first) {
                 first = false;
                 req.iterations.forEach(iterationParams => {
@@ -73,6 +72,8 @@ module.exports = {
                     iterations.push(iteration);
                 });
             }
+            burnDownChartComponent.drawChart();
+            membersPredictChartComponent.drawChart();
         });
 
         socket.on('initJoinedUsernames', () => { // init
