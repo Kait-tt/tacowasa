@@ -20,14 +20,14 @@ class BurnDownChartComponent {
 
         this.chart = Highcharts.chart(this.containerId, {
             chart: { type: 'line' },
-            title: { text: 'Burn up and down chart' },
+            title: { text: 'バーンダウン/アップチャート' },
             xAxis: {
                 labels: {
                     formatter: function () {
                         const pos = Util2.lowerBound(workTimes, this.value);
                         const p = data[pos];
                         const workTime = Util.minutesFormatHM(this.value);
-                        const time = moment(p.time).format('YYYY/MM/DD');
+                        const time = moment(p.time).format('MM/DD');
                         return `${workTime}<br>${time}`;
                     }
                 },
@@ -51,7 +51,19 @@ class BurnDownChartComponent {
             }],
             tooltip: {
                 shared: true,
-                crosshairs: true
+                crosshairs: true,
+                formatter: function () {
+                    const pos = Util2.lowerBound(workTimes, this.x);
+                    const p = data[pos];
+                    const workTime = Util.minutesFormatHM(this.x);
+                    const time = moment(p.time).format('MM/DD');
+                    const completed = p.completedTaskNum;
+                    const remain = p.taskNum - p.completedTaskNum;
+                    return [`${workTime} (${time})`,
+                        `<span style="color: ${colors[0]}">完了タスクコスト : <strong>${completed} pts</strong></span>`,
+                        `<span style="color: ${colors[1]}">残りタスクコスト : <strong>${remain} pts</strong></span>`]
+                        .join('<br>');
+                }
             },
             series: [{
                 name: '完了タスクコスト',
