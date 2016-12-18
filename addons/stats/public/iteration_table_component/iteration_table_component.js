@@ -99,9 +99,22 @@ class IterationTableComponent extends EventEmitter2 {
                         .value();
                 });
 
-                const now = moment().format('YYYY-MM-DD');
-                this.newStartTime = ko.observable(now);
-                this.newEndTime = ko.observable(now);
+                const now = moment();
+                this.newStartTime = ko.observable(now.format('YYYY-MM-DD'));
+                this.newEndTime = ko.observable(now.add(1, 'd').format('YYYY-MM-DD'));
+
+                that.iterations.subscribe(() => {
+                    const its = that.iterations();
+                    if (!its) { return; }
+
+                    const lastIteration = _.maxBy(its, x => new Date(x.endTime()));
+                    const duration = moment(lastIteration.endTime()).diff(lastIteration.startTime(), 'd');
+
+                    const _newStartTime = moment(lastIteration.endTime());
+                    const _newEndTime = moment(_newStartTime).clone().add(duration, 'd');
+                    this.newStartTime(_newStartTime.format('YYYY-MM-DD'));
+                    this.newEndTime(_newEndTime.format('YYYY-MM-DD'));
+                });
 
                 this.createIteration = () => {
                     that.createIteration({
