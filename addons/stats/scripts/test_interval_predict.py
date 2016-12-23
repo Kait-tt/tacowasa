@@ -1,5 +1,7 @@
 # coding:utf-8
 import json
+from statistics import mean, stdev, median
+
 import argparse
 import matplotlib.pyplot as plt
 import predictors
@@ -25,7 +27,8 @@ def main():
         project['tasks'] = [x for x in project['tasks'] if x['actualWorkTime'] < 60 * 10]
 
     results = calc_all(projects, method)
-    plot_timeline(projects, results)
+    print_results_table(projects, results)
+    # plot_timeline(projects, results)
 
 
 def calc_all(projects, method):
@@ -116,8 +119,64 @@ def plot_timeline(projects, results):
                 plt.errorbar(range(len(means)), means, yerr=[lows, highs], color=COLORS[ci])
                 plt.scatter(range(len(means)), xs2, marker='o', color=COLORS[ci], s=10)
 
-
     plt.show()
+
+
+def print_results_table(projects, results):
+    data = []
+    total_es = []
+    total_ins = []
+    for project in projects:
+        project_name = project['projectName']
+        tasks = project['tasks']
+        result = [x for x in results if x['projectName'] == project_name][0]
+        predicates = result['predicates']
+        actuals = result['actuals']
+
+        for user in uniq_all_users(projects):
+            for cost in uniq_all_cost(projects):
+                idxes = [i for i in range(len(tasks)) if tasks[i]['userId'] == user and tasks[i]['cost'] == cost]
+                if len(idxes) == 0:
+                    continue
+
+                es = [abs(predicates[i][0] - actuals[i]) / actuals[i] for i in idxes]
+                ins = [predicates[i][1] <= actuals[i] <= predicates[i][2] for i in idxes]
+                total_es.extend(es)
+                total_ins.extend(ins)
+
+                data.append({
+                    'name': '{} ({}, {})'.format(project_name, user, cost),
+                    'es': es,
+                    'ins': ins
+                })
+
+    data.append({
+        'name': 'Total',
+        'es': total_es,
+        'ins': total_ins
+    })
+
+    scores = []
+    for x in data:
+        es = x['es']
+        ins = x['ins']
+        scores.append({
+            'name': x['name'],
+            'sum': sum(es),
+            'mean': mean(es),
+            'stddev': stdev(es) if len(es) >= 2 else 0,
+            'median': median(es),
+            'cover': ins.count(True),
+            'uncover': ins.count(False),
+            'coverp': float(ins.count(True)) / len(ins)
+        })
+
+    print('{:25} | {:8} | {:7} | {:7} | {:7} | {:5} | {:7} | {:7.3}'
+          .format('Name', 'Sum', 'Mean', 'Median', 'Stddev', 'Cover', 'Uncover', 'CoverP'))
+    for idx, score in enumerate(scores):
+        print('{:25} | {:8.3f} | {:7.3f} | {:7.3f} | {:7.3f} | {:5} | {:7} | {:7.3}'.
+              format(score['name'], score['sum'], score['mean'], score['median'], score['stddev'],
+                     score['cover'], score['uncover'], score['coverp']))
 
 
 if __name__ == '__main__':
