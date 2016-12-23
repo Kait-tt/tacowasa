@@ -1,0 +1,22 @@
+<div class="notify-stagnation-settings-block">
+  <h3>停滞タスク通知の設定</h3>
+
+  <form class="form">
+    <label for="notify-stagnation-url">Slack Webhook URL</label>
+    <!-- ko if: mode() === 'view' -->
+    <p data-bind="text: url"></p>
+    <button type="submit" class="btn btn-default" data-bind="
+      click: edit,
+      text: url() ? 'Edit' : 'New'"></button>
+    <!-- /ko -->
+    <!-- ko if: mode() === 'edit' -->
+    <p>Slackの<a href="https://my.slack.com/services/new/incoming-webhook/" target="_blank">Incoming WebHooks設定画面</a>を開いてBOT作成後、Webhook URLを下に入力してください。</p>
+    <input id="notify-stagnation-url" type="text" class="form-control" data-bind="value: newUrl">
+
+    <div class="btn-group">
+      <button type="submit" class="btn btn-success" data-bind="click: save">Save</button>
+      <button type="submit" class="btn btn-danger" data-bind="click: cancel">Cancel</button>
+    </div>
+    <!-- /ko -->
+  </form>
+</div>

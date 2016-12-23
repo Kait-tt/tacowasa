@@ -11,7 +11,7 @@ const Predictor = require('./predictor');
 class ProjectStats {
     static calcAll (projectId, {transaction, force = false} = {}) {
         return db.coTransaction({transaction}, function* (transaction) {
-            let doCalc = force || !(yield ProjectStats.checkCache(projectId, {transaction}));
+            let doCalc = true || force || !(yield ProjectStats.checkCache(projectId, {transaction}));
 
             if (doCalc) {
                 // create or update project stats, and lock

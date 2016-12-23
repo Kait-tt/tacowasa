@@ -5,6 +5,10 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 0,
             type: DataTypes.FLOAT
+        },
+        notifyUrl: {
+            allowNull: true,
+            type: DataTypes.STRING
         }
     }, {
         classMethods: {

@@ -4,6 +4,7 @@ const Iteration = require('./models/iteration');
 const IterationTableComponent = require('./iteration_table_component');
 const PredictTimeComponent = require('./predict_time_component');
 const StagnationTaskViewModel = require('./viewmodels/stagnation_task');
+const NotifyStagnationSettingsComponent = require('./notify_stagnation_settings_component');
 const TaskDetailPredictComponent = require('./task_detail_predict_component');
 const BurnDownChartComponent = require('./burn_down_chart_component');
 const MembersPredictChartComponent = require('./members_predict_chart_component');
@@ -20,6 +21,12 @@ module.exports = {
         const stagnationTaskViewModel = new StagnationTaskViewModel(stagnantTaskIds);
         stagnationTaskViewModel.initDecorateTask(kanban.project.tasks);
         stagnationTaskViewModel.initDecorateTaskCard(kanban.taskCard);
+
+        const notifyStagnationSettingsComponent = new NotifyStagnationSettingsComponent();
+        notifyStagnationSettingsComponent.on('save', ({url}) => {
+            socket.emit('updateNotifyStagnant', {url});
+        });
+        notifyStagnationSettingsComponent.register();
 
         const predictTimeComponent = new PredictTimeComponent(kanban.project.users, iterations, workTimes);
         kanban.selectedTask.subscribe(x => predictTimeComponent.task(x));
@@ -71,6 +78,7 @@ module.exports = {
                     const iteration = new Iteration(iterationParams);
                     iterations.push(iteration);
                 });
+                notifyStagnationSettingsComponent.url(req.project.notifyUrl);
             }
             burnDownChartComponent.drawChart();
             membersPredictChartComponent.drawChart();
@@ -104,12 +112,17 @@ module.exports = {
             workTimes(_workTimes);
         });
 
+        socket.on('updateNotifyStagnant', ({url}) => {
+            notifyStagnationSettingsComponent.url(url);
+        });
+
         // init rendering
 
         kanban.projectStatsModal.on('load', () => {
             insertNodeIntoFirstOnModal(iterationTableComponent.componentName, 'project-stats-modal');
             insertNodeIntoFirstOnModal(membersPredictChartComponent.componentName, 'project-stats-modal');
             insertNodeIntoFirstOnModal(burnDownChartComponent.componentName, 'project-stats-modal');
+            insertNodeIntoLastOnModal(notifyStagnationSettingsComponent.componentName, 'project-stats-modal');
         });
 
         kanban.assignTaskModal.on('load', () => {

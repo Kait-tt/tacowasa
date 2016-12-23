@@ -6,6 +6,7 @@ const AddonSocketOn = require('../addon/socket_on');
 const ProjectStats = require('./models/project_stats');
 const Iteration = require('./models/iteration');
 const MemberWorkTime = require('./models/member_work_time');
+const StagnationTask = require('./models/stagnation_task');
 const db = require('./schemas');
 
 class StatsSocketOn extends AddonSocketOn {
@@ -14,7 +15,8 @@ class StatsSocketOn extends AddonSocketOn {
     }
 
     static get socketEventKeys () {
-        return ['fetchStats', 'createIteration', 'removeIteration', 'updateIteration', 'updatePromisedWorkTime'];
+        return ['fetchStats', 'createIteration', 'removeIteration', 'updateIteration', 'updatePromisedWorkTime',
+            'updateNotifyStagnant'];
     }
 
     static fetchStats (socketProject, user) {
@@ -65,6 +67,15 @@ class StatsSocketOn extends AddonSocketOn {
             const end = moment(iteration.endTime).format('YYYY-MM-DD');
             yield socketProject.notifyText(user, `updatePromisedWorkTime: ${userId}, ${start} - ${end}, ${promisedMinutes}`);
             yield StatsSocketOn.stats(socketProject, user, {force: true});
+        });
+    }
+
+    static updateNotifyStagnant (socketProject, user, {url}) {
+        return co(function* () {
+            yield socketProject.logging(user.username, 'updateNotifyStagnant', {url});
+            socketProject.emits(user, 'updateNotifyStagnant', {url});
+            yield StagnationTask.updateNotifyUrl(socketProject.projectId, {url});
+            yield socketProject.notifyText(user, `updateNotifyStagnant: ${url}`);
         });
     }
 
