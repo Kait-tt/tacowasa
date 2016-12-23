@@ -28,7 +28,7 @@ def main():
 
     results = calc_all(projects, method)
     print_results_table(projects, results)
-    # plot_timeline(projects, results)
+    plot_timeline(projects, results)
 
 
 def calc_all(projects, method):
@@ -126,6 +126,7 @@ def print_results_table(projects, results):
     data = []
     total_es = []
     total_ins = []
+    total_ws = []
     for project in projects:
         project_name = project['projectName']
         tasks = project['tasks']
@@ -141,25 +142,30 @@ def print_results_table(projects, results):
 
                 es = [abs(predicates[i][0] - actuals[i]) / actuals[i] for i in idxes]
                 ins = [predicates[i][1] <= actuals[i] <= predicates[i][2] for i in idxes]
+                ws = [float(predicates[i][2] - predicates[i][1]) for i in idxes]
                 total_es.extend(es)
                 total_ins.extend(ins)
+                total_ws.extend(ws)
 
                 data.append({
                     'name': '{} ({}, {})'.format(project_name, user, cost),
                     'es': es,
-                    'ins': ins
+                    'ins': ins,
+                    'ws': ws
                 })
 
     data.append({
         'name': 'Total',
         'es': total_es,
-        'ins': total_ins
+        'ins': total_ins,
+        'ws': total_ws
     })
 
     scores = []
     for x in data:
         es = x['es']
         ins = x['ins']
+        ws = x['ws']
         scores.append({
             'name': x['name'],
             'sum': sum(es),
@@ -168,15 +174,16 @@ def print_results_table(projects, results):
             'median': median(es),
             'cover': ins.count(True),
             'uncover': ins.count(False),
-            'coverp': float(ins.count(True)) / len(ins)
+            'coverp': float(ins.count(True)) / len(ins),
+            'wmean': mean(ws)
         })
 
-    print('{:25} | {:8} | {:7} | {:7} | {:7} | {:5} | {:7} | {:7.3}'
-          .format('Name', 'Sum', 'Mean', 'Median', 'Stddev', 'Cover', 'Uncover', 'CoverP'))
+    print('{:25} | {:8} | {:7} | {:7} | {:7} | {:5} | {:7} | {:7} | {:7}'
+          .format('Name', 'Sum', 'Mean', 'Median', 'Stddev', 'Cover', 'Uncover', 'CoverP', 'WMean'))
     for idx, score in enumerate(scores):
-        print('{:25} | {:8.3f} | {:7.3f} | {:7.3f} | {:7.3f} | {:5} | {:7} | {:7.3}'.
+        print('{:25} | {:8.3f} | {:7.3f} | {:7.3f} | {:7.3f} | {:5} | {:7} | {:7.3} | {:7.4}'.
               format(score['name'], score['sum'], score['mean'], score['median'], score['stddev'],
-                     score['cover'], score['uncover'], score['coverp']))
+                     score['cover'], score['uncover'], score['coverp'], score['wmean']))
 
 
 if __name__ == '__main__':

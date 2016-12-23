@@ -23,7 +23,7 @@ class AveragePredictorEachCostInterval:
         if len(same_cost_tasks) > 3:
             tasks = same_cost_tasks
 
-        # use only newly tasks?
+        # use only last N tasks
         tasks = tasks[-8:]
 
         sample = np.array([x['actualWorkTime'] / x['cost'] for x in tasks])
