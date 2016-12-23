@@ -137,7 +137,7 @@ class IterationTableComponent extends EventEmitter2 {
 
                 this.background = (userId, iterationId) => {
                     const memberWorkTime = that.getMemberWorkTime(userId, iterationId);
-                    if (memberWorkTime) { return ''; }
+                    if (!memberWorkTime || !memberWorkTime() || _.isNil(memberWorkTime().actualMinutes)) { return ''; }
                     const {actualMinutes: x, promisedMinutes: y} = memberWorkTime();
                     const successColor = '#d3f9cc';
                     const failColor = '#eee';

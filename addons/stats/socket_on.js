@@ -41,6 +41,7 @@ class StatsSocketOn extends AddonSocketOn {
             yield socketProject.logging(user.username, 'removeIteration', {iterationId});
             socketProject.emits(user, 'removeIteration', {iterationId});
             yield socketProject.notifyText(user, `removeIteration: ${iterationId}`);
+            yield StatsSocketOn.stats(socketProject, user, {force: true});
         });
     }
 
@@ -63,6 +64,7 @@ class StatsSocketOn extends AddonSocketOn {
             const start = moment(iteration.startTime).format('YYYY-MM-DD');
             const end = moment(iteration.endTime).format('YYYY-MM-DD');
             yield socketProject.notifyText(user, `updatePromisedWorkTime: ${userId}, ${start} - ${end}, ${promisedMinutes}`);
+            yield StatsSocketOn.stats(socketProject, user, {force: true});
         });
     }
 
