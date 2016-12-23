@@ -33,6 +33,8 @@ class BurnDownChart {
     }
 
     static _calc (tasks, iterations) {
+        const now = Number(Date.now());
+
         // イベントを持つユニークな時間
         const times = _.chain(tasks)
             .map('works')
@@ -48,6 +50,7 @@ class BurnDownChart {
             .map(x => Number(x))
             .sortBy()
             .uniq()
+            .filter(x => x <= now)
             .map(time => ({time, events: []}))
             .value();
 
@@ -62,6 +65,7 @@ class BurnDownChart {
                 .flatten()
                 .concat([{name: '2_createTask', time: Number(task.createdAt), taskId: task.id, cost: task.cost.value}])
                 .concat(task.completedAt ? [{name: '3_completionTask', time: Number(task.completedAt), taskId: task.id, cost: task.cost.value}] : [])
+                .filter(x => x.time <= now)
                 .forEach(event => {
                     const pos = Util.lowerBound(_times, event.time);
                     times[pos].events.push(event);
@@ -73,7 +77,7 @@ class BurnDownChart {
             [
                 {name: '4_startIteration', time: Number(iteration.startTime), iterationId: iteration.id},
                 {name: '5_endIteration', time: Number(iteration.endTime), iterationId: iteration.id}
-            ].forEach(event => {
+            ].filter(x => x.time <= now).forEach(event => {
                 const pos = Util.lowerBound(_times, event.time);
                 times[pos].events.push(event);
             });

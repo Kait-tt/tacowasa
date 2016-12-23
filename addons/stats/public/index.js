@@ -40,7 +40,7 @@ module.exports = {
             socket.emit('updatePromisedWorkTime', {userId, iterationId, promisedMinutes});
         });
 
-        const burnDownChartComponent = new BurnDownChartComponent(bdcData, iterations);
+        const burnDownChartComponent = new BurnDownChartComponent(bdcData, iterations, workTimes);
         kanban.projectStatsModal.on('shownModal', () => {
             burnDownChartComponent.drawChart();
             membersPredictChartComponent.drawChart();
