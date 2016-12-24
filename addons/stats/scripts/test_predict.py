@@ -25,10 +25,6 @@ def main():
 
     projects = json.load(open(args.src, 'r'))
 
-    # remove outliers
-    for project in projects:
-        project['tasks'] = [x for x in project['tasks'] if x['actualWorkTime'] < 60 * 10]
-
     results = calc_all(projects, methods)
     print_results_table(projects, methods, results)
     plot_timeline(projects, methods, results)

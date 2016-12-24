@@ -12,9 +12,6 @@ def main():
     user_ids = src['userIds']
     costs = src['costs']
 
-    # remove outliers
-    tasks = [x for x in tasks if x['actualWorkTime'] < 60 * 10]
-
     results = []
     for user_id in user_ids:
         for cost in costs:

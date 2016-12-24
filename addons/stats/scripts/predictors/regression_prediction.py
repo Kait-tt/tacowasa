@@ -8,7 +8,6 @@ class RegressionPrediction(AveragePredictorWithoutOutliers):
     @classmethod
     def predicate(cls, tasks, user_id, cost):
         _tasks = tasks
-        tasks = filter_overwork(tasks)
 
         if len(tasks) == 0:
             return float('inf')

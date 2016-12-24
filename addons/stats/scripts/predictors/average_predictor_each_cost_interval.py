@@ -8,8 +8,6 @@ from scipy.stats import chi2 as sci_chi2
 class AveragePredictorEachCostInterval:
     @classmethod
     def predicate(cls, tasks, user_id, cost):
-        tasks = filter_overwork(tasks)
-
         if len(tasks) < 3:
             return None, None, None, None, None
 

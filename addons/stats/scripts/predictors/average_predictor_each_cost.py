@@ -6,8 +6,6 @@ from .util import *
 class AveragePredictorEachCost(AveragePredictorWithoutOutliers):
     @classmethod
     def predicate(cls, tasks, user_id, cost):
-        tasks = filter_overwork(tasks)
-
         if len(tasks) == 0:
             return float('inf')
 

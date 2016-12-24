@@ -2,14 +2,15 @@
 const _ = require('lodash');
 
 class Util {
-    static calcSumWorkTime (works) {
-        const now = new Date();
+    static calcWorkTime (work, now = new Date()) {
+        const end = work.isEnded ? new Date(work.endTime) : now;
+        const start = new Date(work.startTime);
+        return Number(end - start);
+    }
+
+    static calcSumWorkTime (works, now = new Date()) {
         return _.chain(works)
-            .map(x => {
-                const end = x.isEnded ? new Date(x.endTime) : now;
-                const start = new Date(x.startTime);
-                return Number(end - start);
-            })
+            .map(x => Util.calcWorkTime(x, now))
             .sum()
             .value();
     }

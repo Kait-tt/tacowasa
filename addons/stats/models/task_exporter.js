@@ -9,13 +9,15 @@ class TaskExporter {
             const project = yield db.Project.findOne({where: {id: projectId}, transaction});
             if (!project) { throw new Error(`${projectId} was not found`); }
 
+            const now = new Date();
             const tasks = yield db.Task.findAll({where: {projectId: project.id}, include: [{model: db.Work, as: 'works', separate: true}, {model: db.Cost, as: 'cost'}], transaction});
 
             const tasksWithTime = _.chain(tasks)
                 .filter(task => task.works && task.works.length)
                 .filter(task => task.works.length === _.filter(task.works, {userId: task.works[0].userId}).length)
+                .filter(task => task.works.every(work => Util.calcWorkTime(work, now) <= TaskExporter.workTimeLimit))
                 .map(task => {
-                    const workTime = Util.calcSumWorkTime(task.works);
+                    const workTime = Util.calcSumWorkTime(task.works, now);
                     return {
                         taskId: task.id,
                         cost: task.cost.value,
@@ -41,6 +43,10 @@ class TaskExporter {
             }
             return res;
         });
+    }
+
+    static get workTimeLimit () {
+        return 1000 * 60 * 24 * 10; // 10h
     }
 }
 

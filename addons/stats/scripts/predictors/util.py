@@ -2,11 +2,6 @@
 from statistics import mean
 
 
-def filter_overwork(tasks):
-    # remove invalid work time (worked for over 24 hours!)
-    return [x for x in tasks if x['actualWorkTime'] < 60 * 24]
-
-
 def filter_user_id(tasks, user_id):
     return [x for x in tasks if x['userId'] == user_id]
 

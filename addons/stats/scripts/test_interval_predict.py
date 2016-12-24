@@ -22,10 +22,6 @@ def main():
     # filter project
     projects = [x for x in projects if x['projectName'] not in without_project_names]
 
-    # remove outliers
-    for project in projects:
-        project['tasks'] = [x for x in project['tasks'] if x['actualWorkTime'] < 60 * 10]
-
     results = calc_all(projects, method)
     print_results_table(projects, results)
     plot_timeline(projects, results)
