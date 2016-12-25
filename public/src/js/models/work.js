@@ -8,11 +8,6 @@ class Work {
     constructor (opts) {
         Work.columnKeys.forEach(key => { this[key] = ko.isObservable(opts[key]) ? opts[key] : ko.observable(opts[key]); });
 
-        // isEndedの修正... // TODO: databaseを直す
-        if (!opts.isEnded && opts.userId && opts.endTime) {
-            opts.isEnded(true);
-        }
-
         this.isValidStartTime = ko.pureComputed(() => this.validateStartTime());
         this.isValidEndTime = ko.pureComputed(() => this.validateEndTime());
         this.isValidUser = ko.pureComputed(() => this.validateUser());
@@ -103,26 +98,10 @@ class Work {
     // 作業時間の計算
     // force = true なら作業が終了していなくても現在時刻から作業時間を計算する
     calcDuration (force = false) {
+        if (!force && !this.isEnded()) { return null; }
         let start = new Date(this.startTime());
-        let end;
-        // TODO: ここでisEndedのバグの修正はしなくてよい（上でする or databaseでする）
-        // isEndedは正しくないときがあるので、endTimeがあるかで終了してるかを判断する
-        if (this.endTime()) {
-            end = new Date(this.endTime());
-        } else if (force) {
-            end = new Date();
-        } else {
-            return null;
-        }
-
-        // Dateはマイナスにしてはいけないので気を付けて計算する
-        if (start < end) {
-            return end - start;
-        } else if (start > end) {
-            return -(start - end); // TODO: start > end ってなんだ...？
-        } else {
-            return 0;
-        }
+        let end = this.endTime() || new Date();
+        return end - start;
     }
 }
 

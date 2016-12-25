@@ -85,7 +85,7 @@ class Task {
     }
 
     calcAllWorkTime () {
-        const times = this.works().map(x => x.calcDuration());
+        const times = this.works().map(x => x.calcDuration(true));
         return _.sum(times);
     }
 
