@@ -2,7 +2,10 @@
 require('../../scss/top.scss');
 require('bootstrap');
 const ko = require('knockout');
+const moment = require('moment');
 const Project = require('../models/project');
+
+moment.locale('ja');
 
 const topOffset = 60;
 

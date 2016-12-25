@@ -4,7 +4,6 @@ const ko = require('knockout');
 const moment = require('moment');
 const EventEmitter2 = require('eventemitter2');
 const Util = require('../../../../public/src/js/modules/util');
-moment.locale('ja');
 
 class PredictTimeComponent extends EventEmitter2 {
     constructor (users, iterations, workTimes, {eventEmitterOptions} = {}) {

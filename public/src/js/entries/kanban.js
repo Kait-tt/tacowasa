@@ -15,6 +15,7 @@ require('../../scss/kanban.scss');
 const global = window;
 const ko = require('knockout');
 const _ = require('lodash');
+const moment = require('moment');
 const Kanban = require('../viewmodels/kanban');
 const Project = require('../models/project');
 const effects = require('../views/effects');
@@ -22,6 +23,8 @@ const Scroller = require('../views/scroller');
 const AlertHub = require('../viewmodels/alert_hub');
 const addons = require('../modules/addons');
 const Alert = require('../../components/alert');
+
+moment.locale('ja');
 
 let kanban, project, vm;
 

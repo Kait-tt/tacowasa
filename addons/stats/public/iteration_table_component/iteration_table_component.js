@@ -56,8 +56,8 @@ class IterationTableComponent extends EventEmitter2 {
                     return _.chain(that.iterations())
                         .map(it => ({
                             id: it.id,
-                            startTime: ko.pureComputed(() => moment(it.startTime()).format('YYYY-MM-DD')),
-                            endTime: ko.pureComputed(() => moment(it.endTime()).format('YYYY-MM-DD')),
+                            startTime: ko.pureComputed(() => moment(it.startTime()).format('YYYY-MM-DD (ddd)')),
+                            endTime: ko.pureComputed(() => moment(it.endTime()).format('YYYY-MM-DD (ddd)')),
                             tempStartTime: ko.observable(),
                             tempEndTime: ko.observable(),
                             tempPromisedMinutes: ko.observable(),

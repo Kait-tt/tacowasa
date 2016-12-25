@@ -3,6 +3,7 @@ require('bootstrap');
 require('../../scss/user.scss');
 require('babel-polyfill');
 const ko = require('knockout');
+const moment = require('moment');
 const effects = require('../views/effects');
 const Project = require('../models/project');
 const block = require('../modules/block');
@@ -10,6 +11,8 @@ const Alert = require('../../components/alert');
 const CreateProjectModal = require('../../components/modals/create_project_modal');
 const RemoveProjectModal = require('../../components/modals/remove_project_modal');
 const ImportProjectByGitHub = require('../../components/modals/import_project_by_github_modal');
+
+moment.locale('ja');
 
 const alert = new Alert({maxAlertNum: 2});
 alert.register();
