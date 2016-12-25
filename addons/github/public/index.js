@@ -5,6 +5,8 @@ const SyncAllFromGitHubComponent = require('./sync_all_from_github_component');
 
 module.exports = {
     init: (kanban, {alert}) => {
+        if (!kanban.project.opts.githubRepository) { return; }
+
         const syncAllComponent = new SyncAllFromGitHubComponent(kanban, kanban.project);
         syncAllComponent.on('completedSyncAllFromGitHub', () => {
             alert.pushAlert({
