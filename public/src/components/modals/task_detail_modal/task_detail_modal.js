@@ -1,5 +1,6 @@
 'use strict';
 const ko = require('knockout');
+const marked = require('marked');
 const Work = require('../../../js/models/work');
 const AbstractModalComponent = require('../abstract_modal_component');
 
@@ -13,10 +14,13 @@ class TaskDetailModal extends AbstractModalComponent {
 
         this.title = ko.observable();
         this.body = ko.observable();
+        this.bodyPreview = ko.pureComputed(() => marked(this.body()));
         this.cost = ko.observable();
         this.works = ko.observableArray();
 
         this.selectedLabels = ko.observableArray();
+
+        this.bodyMode = ko.observable('preview');
 
         this.task = ko.observable();
         this.task.subscribe(task => {
@@ -48,6 +52,14 @@ class TaskDetailModal extends AbstractModalComponent {
         });
 
         this.editWorkHistoryMode = ko.observable('view');
+    }
+
+    editBody () {
+        this.bodyMode('edit');
+    }
+
+    previewBody () {
+        this.bodyMode('preview');
     }
 
     editWorkHistory () {

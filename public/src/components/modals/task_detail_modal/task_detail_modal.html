@@ -23,8 +23,23 @@
           <div class="form-group">
             <label for="body" class="control-label">
               <span class="glyphicon glyphicon-align-left" aria-hidden="true"></span> 説明
+              <!-- ko if: bodyMode() === 'preview' -->
+              <button class="btn btn-sm edit-body-btn btn-primary" data-bind="click: editBody">
+                <span class="glyphicon glyphicon-edit"></span> Edit
+              </button>
+              <!-- /ko -->
+              <!-- ko if: bodyMode() === 'edit' -->
+              <button class="btn btn-sm preview-body-btn btn-info" data-bind="click: previewBody">
+                <span class="glyphicon glyphicon-eye-open"></span> Preview
+              </button>
+              <!-- /ko -->
             </label>
+            <!-- ko if: bodyMode() === 'edit' -->
             <textarea class="form-control task-body" rows="15" id="body" placeholder="Body" data-bind="value: body"></textarea>
+            <!-- /ko -->
+            <!-- ko if: bodyMode() === 'preview' -->
+            <div class="task-body-preview" data-bind="html: bodyPreview"></div>
+            <!-- /ko -->
           </div>
 
           <div class="form-group">
