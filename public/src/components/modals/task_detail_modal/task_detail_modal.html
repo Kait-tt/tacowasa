@@ -38,7 +38,8 @@
             <textarea class="form-control task-body" rows="15" id="body" placeholder="Body" data-bind="value: body"></textarea>
             <!-- /ko -->
             <!-- ko if: bodyMode() === 'preview' -->
-            <div class="task-body-preview" data-bind="html: bodyPreview"></div>
+            <!--<div class="task-body-preview" data-bind="html: bodyPreview"></div>-->
+            <detail-task-body-preview params="body: body"></detail-task-body-preview>
             <!-- /ko -->
           </div>
 

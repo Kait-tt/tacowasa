@@ -1,19 +1,9 @@
 'use strict';
 const ko = require('knockout');
-const marked = require('marked');
 const Work = require('../../../js/models/work');
 const AbstractModalComponent = require('../abstract_modal_component');
-
-marked.setOptions({
-    renderer: new marked.Renderer(),
-    gfm: true,
-    tables: true,
-    breaks: true,
-    pedantic: false,
-    sanitize: false,
-    smartLists: true,
-    smartypants: false
-});
+const TaskBodyPreview = require('../../task_body_preview');
+(new TaskBodyPreview('detail-')).register();
 
 class TaskDetailModal extends AbstractModalComponent {
     constructor ({eventEmitterOptions = {}, project}) {
@@ -25,7 +15,6 @@ class TaskDetailModal extends AbstractModalComponent {
 
         this.title = ko.observable();
         this.body = ko.observable();
-        this.bodyPreview = ko.pureComputed(() => marked(this.body()));
         this.cost = ko.observable();
         this.works = ko.observableArray();
 
