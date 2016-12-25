@@ -100,7 +100,7 @@ class Work {
     calcDuration (force = false) {
         if (!force && !this.isEnded()) { return null; }
         let start = new Date(this.startTime());
-        let end = this.endTime() || new Date();
+        let end = this.endTime() ? new Date(this.endTime()) : new Date();
         return end - start;
     }
 }
