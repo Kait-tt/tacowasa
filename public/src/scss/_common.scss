@@ -21,16 +21,16 @@ body {
   margin: 0;
 }
 
-.navbar{
+.navbar {
   box-shadow: 0 0 10px 0 #000;
   border-radius: 0;
-  .navbar-brand-wrapper{
+  .navbar-brand-wrapper {
     position: absolute;
     width: 100%;
     left: 0;
     margin: 0;
     text-align: center;
-    .navbar-brand{
+    .navbar-brand {
       font-family: 'Titillium Web', sans-serif;
       font-weight: bold;
       display: inline-block;
@@ -40,17 +40,17 @@ body {
       text-shadow: 0 1px 1px #333;
     }
   }
-  .dropdown-menu{
+  .dropdown-menu {
     background-color: $navbar-bg-color;
     padding: 0;
-    > li{
-      &.divider{
+    > li {
+      &.divider {
         margin: 0;
       }
-      > a{
+      > a {
         color: $navbar-color;
         padding: 12px 8px;
-        &:hover{
+        &:hover {
           background-color: lighten($navbar-bg-color, 10%);
         }
       }
