@@ -14,15 +14,12 @@ marked.setOptions({
 });
 
 class TaskBodyPreview {
-    constructor (prefix = '') {
-        this.prefix = prefix;
-    }
-
     get componentName () {
-        return `${this.prefix}task-body-preview`;
+        return 'task-body-preview';
     }
 
     register () {
+        if (ko.components.isRegistered(this.componentName)) { return; }
         ko.components.register(this.componentName, {
             viewModel: function ({body}) {
                 this.body = body;

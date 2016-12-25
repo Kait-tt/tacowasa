@@ -3,7 +3,7 @@ const ko = require('knockout');
 const Work = require('../../../js/models/work');
 const AbstractModalComponent = require('../abstract_modal_component');
 const TaskBodyPreview = require('../../task_body_preview');
-(new TaskBodyPreview('detail-')).register();
+(new TaskBodyPreview()).register();
 
 class TaskDetailModal extends AbstractModalComponent {
     constructor ({eventEmitterOptions = {}, project}) {

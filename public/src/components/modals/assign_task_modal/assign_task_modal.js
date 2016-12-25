@@ -1,6 +1,8 @@
 'use strict';
 const ko = require('knockout');
 const AbstractModalComponent = require('../abstract_modal_component');
+const TaskBodyPreview = require('../../task_body_preview');
+(new TaskBodyPreview()).register();
 
 class AssignTaskModal extends AbstractModalComponent {
     constructor ({eventEmitterOptions = {}, project}) {
