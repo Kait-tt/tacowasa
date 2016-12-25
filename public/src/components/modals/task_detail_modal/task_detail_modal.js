@@ -4,6 +4,17 @@ const marked = require('marked');
 const Work = require('../../../js/models/work');
 const AbstractModalComponent = require('../abstract_modal_component');
 
+marked.setOptions({
+    renderer: new marked.Renderer(),
+    gfm: true,
+    tables: true,
+    breaks: true,
+    pedantic: false,
+    sanitize: false,
+    smartLists: true,
+    smartypants: false
+});
+
 class TaskDetailModal extends AbstractModalComponent {
     constructor ({eventEmitterOptions = {}, project}) {
         super({eventEmitterOptions});
@@ -33,6 +44,7 @@ class TaskDetailModal extends AbstractModalComponent {
             task.labels().map(x => { this.selectedLabels.push(x); });
 
             this.editWorkHistoryMode('view');
+            this.bodyMode('preview');
         });
 
         this.overWipLimit = ko.pureComputed(() => {
