@@ -3,6 +3,7 @@ const co = require('co');
 const sinon = require('sinon');
 const config = require('config');
 const ProjectStats = require('../../models/project_stats');
+const Predictor = require('../../models/predictor');
 const db = require('../../schemas');
 const Project = require('../../../../lib/models/project');
 const helper = require('../../../../spec/helper');
@@ -12,12 +13,15 @@ describe('addons', () => {
     describe('stats', () => {
         describe('models', () => {
             describe('ProjectStats', () => {
-                let project;
+                let project, calcStatStub;
 
                 before(co.wrap(function* () {
                     project = yield Project.create('project1', 'user1');
+                    calcStatStub = sinon.stub(Predictor, '_execChild');
+                    calcStatStub.returns([]);
                 }));
                 after(() => {
+                    calcStatStub.restore();
                     return helper.db.clean();
                 });
 
@@ -29,10 +33,7 @@ describe('addons', () => {
                     }));
 
                     it('should return all params', () => {
-                        expect(subject).to.have.deep.property('members[0].userId');
-                        expect(subject).to.have.deep.property('members[0].low');
-                        expect(subject).to.have.deep.property('members[0].high');
-                        expect(subject).to.have.deep.property('members[0].mean');
+                        expect(subject).to.have.property('members');
                         expect(subject).to.have.property('iterations');
                         expect(subject).to.have.property('workTimes');
                         expect(subject).to.have.property('burnDownChart');
