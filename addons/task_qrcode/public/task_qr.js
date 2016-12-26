@@ -1,5 +1,4 @@
 'use strict';
-require('jquery.qrcode');
 require('./task_qr.scss');
 const caches = {};
 
