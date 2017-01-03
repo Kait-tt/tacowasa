@@ -15,8 +15,13 @@ describe('schemes', () => {
             beforeEach(co.wrap(function* () {
                 user = yield db.User.create({username: 'user1'});
                 project = yield db.Project.create({name: 'project1', createUserId: user.id});
-                stage = yield db.Stage.create({name: 'doing', displayName: 'Doing',
-                    assigned: true, projectId: project.id, canWork: true});
+                stage = yield db.Stage.create({
+                    name: 'doing',
+                    displayName: 'Doing',
+                    assigned: true,
+                    projectId: project.id,
+                    canWork: true
+                });
                 cost = yield db.Cost.create({name: 'medium', value: 3, projectId: project.id});
                 task = yield db.Task.create({
                     projectId: project.id,
