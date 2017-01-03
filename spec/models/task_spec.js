@@ -248,10 +248,11 @@ describe('models', () => {
                     beforeEach(() => co(function* () {
                         let taskId = tasks[1].id;
                         let userId = project.users[0].id;
+                        let stageId = project.stages.find(x => x.canWork).id;
                         works = [
-                            {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId},
-                            {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId},
-                            {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId}
+                            {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId, stageId},
+                            {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId, stageId},
+                            {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId, stageId}
                         ];
                         yield Task.updateWorkHistory(project.id, taskId, works);
                         task = yield Task.findById(taskId);
