@@ -19,6 +19,7 @@ class StagnationTask {
             const members = yield db.Member.findAll({where: {projectId}, transaction});
             const memberStats = yield db.MemberStats.findAll({where: {memberId: {in: _.map(members, 'id')}}, transaction});
             const assignedStages = yield db.Stage.findAll({where: {projectId, assigned: true}, transaction});
+            const doingStage = assignedStages.find(x => x.name === 'doing');
             const tasks = yield db.Task.findAll({
                 where: {projectId},
                 include: [
@@ -41,6 +42,8 @@ class StagnationTask {
                     continue;
                 }
 
+                task.works = task.works.filter(x => x.stageId === doingStage.id);
+
                 const member = members.find(x => x.userId === task.userId);
                 const stats = memberStats.filter(x => x.memberId === member.id);
                 const isStagnation = StagnationTask._isStagnationTask(task, stats);
@@ -57,7 +60,7 @@ class StagnationTask {
             }
 
             // update all
-            yield db.TaskStats.update({isStagnation: false}, {where: {taskId: {in: newNotStagnantTasks.map(x => x.taskId)}}, transaction});
+            yield db.TaskStats.update({isStagnation: false}, {where: {taskId: {in: newNotStagnantTasks.map(x => x.id)}}, transaction});
             for (let {id: taskId} of newStagnantTasks) {
                 yield db.TaskStats.upsert({isStagnation: true, taskId}, {field: ['taskId'], transaction});
             }
