@@ -4,6 +4,7 @@ const _ = require('lodash');
 const db = require('../../schemas');
 const GitHubAPI = require('../../models/github_api');
 const Task = require('../../../../lib/models/task');
+const User = require('../../../../lib/models/user');
 
 class GitHubAddonIssueHook {
     static get actionNames () {
@@ -53,7 +54,7 @@ class GitHubAddonIssueHook {
                 if (assigned) {
                     stage = _.find(stages, {name: 'todo'}) || stages[0];
                     const assignee = taskOnGitHub.assignee || taskOnGitHub.assignees[0];
-                    const user = (yield db.User.findOrCreate({where: {username: assignee.login}, transaction}))[0];
+                    const user = yield User.findOrCreate(assignee.login, {transaction});
                     userId = user.id;
                 } else {
                     stage = _.find(stages, {name: 'issue'}) || stages[0];
@@ -146,7 +147,7 @@ class GitHubAddonIssueHook {
                 }
 
                 // assign
-                const user = (yield db.User.findOrCreate({where: {username: assignee.login}, transaction}))[0];
+                const user = yield User.findOrCreate(assignee.login, {transaction});
                 const stages = yield db.Stage.findAll({where: {projectId}, transaction});
                 const stage = _.find(stages, {name: 'todo'}) || stages[0];
 
@@ -352,4 +353,3 @@ class GitHubAddonIssueHook {
 }
 
 module.exports = GitHubAddonIssueHook;
-

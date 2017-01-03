@@ -10,6 +10,7 @@ const expect = helper.expect;
 const Project = require('../../../../lib/models/project');
 const Task = require('../../../../lib/models/task');
 const Member = require('../../../../lib/models/member');
+const User = require('../../../../lib/models/user');
 const GitHubAddonIssueHook = require('../../controller/hook/issueHook');
 const db = require('../../schemas');
 
@@ -22,7 +23,7 @@ describe('addons', () => {
                 const url = (projectId) => `/github/${projectId}`;
                 before(co.wrap(function* () {
                     project = yield Project.create('testProject', 'testUser');
-                    otherUser = (yield db.User.findOrCreate({where: {username: 'otherUsername'}}))[0];
+                    otherUser = yield User.findOrCreate('otherUsername');
                     yield Member.add(project.id, otherUser.username);
                 }));
                 after(() => {

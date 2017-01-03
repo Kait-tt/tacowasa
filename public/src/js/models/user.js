@@ -28,8 +28,7 @@ class User {
 
         // アバターURL
         this.avatarUrl = ko.pureComputed(() => {
-            const username = this.username();
-            return `/users/${username}/avatar`;
+            return this.iconUri();
         });
 
         // 検索結果のタスクを持っているか
@@ -39,7 +38,8 @@ class User {
     static get columnKeys () {
         return [
             'id',
-            'username'
+            'username',
+            'iconUri'
         ];
     }
 

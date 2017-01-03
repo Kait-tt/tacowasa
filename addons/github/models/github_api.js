@@ -2,15 +2,13 @@
 const GitHub = require('github');
 const co = require('co');
 const config = require('config');
-const Promise = require('bluebird');
-const fs = Promise.promisifyAll(require('fs'));
 const _ = require('lodash');
-const request = require('request-promise');
 const db = require('../schemas');
 const Project = require('../../../lib/models/project');
 const Member = require('../../../lib/models/member');
 const Label = require('../../../lib/models/label');
 const Task = require('../../../lib/models/task');
+const User = require('../../../lib/models/user');
 
 class GitHubAPI {
     constructor (token = null) {
@@ -85,31 +83,6 @@ class GitHubAPI {
         });
     }
 
-    fetchAvatar (username) {
-        const that = this;
-        return co(function*() {
-            const {avatar_url} = yield that.api.users.getForUser({user: username});
-
-            const res = yield request.get({url: avatar_url, encoding: null, resolveWithFullResponse: true});
-
-            const contentType = res.headers['content-type'];
-            if (!contentType) { throw new Error('content-type header is not found'); }
-
-            const slashPos = contentType.indexOf('/');
-            if (!slashPos) { throw new Error(`invalid content-type header: ${contentType}`); }
-            const exp = contentType.substr(slashPos + 1);
-
-            const path = GitHubAPI.avatarPath + username + '.' + exp;
-            yield fs.writeFileAsync(path, res.body);
-
-            return path;
-        });
-    }
-
-    static get avatarPath () {
-        return `${__dirname}/../../../public/images/avatar/`;
-    }
-
     importProject ({user, repo, createUsername}, {transaction} = {}) {
         const that = this;
 
@@ -118,11 +91,6 @@ class GitHubAPI {
                 const repository = yield that.fetchRepository({user, repo});
                 const project = yield Project.create(repo, createUsername, {transaction});
                 const projectId = project.id;
-
-                // fetch avatars (async)
-                for (let username of repository.users) {
-                    that.fetchAvatar(username);
-                }
 
                 // add github repository relation
                 yield db.GitHubRepository.create({
@@ -276,7 +244,7 @@ class GitHubAPI {
             let user;
             if (stage.assigned && task.assignee) {
                 const assignee = task.assignee || task.assignees[0];
-                user = (yield db.User.findOrCreate({where: {username: assignee.login}, transaction}))[0];
+                user = yield User.findOrCreate(assignee.login, {transaction});
             } else {
                 user = null;
             }

@@ -15,6 +15,7 @@
     "clientSecret": "dummy",
     "callbackURL": "http://127.0.0.1:3000/auth/github/callback",
     "hookURL": "http://127.0.0.1:3000/hook/github/:id",
+    "userToken": "",
     "test": {
       "token": "",
       "user": "",

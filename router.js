@@ -16,7 +16,6 @@ class Router extends express.Router {
 
         this.all('/users/*', Controller.Auth.ensureAuthenticated);
         this.get('/users/me', Controller.User.getMe);
-        this.get('/users/:username/avatar', Controller.User.getUserAvatar);
 
         this.get('/users/:username/projects/:projectId/:projectName',
             Controller.Project.getProject);

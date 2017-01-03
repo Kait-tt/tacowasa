@@ -1,18 +1,10 @@
 'use strict';
 const co = require('co');
 const db = require('./schemas');
-const GitHubApi = require('./models/github_api');
 
 class GitHubAddonApi {
     static getProject ({req, res, project}) {
         return co(function* () {
-            // fetch avatar
-            const githubApi = new GitHubApi(req.user.token);
-            for (let user of project.users) {
-                // async
-                githubApi.fetchAvatar(user.username);
-            }
-
             // add github task to task
             const githubTasks = yield db.GitHubTask.findAll({where: {projectId: project.id}});
             const taskToGithubTask = {};
