@@ -86,11 +86,13 @@ class TaskDetailModal extends AbstractModalComponent {
 
     addWork () {
         const user = this.task().user;
+        const stage = this.task().stage;
         const work = new Work({
             isEnded: true,
             startTime: new Date(),
             endTime: new Date(),
-            user: user && user()
+            user: user && user(),
+            stage: stage().canWork() ? stage() : null
         });
         this.works.push(work);
     }

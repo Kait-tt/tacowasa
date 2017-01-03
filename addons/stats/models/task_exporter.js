@@ -10,9 +10,21 @@ class TaskExporter {
             if (!project) { throw new Error(`${projectId} was not found`); }
 
             const now = new Date();
-            const tasks = yield db.Task.findAll({where: {projectId: project.id}, include: [{model: db.Work, as: 'works', separate: true}, {model: db.Cost, as: 'cost'}], transaction});
+            const tasks = yield db.Task.findAll({
+                where: {projectId: project.id},
+                include: [
+                    {model: db.Work, as: 'works', separate: true, include: [{model: db.Stage, as: 'stage'}]},
+                    {model: db.Cost, as: 'cost'}
+                ],
+                transaction
+            });
 
             const tasksWithTime = _.chain(tasks)
+                .tap(tasks => {
+                    tasks.map(task => {
+                        task.works = task.works.filter(work => work.stage.name === 'doing');
+                    });
+                })
                 .filter(task => task.works && task.works.length)
                 .filter(task => task.works.length === _.filter(task.works, {userId: task.works[0].userId}).length)
                 .filter(task => task.works.every(work => Util.calcWorkTime(work, now) <= TaskExporter.workTimeLimit))

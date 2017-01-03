@@ -116,7 +116,7 @@
               <table class="table">
                 <!-- ko if: editWorkHistoryMode() === 'view' -->
                 <thead>
-                <tr><th>StartTime</th><th>EndTime</th><th>Duration</th><th>User</th></tr>
+                <tr><th>StartTime</th><th>EndTime</th><th>Duration</th><th>User</th><th>Stage</th></tr>
                 </thead>
                 <tbody data-bind="foreach: task().works">
                 <tr>
@@ -124,12 +124,13 @@
                   <td data-bind="text: endTimeFormat"></td>
                   <td data-bind="text: duration"></td>
                   <td data-bind="text: username"></td>
+                  <td data-bind="text: stageName"></td>
                 </tr>
                 </tbody>
                 <!-- /ko -->
                 <!-- ko if: editWorkHistoryMode() === 'edit' -->
                 <thead>
-                <tr><th>StartTime</th><th>EndTime</th><th>Duration</th><th>User</th><th>#</th></tr>
+                <tr><th>StartTime</th><th>EndTime</th><th>Duration</th><th>User</th><th>Stage</th><th>#</th></tr>
                 </thead>
                 <tbody data-bind="foreach: works">
                 <tr>
@@ -146,6 +147,14 @@
                                        optionsText: 'username',
                                        value: user,
                                        optionsCaption: '(no assignee)'" required>
+                    </select>
+                  </td>
+                  <td data-bind="css: { 'has-error': !isValidStage() } ">
+                    <select class="form-control"
+                            data-bind="options: $root.stages().filter(x => x.canWork()),
+                                       optionsText: 'name',
+                                       value: stage,
+                                       optionsCaption: '(no stage)'" required>
                     </select>
                   </td>
                   <td>

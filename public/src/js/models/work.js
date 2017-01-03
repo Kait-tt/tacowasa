@@ -11,6 +11,7 @@ class Work {
         this.isValidStartTime = ko.pureComputed(() => this.validateStartTime());
         this.isValidEndTime = ko.pureComputed(() => this.validateEndTime());
         this.isValidUser = ko.pureComputed(() => this.validateUser());
+        this.isValidStage = ko.pureComputed(() => this.validateStage());
 
         this.startTimeFormat = ko.pureComputed({
             read: () => {
@@ -43,7 +44,12 @@ class Work {
         this.username = ko.pureComputed(() => {
             const user = this.user();
             return user && user.username();
-        }, this);
+        });
+
+        this.stageName = ko.pureComputed(() => {
+            const stage = this.stage();
+            return stage && stage.name();
+        });
     }
 
     static get columnKeys () {
@@ -51,7 +57,8 @@ class Work {
             'isEnded',
             'startTime',
             'endTime',
-            'user'
+            'user',
+            'stage'
         ];
     }
 
@@ -60,18 +67,21 @@ class Work {
             isEnded: this.isEnded(),
             startTime: this.startTime(),
             endTime: this.endTime(),
-            user: this.user
+            user: this.user,
+            stage: this.stage
         });
     }
 
     // local format -> server format
     deserialize () {
         const user = this.user();
+        const stage = this.stage();
         return {
             isEnded: this.isEnded(),
             startTime: this.startTime(),
             endTime: this.endTime(),
-            userId: user ? user.id() : null
+            userId: user ? user.id() : null,
+            stageId: stage ? stage.id() : null
         };
     }
 
@@ -93,6 +103,11 @@ class Work {
         const user = this.user();
         const isEnded = this.isEnded();
         return (user && isEnded) || (!user && !isEnded);
+    }
+
+    validateStage () {
+        const stage = this.stage();
+        return stage && stage.canWork();
     }
 
     // 作業時間の計算

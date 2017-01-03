@@ -146,6 +146,7 @@ class Project {
         taskParams.stage = this.getStage({id: taskParams.stageId || taskParams.stage.id});
         taskParams.works = (taskParams.works || []).map(workParams => {
             workParams.user = this.getUser({id: workParams.userId || (workParams.user && workParams.user.id || null)});
+            workParams.stage = this.getStage({id: workParams.stageId || (workParams.stage && workParams.stage.id || null)});
             return new Work(workParams);
         });
         const task = new Task(taskParams);
@@ -233,6 +234,7 @@ class Project {
 
         const workInstances = works.map(work => {
             work.user = work.user && this.getUser({id: work.user.id});
+            work.stage = work.stage && this.getStage({id: work.stage.id});
             return new Work(work);
         });
         task.works(workInstances);
