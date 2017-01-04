@@ -1,8 +1,6 @@
 'use strict';
 const _ = require('lodash');
-const QUOTE = '\'';
-const DOUBLE_QUOTE = '"';
-const QUOTES = [QUOTE, DOUBLE_QUOTE];
+const QUOTES = '\'"';
 const WHITE_SPACE = ' ';
 const REGEX_PTN = /^\/(.*)\/(.*)$/;
 const REGEX_FLAGS = 'gimuy';
