@@ -43,6 +43,11 @@
                 <span class="glyphicon glyphicon-search form-control-feedback"></span>
             </div>
         </form>
+        <div class="navbar-text navbar-left search-hit-num" data-bind="css: { 'shown': searchHitTaskNumFormat }">
+            <span class="alert" data-bind="text: searchHitTaskNumFormat,
+                                           css: { 'alert-success': searchHitTaskNum(),
+                                                  'alert-danger': !searchHitTaskNum() }"></span>
+        </div>
         <div class="navbar-text" data-bind="if: loginUser() && loginUser().workingTask()">
             <span class="user-working-message alert alert-success">
                 <span class="glyphicon glyphicon-play-circle"></span> 作業中です。

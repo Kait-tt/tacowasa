@@ -201,3 +201,18 @@ body{
     }
   }
 }
+
+.navbar-collapse .search-hit-num {
+  opacity: 0;
+  margin-left: 0;
+  transition-property: opacity;
+  transition-duration: .2s;
+
+  &.shown {
+    opacity: 1;
+  }
+
+  span {
+    padding: 5px;
+  }
+}

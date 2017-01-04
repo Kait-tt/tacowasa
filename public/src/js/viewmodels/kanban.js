@@ -54,6 +54,21 @@ class Kanban extends EventEmitter2 {
 
         this.searchQuery = ko.observable();
         this.searchQuery.subscribe(_.debounce(this.searchTasks.bind(this), 500));
+        this.searchHitTaskNum = ko.observable(null);
+
+        this._searchHitTaskNumFormat = ko.observable(null);
+        this.searchHitTaskNumFormat = ko.pureComputed({
+            read: () => this._searchHitTaskNumFormat(),
+            write: v => this._searchHitTaskNumFormat(v)
+        });
+        this.searchHitTaskNum.subscribe((delayReset => num => {
+            if (num === null) {
+                this.searchHitTaskNumFormat(null);
+            } else {
+                this.searchHitTaskNumFormat(num ? `Hit ${num} tasks` : 'No hit task');
+                delayReset();
+            }
+        })(_.debounce(() => this.searchHitTaskNumFormat(null), 2000)));
 
         this.viewMode = ko.observable(localStorage.getItem('viewMode')); // full or compact
         this.viewMode.subscribe(val => localStorage.setItem('viewMode', val));
@@ -369,6 +384,7 @@ class Kanban extends EventEmitter2 {
         if (searchQuery) { // search
             const query = new TaskSearchQuery(searchQuery);
             const userHasTask = {};
+            let hitNum = 0;
 
             this.users().forEach(user => {
                 userHasTask[user.username()] = false;
@@ -382,14 +398,21 @@ class Kanban extends EventEmitter2 {
                 if (assignee) {
                     userHasTask[assignee.username()] |= hit;
                 }
+                if (hit) {
+                    hitNum += 1;
+                }
             });
 
             this.users().forEach(user => {
                 user.hasSearchTask(userHasTask[user.username()] || false);
             });
+
+            this.searchHitTaskNum(hitNum);
+            this.searchHitTaskNum.notifySubscribers(hitNum);
         } else { // all visible
             this.tasks().forEach(task => task.isVisible(true));
             this.users().forEach(user => user.hasSearchTask(true));
+            this.searchHitTaskNum(null);
         }
     }
 
