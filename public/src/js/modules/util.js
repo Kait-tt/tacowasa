@@ -114,56 +114,6 @@ const util = {
         return (moment.isMoment(time) ? time : moment(new Date(time))).format('YYYY/MM/DD HH:mm:ss');
     },
 
-    // " や ' を考慮してテキストを分割する
-    splitSearchQuery: text => {
-        if (!_.isString(text)) { return []; }
-        text = text.trim();
-
-        const res = [];
-        let quote = null;
-        let str = '';
-
-        text.split('').forEach(c => {
-            if (c === '"') {
-                if (quote === c) {
-                    pushString();
-                } else if (quote === '\'') {
-                    str += c;
-                } else {
-                    quote = c;
-                }
-            } else if (c === '\'') {
-                if (quote === c) {
-                    pushString();
-                } else if (quote === '"') {
-                    str += c;
-                } else {
-                    quote = c;
-                }
-            } else if (c === ' ') {
-                if (quote) {
-                    str += c;
-                } else {
-                    pushString();
-                }
-            } else {
-                str += c;
-            }
-        });
-
-        if (str) { res.push(str); }
-
-        return res;
-
-        function pushString () {
-            if (str.length) {
-                res.push(str);
-                str = '';
-            }
-            quote = null;
-        }
-    },
-
     offset: ele => {
         const docEle = document.documentElement;
         const box = ele.getBoundingClientRect();

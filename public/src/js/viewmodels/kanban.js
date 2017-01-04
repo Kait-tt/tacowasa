@@ -13,6 +13,7 @@ const Socket = require('../models/socket');
 const ProjectStats = require('../models/project_stats');
 const SocketSerializer = require('../models/socket_serializer');
 const Activity = require('../models/activity');
+const TaskSearchQuery = require('../models/task_search_query');
 
 // viewmodels
 const DraggableTaskList = require('../../components/task_card_list/draggable_task_list');
@@ -366,7 +367,7 @@ class Kanban extends EventEmitter2 {
 
     searchTasks (searchQuery = '') {
         if (searchQuery) { // search
-            const queries = util.splitSearchQuery(searchQuery);
+            const query = new TaskSearchQuery(searchQuery);
             const userHasTask = {};
 
             this.users().forEach(user => {
@@ -375,7 +376,7 @@ class Kanban extends EventEmitter2 {
 
             this.tasks().forEach(task => {
                 const text = task.textForSearch();
-                const hit = queries.every(q => _.includes(text, q));
+                const hit = query.hit(text);
                 task.isVisible(hit);
                 const assignee = task.user();
                 if (assignee) {
