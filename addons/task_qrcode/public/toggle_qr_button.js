@@ -27,7 +27,7 @@ class ToggleQRButton extends EventEmitter2 {
         return `
 <button type="button" class="btn btn-default navbar-btn" data-bind="
   click: toggle,
-  tooltip: { title: 'toggle QR', placement: 'bottom' }">
+  tooltip: { title: 'toggle QR', placement: 'bottom', viewport: '#toolbar-btn-group' }">
     <span class="glyphicon glyphicon-qrcode"></span>
     <span class="sr-only">Toggle QR</span>
 </button>
