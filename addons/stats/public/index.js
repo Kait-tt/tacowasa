@@ -17,6 +17,7 @@ module.exports = {
         const workTimes = ko.observableArray([]);
         const stagnantTaskIds = ko.observableArray([]);
         const bdcData = ko.observableArray([]);
+        const memberStats = ko.observableArray([]);
 
         const stagnationTaskViewModel = new StagnationTaskViewModel(stagnantTaskIds);
         stagnationTaskViewModel.initDecorateTask(kanban.project.tasks);
@@ -28,7 +29,8 @@ module.exports = {
         });
         notifyStagnationSettingsComponent.register();
 
-        const predictTimeComponent = new PredictTimeComponent(kanban.project.users, iterations, workTimes);
+        const predictTimeComponent = new PredictTimeComponent(
+            kanban.project.tasks, kanban.project.users, iterations, workTimes, memberStats);
         kanban.selectedTask.subscribe(x => predictTimeComponent.task(x));
         predictTimeComponent.register();
 
@@ -66,10 +68,10 @@ module.exports = {
         let first = true;
         socket.on('stats', req => {
             console.debug('on stats', req);
-            predictTimeComponent.updateMemberStats(req.members);
             stagnantTaskIds(req.stagnantTaskIds);
             workTimes(req.workTimes);
             bdcData(req.burnDownChart);
+            memberStats(req.members);
             taskDetailPredictComponent.memberStats(req.members);
             membersPredictChartComponent.memberStats(req.members);
             if (first) {
