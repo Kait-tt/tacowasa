@@ -23,8 +23,32 @@ def main():
     projects = [x for x in projects if x['projectName'] not in without_project_names]
 
     results = calc_all(projects, method)
-    print_results_table(projects, results)
-    plot_timeline(projects, results)
+
+    # filter if same user and same cost tasks were over 3
+    for project in projects:
+        result = [x for x in results if x['projectName'] == project['projectName']][0]
+        tasks = []
+        predicates = []
+        actuals = []
+        memo = {}
+        for i in range(len(project['tasks'])):
+            task = project['tasks'][i]
+            key = '{}_{}'.format(task['cost'], task['userId'])
+            if key not in memo:
+                memo[key] = 0
+            if memo[key] <= 3:
+                tasks.append(task)
+                predicates.append(result['predicates'][i])
+                actuals.append(result['actuals'][i])
+            memo[key] += 1
+
+        project['tasks'] = tasks
+        result['predicates'] = predicates
+        result['actuals'] = actuals
+
+    # print_results_table(projects, results)
+    plot_hist(projects, results)
+    # plot_timeline(projects, results)
 
 
 def calc_all(projects, method):
@@ -38,7 +62,6 @@ def calc_all(projects, method):
         actuals = []
         for task in project['tasks']:
             predicate = method.predicate(tasks, task['userId'], task['cost'])
-            tasks.append(task)
 
             if predicate[0] is None:
                 predicates.append((0, 0, 0, 0, 0))
@@ -70,6 +93,30 @@ def uniq_all_cost(projects):
         for task in project['tasks']:
             cost.append(task['cost'])
     return list(set(cost))
+
+
+def plot_hist(projects, results):
+    ucost = uniq_all_cost(projects)
+    es = {}
+    for cost in ucost:
+        es[cost] = []
+
+    for project in projects:
+        tasks = project['tasks']
+        result = [x for x in results if x['projectName'] == project['projectName']][0]
+        predicates = result['predicates']
+        actuals = result['actuals']
+
+        for i in range(len(tasks)):
+            e = min(abs(predicates[i][0] - actuals[i]) / actuals[i], 10)
+            # y = predicates[i]
+            # x = actuals[i]
+            # e = 0 if y[1] <= x <= y[2] else min(10, abs(y[1] - x) / x, abs(y[2] - x) / x)
+            # e = 0 if y[3] <= x <= y[4] else min(10, abs(y[3] - x) / x, abs(y[4] - x) / x)
+            es[tasks[i]['cost']].append(e)
+
+    plt.hist(es.values(), normed=True)
+    plt.show()
 
 
 def plot_timeline(projects, results):
@@ -105,15 +152,24 @@ def plot_timeline(projects, results):
                 lows = [x[0] - x[3] for x in xs]
                 highs = [x[4] - x[0] for x in xs]
                 xs2 = [actuals[i] for i in idxes]
+                # es = [min(abs(predicates[i][0] - actuals[i]) / actuals[i], 10) for i in idxes]
+                es = [
+                    0 if xs[i][3] <= xs2[i] <= xs[i][4]
+                    else min(10, abs(xs[i][3] - xs2[i]) / xs2[i], abs(xs[i][4] - xs2[i]) / xs2[i])
+                    for i in range(len(idxes))
+                ]
 
                 xmax = max(xmax, len(xs))
 
                 plt.subplot(r, c, idx)
                 plt.xlim(-1, xmax + 1)
+                plt.ylim(0, 11)
                 plt.title('{} {}'.format(project_name, user), fontsize=10)
-                plt.errorbar(range(len(means)), means, yerr=[mlows, mhighs], color=COLORS[ci], elinewidth=2)
-                plt.errorbar(range(len(means)), means, yerr=[lows, highs], color=COLORS[ci])
-                plt.scatter(range(len(means)), xs2, marker='o', color=COLORS[ci], s=10)
+                plt.plot(es, color=COLORS[ci])
+                # plt.scatter(range(len(es)), es, marker='o', color=COLORS[ci], s=10)
+                # plt.errorbar(range(len(means)), means, yerr=[mlows, mhighs], color=COLORS[ci], elinewidth=2)
+                # plt.errorbar(range(len(means)), means, yerr=[lows, highs], color=COLORS[ci])
+                # plt.scatter(range(len(means)), xs2, marker='o', color=COLORS[ci], s=10)
 
     plt.show()
 
