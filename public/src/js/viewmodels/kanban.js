@@ -5,7 +5,6 @@ const EventEmitter2 = require('eventemitter2');
 const _ = require('lodash');
 
 // modules
-const util = require('../modules/util');
 const localStorage = require('../modules/localStorage');
 
 // models
