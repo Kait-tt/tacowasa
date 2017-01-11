@@ -278,7 +278,7 @@ class GitHubAddonIssueHook {
 
                 for (let label of labels) {
                     if (!_.find(projectLabels, {name: label.name})) {
-                        label = yield db.Label.create({projectId, name: label.name, color: label.color});
+                        label = yield db.Label.create({projectId, name: label.name, color: label.color}, {transaction});
                         GitHubAddonIssueHook.emits(projectId, 'addLabel', `add label on github: {label: ${label.name}}`, null, {
                             transaction,
                             moreParams: {label},
