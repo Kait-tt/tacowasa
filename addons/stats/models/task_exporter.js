@@ -28,6 +28,7 @@ class TaskExporter {
                 .filter(task => task.works && task.works.length)
                 .filter(task => task.works.length === _.filter(task.works, {userId: task.works[0].userId}).length)
                 .filter(task => task.works.every(work => Util.calcWorkTime(work, now) <= TaskExporter.workTimeLimit))
+                .filter(task => task.completedAt)
                 .map(task => {
                     const workTime = Util.calcSumWorkTime(task.works, now);
                     return {
@@ -35,12 +36,12 @@ class TaskExporter {
                         cost: task.cost.value,
                         userId: task.works[0].userId,
                         actualWorkTime: Math.floor(workTime / 1000 / 60),
-                        completedAt: task.completedAt
-                    };
+                        completedAt: Number(new Date(task.completedAt)),
+                        completedAtFormat: (new Date(task.completedAt)).toISOString()
+                        };
                 })
-                .filter(task => task && task.completedAt && task.actualWorkTime && task.cost)
+                .filter(task => task.actualWorkTime && task.cost)
                 .sortBy('completedAt')
-                .map(task => _.pick(task, ['taskId', 'cost', 'userId', 'actualWorkTime']))
                 .value();
 
             return {projectId: project.id, projectName: project.name, tasks: tasksWithTime};
