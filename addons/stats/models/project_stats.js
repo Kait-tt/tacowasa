@@ -39,7 +39,7 @@ class ProjectStats {
     }
 
     static findEachMembers (projectId, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* () {
+        return db.coTransaction({transaction}, function* (transaction) {
             const members = yield db.Member.findAll({where: {projectId}, transaction});
             const res = [];
             for (let member of members) {
@@ -53,7 +53,7 @@ class ProjectStats {
     }
 
     static checkCache (projectId, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* () {
+        return db.coTransaction({transaction}, function* (transaction) {
             const projectStats = yield db.ProjectStats.findOne({where: {projectId}, transaction});
             if (!projectStats) { return false; }
             return Date.now() - new Date(projectStats.updatedAt) < config.get('stats.cacheTime');

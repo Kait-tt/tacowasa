@@ -6,7 +6,7 @@ const INVALID_DATE = 'Invalid Date';
 
 class Iteration {
     static create (projectId, {startTime, endTime}, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* () {
+        return db.coTransaction({transaction}, function* (transaction) {
             const start = new Date(startTime);
             const end = new Date(endTime);
             if (!Iteration._isValidDate(start)) {
@@ -36,7 +36,7 @@ class Iteration {
     }
 
     static update (projectId, iterationId, {startTime, endTime}, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* () {
+        return db.coTransaction({transaction}, function* (transaction) {
             const start = new Date(startTime);
             const end = new Date(endTime);
             if (!Iteration._isValidDate(start)) {

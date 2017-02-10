@@ -7,7 +7,7 @@ const Util = require('../modules/util');
 
 class StagnationTask {
     static findByProjectId (projectId, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* () {
+        return db.coTransaction({transaction}, function* (transaction) {
             const tasks = yield db.Task.findAll({where: {projectId}, transaction});
             const stagnatTasks = yield db.TaskStats.findAll({where: {taskId: {in: _.map(tasks, 'id')}, isStagnation: true}, transaction});
             return _.map(stagnatTasks, 'taskId');
