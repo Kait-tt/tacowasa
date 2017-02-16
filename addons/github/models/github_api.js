@@ -36,7 +36,7 @@ class GitHubAPI {
                     title,
                     body,
                     labels,
-                    assignee: assignee ? assignee.username : null
+                    assignees: assignee ? [assignee.username] : []
                 });
 
                 if (['done', 'archive'].includes(stage.name)) {
@@ -77,7 +77,7 @@ class GitHubAPI {
                 title,
                 body,
                 state: ['archive', 'done'].includes(stage.name) ? 'closed' : 'open',
-                assignee: assignee ? assignee.username : null,
+                assignees: assignee ? [assignee.username] : [],
                 labels: labels.map(x => x.name)
             });
         });
@@ -235,15 +235,15 @@ class GitHubAPI {
 
             let stageName;
             if (task.state === 'open') {
-                stageName = task.assignee ? 'todo' : 'issue';
+                stageName = task.assignees.length ? 'todo' : 'issue';
             } else {
                 stageName = 'archive';
             }
             const stage = yield db.Stage.findOne({where: {projectId, name: stageName}, transaction});
 
             let user;
-            if (stage.assigned && task.assignee) {
-                const assignee = task.assignee || task.assignees[0];
+            if (stage.assigned && task.assignees.length) {
+                const assignee = task.assignees[0];
                 user = yield User.findOrCreate(assignee.login, {transaction});
             } else {
                 user = null;

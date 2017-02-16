@@ -175,11 +175,11 @@ describe('addons', () => {
                         context('with closed task', () => {
                             context('with assigned task', () => {
                                 beforeEach(() => co(function* () {
-                                    body.issue.assignee = {login: project.users[0].username};
+                                    body.issue.assignees = [{login: project.users[0].username}];
                                     yield createTask({stageName: 'done'});
                                 }));
                                 afterEach(() => {
-                                    body.issue.assignee = null;
+                                    body.issue.assignees = [];
                                 });
 
                                 it('should update stage to todo', () => requestWrap(project.id, body)
@@ -287,7 +287,7 @@ describe('addons', () => {
                     describe('assigned', () => {
                         before(() => {
                             body = JSON.parse(fs.readFileSync(`${__dirname}/../fixtures/hook_issues_assigned.json`));
-                            body.issue.assignee = {login: project.users[0].username};
+                            body.issue.assignees = [{login: project.users[0].username}];
                         });
 
                         context('with not exists task', shouldCreateNewTask);

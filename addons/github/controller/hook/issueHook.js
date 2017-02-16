@@ -46,14 +46,14 @@ class GitHubAddonIssueHook {
 
                 // open
                 let stages = yield db.Stage.findAll({where: {projectId}, transaction});
-                const assigned = taskOnGitHub.assignee !== null;
+                const assigned = taskOnGitHub.assignees.length > 0;
                 stages = _.filter(stages, {assigned});
 
                 let stage;
                 let userId;
                 if (assigned) {
                     stage = _.find(stages, {name: 'todo'}) || stages[0];
-                    const assignee = taskOnGitHub.assignee || taskOnGitHub.assignees[0];
+                    const assignee = taskOnGitHub.assignees[0];
                     const user = yield User.findOrCreate(assignee.login, {transaction});
                     userId = user.id;
                 } else {
@@ -139,7 +139,7 @@ class GitHubAddonIssueHook {
                 const {task, justCreated} = yield GitHubAddonIssueHook.findOrCreateTask(projectId, taskOnGitHub, {transaction, include: [{model: db.User, as: 'user'}]});
                 if (justCreated) { return {message: 'created task'}; }
 
-                const assignee = taskOnGitHub.assignee || taskOnGitHub.assignees[0];
+                const assignee = taskOnGitHub.assignees[0];
 
                 // no change?
                 if (task.user && task.user.username === assignee.login) {
@@ -163,7 +163,7 @@ class GitHubAddonIssueHook {
     }
 
     static unassigned (projectId, taskOnGitHub) {
-        const isAssigned = taskOnGitHub.assignee || taskOnGitHub.assignees.length;
+        const isAssigned = taskOnGitHub.assignees.length;
         if (isAssigned) {
             return Promise.resolve({message: 'assigned? unassigned?'});
         }

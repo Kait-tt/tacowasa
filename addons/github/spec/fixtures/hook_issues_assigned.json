@@ -9,10 +9,9 @@
     },
     "labels": [],
     "state": "open",
-    "assignee": {
+    "assignees": [{
       "login": "snakazawa"
-    },
-    "assignees": [],
+    }],
     "body": "hook test body"
   },
   "sender": {
