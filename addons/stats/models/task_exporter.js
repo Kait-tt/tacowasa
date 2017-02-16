@@ -38,7 +38,7 @@ class TaskExporter {
                         actualWorkTime: Math.floor(workTime / 1000 / 60),
                         completedAt: Number(new Date(task.completedAt)),
                         completedAtFormat: (new Date(task.completedAt)).toISOString()
-                        };
+                    };
                 })
                 .filter(task => task.actualWorkTime && task.cost)
                 .sortBy('completedAt')
