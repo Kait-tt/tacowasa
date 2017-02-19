@@ -27,11 +27,11 @@ const webpackConfig = {
                     fallback: 'style-loader',
                     use: [
                         {
-                            loader: 'css-loader',
+                            loader: 'css-loader'
                         },
                         {
                             loader: 'sass-loader',
-                            options: {        
+                            options: {
                                 includePaths: [path.join(__dirname, '/public/src/scss')]
                             }
                         }
@@ -77,7 +77,7 @@ const webpackConfig = {
                             minetype: 'application/octet-stream'
                         }
                     }
-                ],
+                ]
             },
             {
                 test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
@@ -89,7 +89,7 @@ const webpackConfig = {
                             minetype: 'image/svg+xml'
                         }
                     }
-                ],
+                ]
             }
         ]
     },
