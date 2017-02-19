@@ -13,7 +13,7 @@ class ProjectStatsModal extends AbstractModalComponent {
         });
     }
 
-    get template () { return require('html!./project_stats_modal.html'); }
+    get template () { return require('html-loader!./project_stats_modal.html'); }
 
     get modalName () { return 'project-stats-modal'; }
 }

@@ -11,7 +11,7 @@ class RemoveProjectModal extends AbstractModalComponent {
         this.emit('submit', {project: this.project});
     }
 
-    get template () { return require('html!./remove_project_modal.html'); }
+    get template () { return require('html-loader!./remove_project_modal.html'); }
 
     get modalName () { return 'remove-project-modal'; }
 }

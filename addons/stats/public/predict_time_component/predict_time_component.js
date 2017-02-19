@@ -62,7 +62,7 @@ class PredictTimeComponent extends EventEmitter2 {
                     return _.sortBy(predicts, 'mean');
                 });
             },
-            template: require('html!./predict_time_component.html')
+            template: require('html-loader!./predict_time_component.html')
         });
     }
 }

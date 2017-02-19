@@ -24,7 +24,7 @@ class UserSettingsModal extends AbstractModalComponent {
         this.emit('update', {user: this.user(), wipLimit: this.wipLimit()});
     }
 
-    get template () { return require('html!./user_settings_modal.html'); }
+    get template () { return require('html-loader!./user_settings_modal.html'); }
 
     get modalName () { return 'user-settings-modal'; }
 }

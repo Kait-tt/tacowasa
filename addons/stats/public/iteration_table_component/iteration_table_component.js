@@ -152,7 +152,7 @@ class IterationTableComponent extends EventEmitter2 {
                     }
                 };
             },
-            template: require('html!./iteration_table_component.html')
+            template: require('html-loader!./iteration_table_component.html')
         });
     }
 }

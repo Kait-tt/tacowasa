@@ -17,7 +17,7 @@ class ArchiveTaskModal extends AbstractModalComponent {
         });
     }
 
-    get template () { return require('html!./archive_task_modal.html'); }
+    get template () { return require('html-loader!./archive_task_modal.html'); }
 
     get modalName () { return 'archive-task-modal'; }
 }

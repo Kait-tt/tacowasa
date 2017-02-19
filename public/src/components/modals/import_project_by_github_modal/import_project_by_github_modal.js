@@ -13,7 +13,7 @@ class RemoveProjectModal extends AbstractModalComponent {
         this.emit('submit', {username: this.username(), reponame: this.reponame()});
     }
 
-    get template () { return require('html!./import_project_by_github_modal.html'); }
+    get template () { return require('html-loader!./import_project_by_github_modal.html'); }
 
     get modalName () { return 'import-project-by-github-modal'; }
 }

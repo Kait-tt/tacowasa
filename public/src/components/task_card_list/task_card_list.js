@@ -46,7 +46,7 @@ class TaskCardList extends EventEmitter2 {
                     this.toggleCollapse = () => this.isCollapse(!this.isCollapse());
                 }
             },
-            template: require('html!./task_card_list.html')
+            template: require('html-loader!./task_card_list.html')
         });
 
         // knockout sortable option

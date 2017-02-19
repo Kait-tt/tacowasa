@@ -30,7 +30,7 @@ class ${UPPER_CAMEL_CASE} extends EventEmitter2 {
     register () {
         ko.components.register('${CHAIN_NAME}', {
             viewModel: this,
-            template: require('html!./$1.html')
+            template: require('html-loader!./$1.html')
         });
     }
 }

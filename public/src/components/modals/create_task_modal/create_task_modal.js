@@ -29,7 +29,7 @@ class CreateTaskModal extends AbstractModalComponent {
         });
     }
 
-    get template () { return require('html!./create_task_modal.html'); }
+    get template () { return require('html-loader!./create_task_modal.html'); }
 
     get modalName () { return 'create-task-modal'; }
 }

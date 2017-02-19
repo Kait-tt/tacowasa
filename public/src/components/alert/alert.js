@@ -17,7 +17,7 @@ class Alert extends EventEmitter2 {
             viewModel: function () {
                 this.alerts = that.alerts;
             },
-            template: require('html!./alert.html')
+            template: require('html-loader!./alert.html')
         });
     }
 

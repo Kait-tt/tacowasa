@@ -15,49 +15,90 @@ const webpackConfig = {
         filename: '[name].js'
     },
     module: {
-        loaders: [
-            // html loaderの設定をここに定義するとscssの読込がバグるのでやらないこと
+        rules: [
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                loader: 'babel'
+                use: ['babel-loader']
             },
             {
                 test: /\.scss$/,
-                loader: ExtractTextPlugin.extract('style-loader', 'css-loader!sass-loader')
+                use: ExtractTextPlugin.extract({
+                    fallback: 'style-loader',
+                    use: [
+                        {
+                            loader: 'css-loader',
+                        },
+                        {
+                            loader: 'sass-loader',
+                            options: {        
+                                includePaths: [path.join(__dirname, '/public/src/scss')]
+                            }
+                        }
+                    ]
+                })
+            },
+            {
+                test: /$.html/,
+                use: [
+                    {
+                        loader: 'html-loader',
+                        options: {
+                            attrs: ['minimize'],
+                            removeComments: false,
+                            minimize: true
+                        }
+                    }
+                ]
             },
             {
                 test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-                loader: 'file'
+                use: ['file-loader']
             },
             {
                 test: /\.(woff|woff2)$/,
-                loader: 'url?prefix=font/&limit=5000'
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            prefix: 'font/',
+                            limit: 5000
+                        }
+                    }
+                ]
             },
             {
                 test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-                loader: 'url?limit=10000&mimetype=application/octet-stream'
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 10000,
+                            minetype: 'application/octet-stream'
+                        }
+                    }
+                ],
             },
             {
                 test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-                loader: 'url?limit=10000&mimetype=image/svg+xml'
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 10000,
+                            minetype: 'image/svg+xml'
+                        }
+                    }
+                ],
             }
         ]
     },
-    htmlLoader: {
-        attrs: ['minimize'],
-        removeComments: false,
-        minimize: true
-    },
-    sassLoader: {
-        includePaths: [path.join(__dirname, '/public/src/scss')]
-    },
     devtool: '#source-map',
     resolve: {
-        extensions: ['', '.js', '.json']
+        extensions: ['.js', '.json']
     },
     plugins: [
-        new webpack.optimize.CommonsChunkPlugin('common.js'),
+        new webpack.optimize.CommonsChunkPlugin('common'),
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery'
@@ -74,11 +115,7 @@ const webpackConfig = {
 
 // production
 if (process.env.NODE_ENV === 'production') {
-    const uglifyJsPlugin = new webpack.optimize.UglifyJsPlugin({
-        compress: {
-            warnings: false
-        }
-    });
+    const uglifyJsPlugin = new webpack.optimize.UglifyJsPlugin();
     webpackConfig.plugins.push(uglifyJsPlugin);
 }
 

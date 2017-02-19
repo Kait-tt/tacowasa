@@ -18,7 +18,7 @@ class UserLabel extends EventEmitter2 {
                 this.user = user;
                 this.clickUserSettings = userLabel.clickUserSettings.bind(userLabel, {user});
             },
-            template: require('html!./user_label.html')
+            template: require('html-loader!./user_label.html')
         });
     }
 }

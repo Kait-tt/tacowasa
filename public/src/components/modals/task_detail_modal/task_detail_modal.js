@@ -111,7 +111,7 @@ class TaskDetailModal extends AbstractModalComponent {
         });
     }
 
-    get template () { return require('html!./task_detail_modal.html'); }
+    get template () { return require('html-loader!./task_detail_modal.html'); }
 
     get modalName () { return 'task-detail-modal'; }
 }

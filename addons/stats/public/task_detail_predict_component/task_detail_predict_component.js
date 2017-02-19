@@ -39,7 +39,7 @@ class TaskDetailPredictComponent {
 
                 this.isStagnant = ko.pureComputed(() => that.task() && that.task().isStagnant());
             },
-            template: require('html!./task_detail_predict_component.html')
+            template: require('html-loader!./task_detail_predict_component.html')
         });
     }
 

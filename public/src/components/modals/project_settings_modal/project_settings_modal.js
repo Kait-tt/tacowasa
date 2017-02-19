@@ -7,7 +7,7 @@ class ProjectSettingsModal extends AbstractModalComponent {
         this.project = project;
     }
 
-    get template () { return require('html!./project_settings_modal.html'); }
+    get template () { return require('html-loader!./project_settings_modal.html'); }
 
     get modalName () { return 'project-settings-modal'; }
 }

@@ -25,7 +25,7 @@ class TaskBodyPreview {
                 this.body = body;
                 this.bodyPreview = ko.pureComputed(() => marked(this.body()));
             },
-            template: require('html!./task_body_preview.html')
+            template: require('html-loader!./task_body_preview.html')
         });
     }
 }

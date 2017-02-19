@@ -50,7 +50,7 @@ class TaskCard extends EventEmitter2 {
 
                 taskCard.onLoad(this);
             },
-            template: require('html!./task_card.html')
+            template: require('html-loader!./task_card.html')
         });
     }
 }

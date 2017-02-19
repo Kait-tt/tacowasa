@@ -57,7 +57,7 @@ class TaskCardMiniMenu extends EventEmitter2 {
 
                 taskCardMiniMenu.onLoad(this);
             },
-            template: require('html!./task_card_mini_menu.html')
+            template: require('html-loader!./task_card_mini_menu.html')
         });
     }
 }

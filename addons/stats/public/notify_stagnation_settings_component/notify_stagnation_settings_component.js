@@ -35,7 +35,7 @@ class NotifyStagnationSettingsComponent extends EventEmitter2 {
         const that = this;
         ko.components.register(this.componentName, {
             viewModel: function () { return that; },
-            template: require('html!./notify_stagnation_settings_component.html')
+            template: require('html-loader!./notify_stagnation_settings_component.html')
         });
     }
 }

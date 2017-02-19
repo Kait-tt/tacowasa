@@ -30,7 +30,7 @@ class AssignTaskModal extends AbstractModalComponent {
         }
     }
 
-    get template () { return require('html!./assign_task_modal.html'); }
+    get template () { return require('html-loader!./assign_task_modal.html'); }
 
     get modalName () { return 'assign-task-modal'; }
 }

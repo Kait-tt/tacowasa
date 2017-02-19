@@ -12,7 +12,7 @@ class CreateProjectModal extends AbstractModalComponent {
         this.emit('submit', {projectName: this.projectName()});
     }
 
-    get template () { return require('html!./create_project_modal.html'); }
+    get template () { return require('html-loader!./create_project_modal.html'); }
 
     get modalName () { return 'create-project-modal'; }
 }

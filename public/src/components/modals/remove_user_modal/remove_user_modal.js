@@ -15,7 +15,7 @@ class RemoveUserModal extends AbstractModalComponent {
         });
     }
 
-    get template () { return require('html!./remove_user_modal.html'); }
+    get template () { return require('html-loader!./remove_user_modal.html'); }
 
     get modalName () { return 'remove-user-modal'; }
 }

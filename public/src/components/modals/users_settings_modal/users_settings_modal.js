@@ -38,7 +38,7 @@ class UsersSettingsModal extends AbstractModalComponent {
         }
     }
 
-    get template () { return require('html!./users_settings_modal.html'); }
+    get template () { return require('html-loader!./users_settings_modal.html'); }
 
     get modalName () { return 'users-settings-modal'; }
 }
