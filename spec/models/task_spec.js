@@ -15,20 +15,20 @@ describe('models', () => {
         let project, project2;
 
         after(() => helper.db.clean());
-        before(co.wrap(function* () {
-            project = yield Project.create('project1', usernames[0], {include: [
+        before(async () => {
+            project = await Project.create('project1', usernames[0], {include: [
                 {model: db.User, as: 'users'},
                 {model: db.Stage, as: 'stages', separate: true},
                 {model: db.Cost, as: 'costs', separate: true},
                 {model: db.Label, as: 'labels'}
             ]});
-            project2 = yield Project.create('project1', usernames[0]);
-        }));
-        beforeEach(co.wrap(function* () {
-            yield Task.create(project2.id, {title: 'other project task1', body: ''});
-            yield Task.create(project2.id, {title: 'other project task2', body: ''});
-            yield Task.create(project2.id, {title: 'other project task3', body: ''});
-        }));
+            project2 = await Project.create('project1', usernames[0]);
+        });
+        beforeEach(async () => {
+            await Task.create(project2.id, {title: 'other project task1', body: ''});
+            await Task.create(project2.id, {title: 'other project task2', body: ''});
+            await Task.create(project2.id, {title: 'other project task3', body: ''});
+        });
         afterEach(() => db.Task.destroy({where: {}}));
 
         it('project should have no task', () => expectTaskSize(project.id, 0));
@@ -36,7 +36,9 @@ describe('models', () => {
         describe('#create', () => {
             context('with default value', () => {
                 let task;
-                beforeEach(() => Task.create(project.id, {title: taskTitles[0], body: 'body1'}).then(x => { task = x; }));
+                beforeEach(async () => {
+                    task = await Task.create(project.id, {title: taskTitles[0], body: 'body1'});
+                });
 
                 it('project should have 2 tasks', () => expectTaskSize(project.id, 1));
                 it('should set params', () => {
@@ -50,14 +52,16 @@ describe('models', () => {
 
             context('with specified value', () => {
                 let task;
-                beforeEach(() => Task.create(project.id, {
-                    title: taskTitles[0],
-                    body: 'body1',
-                    userId: project.users[0].id,
-                    stageId: project.stages[2].id,
-                    costId: project.costs[1].id,
-                    labelIds: project.labels.slice(0, 2).map(x => x.id)
-                }).then(x => { task = x; }));
+                beforeEach(async () => {
+                    task = await Task.create(project.id, {
+                        title: taskTitles[0],
+                        body: 'body1',
+                        userId: project.users[0].id,
+                        stageId: project.stages[2].id,
+                        costId: project.costs[1].id,
+                        labelIds: project.labels.slice(0, 2).map(x => x.id)
+                    });
+                });
 
                 it('project should have 2 tasks', () => expectTaskSize(project.id, 1));
                 it('should set params', () => {
@@ -99,21 +103,21 @@ describe('models', () => {
 
         describe('#create x 5', () => {
             let tasks;
-            beforeEach(() => co(function* () {
+            beforeEach(async () => {
                 tasks = [];
                 for (let title of taskTitles) {
-                    let task = yield Task.create(project.id, {title, body: `body of ${title}`});
+                    const task = await Task.create(project.id, {title, body: `body of ${title}`});
                     tasks.push(task);
                 }
-            }));
+            });
 
             it('project should have 5 tasks', () => expectTaskSize(project.id, 5));
 
             describe('#archive', () => {
                 beforeEach(() => Task.archive(project.id, tasks[1].id));
 
-                it('the stage of archived task should be archive', () => co(function* () {
-                    const _tasks = yield Task.findAll(project.id);
+                it('the stage of archived task should be archive', async () => {
+                    const _tasks = await Task.findAll(project.id);
                     _tasks.forEach(task => {
                         if (task.id === tasks[1].id) {
                             expect(task).to.have.deep.property('stage.name', 'archive');
@@ -121,7 +125,7 @@ describe('models', () => {
                             expect(task).to.have.not.deep.property('stage.name', 'archive');
                         }
                     });
-                }));
+                });
 
                 context('not exists archive stage', () => {
                     beforeEach(() => db.Stage.destroy({where: project.stages.find(x => x.name === 'archive')}));
@@ -180,14 +184,14 @@ describe('models', () => {
                 let task;
 
                 context('start work', () => {
-                    beforeEach(() => co(function* () {
-                        yield Task.updateStatus(project.id, tasks[1].id, {
+                    beforeEach(async () => {
+                        await Task.updateStatus(project.id, tasks[1].id, {
                             userId: project.users[0].id,
                             stageId: _.find(project.stages, {canWork: true}).id
                         });
-                        yield Task.updateWorkingState(project.id, tasks[1].id, true);
-                        task = yield Task.findById(tasks[1].id);
-                    }));
+                        await Task.updateWorkingState(project.id, tasks[1].id, true);
+                        task = await Task.findById(tasks[1].id);
+                    });
 
                     it('should be started work', () => expect(task).to.have.property('isWorking', true));
                     it('should create a new work', () => {
@@ -199,10 +203,10 @@ describe('models', () => {
                     });
 
                     context('and stop work', () => {
-                        beforeEach(() => co(function* () {
-                            yield Task.updateWorkingState(project.id, tasks[1].id, false);
-                            task = yield Task.findById(tasks[1].id);
-                        }));
+                        beforeEach(async () => {
+                            await Task.updateWorkingState(project.id, tasks[1].id, false);
+                            task = await Task.findById(tasks[1].id);
+                        });
 
                         it('should be stopped work', () => expect(task).to.have.property('isWorking'), false);
                         it('the work should be ended', () => {
@@ -245,7 +249,7 @@ describe('models', () => {
                 let works;
 
                 context('with valid params', () => {
-                    beforeEach(() => co(function* () {
+                    beforeEach(async () => {
                         let taskId = tasks[1].id;
                         let userId = project.users[0].id;
                         let stageId = project.stages.find(x => x.canWork).id;
@@ -254,20 +258,20 @@ describe('models', () => {
                             {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId, stageId},
                             {isEnded: true, startTime: Date.now(), endTime: Date.now(), userId, taskId, stageId}
                         ];
-                        yield Task.updateWorkHistory(project.id, taskId, works);
-                        task = yield Task.findById(taskId);
-                    }));
+                        await Task.updateWorkHistory(project.id, taskId, works);
+                        task = await Task.findById(taskId);
+                    });
 
                     it('should replace to the works', () => {
                         expect(task.works).to.lengthOf(3);
                     });
 
                     context('and do one', () => {
-                        beforeEach(() => co(function* () {
+                        beforeEach(async () => {
                             works.splice(1, 1); // length of works is 2
-                            yield Task.updateWorkHistory(project.id, task.id, works);
-                            task = yield Task.findById(task.id);
-                        }));
+                            await Task.updateWorkHistory(project.id, task.id, works);
+                            task = await Task.findById(task.id);
+                        });
 
                         it('should replace to the new works', () => {
                             expect(task.works).to.lengthOf(2);
@@ -298,26 +302,26 @@ describe('models', () => {
                         if (from === to) return;
                         context(`update position from ${from} to ${to}`, () => {
                             let ids;
-                            beforeEach(() => co(function* () {
-                                ids = _.map(yield Task.getAllSorted(project.id), 'id');
+                            beforeEach(async () => {
+                                ids = _.map(await Task.getAllSorted(project.id), 'id');
                                 const target = ids[from];
                                 const before = ids[to];
                                 ids.splice(from, 1);
                                 ids.splice(ids.indexOf(before), 0, target);
-                                yield Task.updateOrder(project.id, target, before);
-                            }));
+                                await Task.updateOrder(project.id, target, before);
+                            });
 
                             it('should be ordered', () => expectOrder(project.id, ids));
                         });
                     });
                     context(`update position from ${from} to last`, () => {
                         let ids;
-                        beforeEach(() => co(function* () {
-                            ids = _.map(yield Task.getAllSorted(project.id), 'id');
+                        beforeEach(async () => {
+                            ids = _.map(await Task.getAllSorted(project.id), 'id');
                             const target = ids.splice(from, 1)[0];
                             ids.push(target);
-                            yield Task.updateOrder(project.id, target, null);
-                        }));
+                            await Task.updateOrder(project.id, target, null);
+                        });
 
                         it('should be ordered', () => expectOrder(project.id, ids));
                     });
@@ -339,8 +343,8 @@ describe('models', () => {
                 });
 
                 context('with random update order and create', () => {
-                    it('should be ordered', co.wrap(function* () {
-                        const ids = _.map(yield Task.getAllSorted(project.id), 'id');
+                    it('should be ordered', async () => {
+                        const ids = _.map(await Task.getAllSorted(project.id), 'id');
                         for (let i = 0; i < 10; i++) {
                             if (_.random(5)) {
                                 const from = _.random(0, ids.length - 1);
@@ -356,28 +360,28 @@ describe('models', () => {
                                         ids.push(target);
                                     }
                                 }
-                                yield Task.updateOrder(project.id, target, before);
+                                await Task.updateOrder(project.id, target, before);
                             } else {
-                                const newTask = yield Task.create(project.id, {title: '', body: ''});
+                                const newTask = await Task.create(project.id, {title: '', body: ''});
                                 ids.unshift(newTask.id);
                             }
 
-                            yield expectOrder(project.id, ids);
+                            await expectOrder(project.id, ids);
                         }
-                    }));
+                    });
                 });
             });
 
             describe('#updateStatusAndOrder', () => {
                 let ids, target, before;
-                beforeEach(co.wrap(function* () {
-                    ids = _.map(yield Task.getAllSorted(project.id), 'id');
+                beforeEach(async () => {
+                    ids = _.map(await Task.getAllSorted(project.id), 'id');
                     target = ids[1];
                     before = ids[2];
                     ids.splice(1, 1);
                     ids.splice(ids.indexOf(before), 0, target);
-                    yield Task.updateStatusAndOrder(project.id, target, before, {userId: null, stageId: project.stages[1].id});
-                }));
+                    await Task.updateStatusAndOrder(project.id, target, before, {userId: null, stageId: project.stages[1].id});
+                });
 
                 it('should be updated', () => Task.findById(target).then(task => {
                     expect(task).to.have.property('stageId', project.stages[1].id);

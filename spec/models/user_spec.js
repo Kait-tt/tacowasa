@@ -1,6 +1,5 @@
 'use strict';
 const expect = require('chai').expect;
-const co = require('co');
 const helper = require('../helper');
 const User = require('../../lib/models/user');
 
@@ -12,10 +11,10 @@ describe('models', () => {
         describe('#findOrCreate', () => {
             context('with not exists user', () => {
                 let user, users;
-                before(() => co(function* () {
-                    user = yield User.findOrCreate('user1');
-                    users = yield User.findAll();
-                }));
+                before(async () => {
+                    user = await User.findOrCreate('user1');
+                    users = await User.findAll();
+                });
 
                 it('should create a new user', () => {
                     expect(user).to.have.property('username', 'user1');
@@ -23,10 +22,10 @@ describe('models', () => {
                 });
 
                 context('with exists user', () => {
-                    before(() => co(function* () {
-                        user = yield User.findOrCreate('user1');
-                        users = yield User.findAll();
-                    }));
+                    before(async () => {
+                        user = await User.findOrCreate('user1');
+                        users = await User.findAll();
+                    });
 
                     it('should not create a user', () => {
                         expect(user).to.have.property('username', 'user1');
