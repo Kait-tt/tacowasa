@@ -63,7 +63,7 @@ describe('addons', () => {
                         });
 
                         context('with server error', () => {
-                            beforeEach(() => stub.returns(Promise.reject()));
+                            beforeEach(() => stub.throws());
                             it('should return 500 Server error', () => request.post(url)
                                 .send(validParams)
                                 .expect(500)
