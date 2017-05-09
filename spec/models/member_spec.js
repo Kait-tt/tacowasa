@@ -1,7 +1,6 @@
 'use strict';
 const expect = require('chai').expect;
 const _ = require('lodash');
-const co = require('co');
 const helper = require('../helper');
 const db = require('../../lib/schemes');
 const Project = require('../../lib/models/project');
@@ -14,17 +13,23 @@ describe('models', () => {
         let project;
 
         after(() => helper.db.clean());
-        before(() => Project.create('project1', usernames[0], {include: [
-            {model: db.User, as: 'users'}
-        ]}).then(x => { project = x; }));
-        afterEach(() => db.Member.destroy({where: {}})
-            .then(() => Member.add(project.id, usernames[0])));
+        before(async () => {
+            project = await Project.create('project1', usernames[0], {
+                include: [{model: db.User, as: 'users'}]
+            });
+        });
+        afterEach(async () => {
+            await db.Member.destroy({where: {}});
+            await Member.add(project.id, usernames[0]);
+        });
 
         it('project should have 1 member', () => expectMemberSize(project.id, 1));
 
         describe('#add', () => {
             let user;
-            beforeEach(() => Member.add(project.id, usernames[1]).then(x => { user = x; }));
+            beforeEach(async () => {
+                user = await Member.add(project.id, usernames[1]);
+            });
 
             it('project should have 2 members', () => expectMemberSize(project.id, 2));
             it('should be inserted to top', () => expectSorted(project.id, [usernames[1], usernames[0]]));
@@ -34,26 +39,30 @@ describe('models', () => {
 
         describe('#add x 3', () => {
             let users;
-            beforeEach(() => co(function* () {
+            beforeEach(async () => {
                 users = ['dummy'];
-                users.push(yield Member.add(project.id, usernames[1]));
-                users.push(yield Member.add(project.id, usernames[2]));
-                users.push(yield Member.add(project.id, usernames[3]));
-            }));
+                users.push(await Member.add(project.id, usernames[1]));
+                users.push(await Member.add(project.id, usernames[2]));
+                users.push(await Member.add(project.id, usernames[3]));
+            });
 
             it('project should have 4 members', () => expectMemberSize(project.id, 4));
             it('should be inserted to top', () => expectSorted(project.id, _.reverse(usernames.slice(0, 4))));
 
             describe('#findByUsername', () => {
                 let user;
-                beforeEach(() => Member.findByUsername(project.id, usernames[2]).then(x => { user = x; }));
+                beforeEach(async () => {
+                    user = await Member.findByUsername(project.id, usernames[2]);
+                });
 
                 it('should be return a user', () => expect(user).to.have.property('id', users[2].id));
             });
 
             describe('#findByUserId', () => {
                 let user;
-                beforeEach(() => Member.findByUserId(project.id, users[2].id).then(x => { user = x; }));
+                beforeEach(async () => {
+                    user = await Member.findByUserId(project.id, users[2].id);
+                });
 
                 it('should be return a user', () => expect(user).to.have.property('username', usernames[2]));
             });
@@ -72,19 +81,21 @@ describe('models', () => {
 
             describe('#update', () => {
                 let user;
-                beforeEach(() => Member.update(project.id, usernames[1], {wipLimit: 5}).then(x => { user = x; }));
+                beforeEach(async () => {
+                    user = await Member.update(project.id, usernames[1], {wipLimit: 5});
+                });
+
                 it('wip limit of a member should be updated', () => expect(user.member.wipLimit).to.be.equals(5));
             });
         });
 
         describe('#updateOrder', () => {
-            beforeEach(() => co(function* () {
+            beforeEach(async () => {
                 for (let username of usernames.slice(1)) {
-                    yield Member.add(project.id, username);
+                    await Member.add(project.id, username);
                 }
-            }));
+            });
 
-            // TODO: n=3
             let n = 5;
             _.times(n, from => {
                 _.times(n, to => {
@@ -118,19 +129,18 @@ describe('models', () => {
 });
 
 
-function expectMemberSize (projectId, n) {
-    return db.Project.findById(projectId, {include: [db.User]}).then(_project => {
-        expect(_project.users).to.lengthOf(n);
-    });
+async function expectMemberSize (projectId, n) {
+    const project = await db.Project.findById(projectId, {include: [db.User]});
+    expect(project.users).to.lengthOf(n);
 }
 
-function expectSorted (projectId, order) {
-    return Member.getAllSorted(projectId).then(users => {
-        expect(users.map(x => x.username)).to.eql(order);
+async function expectSorted (projectId, order) {
+    const users = await Member.getAllSorted(projectId);
 
-        _.times(users.length, i => {
-            expect(users[i]).to.have.deep.property('member.prevMemberId', i ? users[i - 1].member.id : null);
-            expect(users[i]).to.have.deep.property('member.nextMemberId', i + 1 < users.length ? users[i + 1].member.id : null);
-        });
+    expect(users.map(x => x.username)).to.eql(order);
+
+    _.times(users.length, i => {
+        expect(users[i]).to.have.deep.property('member.prevMemberId', i ? users[i - 1].member.id : null);
+        expect(users[i]).to.have.deep.property('member.nextMemberId', i + 1 < users.length ? users[i + 1].member.id : null);
     });
 }

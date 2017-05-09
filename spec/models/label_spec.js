@@ -1,7 +1,6 @@
 'use strict';
 const expect = require('chai').expect;
 const _ = require('lodash');
-const co = require('co');
 const helper = require('../helper');
 const Project = require('../../lib/models/project');
 const Task = require('../../lib/models/task');
@@ -20,17 +19,17 @@ describe('models', () => {
         let initLabelSize;
 
         afterEach(() => helper.db.clean());
-        beforeEach(() => co(function* () {
-            project = yield Project.create('project1', 'owner', {include: [{model: db.Label, as: 'labels', separate: true}]});
+        beforeEach(async () => {
+            project = await Project.create('project1', 'owner', {include: [{model: db.Label, as: 'labels', separate: true}]});
             initLabelSize = project.labels.length;
-        }));
+        });
 
         describe('#add', () => {
             let label, labels;
-            beforeEach(() => co(function* () {
-                label = yield Label.create(project.id, labelsParams[0]);
-                labels = yield Label.findAll(project.id);
-            }));
+            beforeEach(async () => {
+                label = await Label.create(project.id, labelsParams[0]);
+                labels = await Label.findAll(project.id);
+            });
 
             it('should create a new label', () => {
                 expect(label).to.have.property('name', labelsParams[0].name);
@@ -41,12 +40,12 @@ describe('models', () => {
 
         describe('#add x 3', () => {
             let labels;
-            beforeEach(() => co(function* () {
+            beforeEach(async () => {
                 for (let params of labelsParams) {
-                    yield Label.create(project.id, params);
+                    await Label.create(project.id, params);
                 }
-                labels = yield Label.findAll(project.id);
-            }));
+                labels = await Label.findAll(project.id);
+            });
 
             it('should create three new labels', () => {
                 expect(labels).to.lengthOf(initLabelSize + 3);
@@ -54,11 +53,11 @@ describe('models', () => {
 
             describe('#destroy', () => {
                 let targetLabel;
-                beforeEach(() => co(function* () {
+                beforeEach(async () => {
                     targetLabel = _.find(labels, labelsParams[1]);
-                    yield Label.destroy(project.id, targetLabel.id);
-                    labels = yield Label.findAll(project.id);
-                }));
+                    await Label.destroy(project.id, targetLabel.id);
+                    labels = await Label.findAll(project.id);
+                });
 
                 it('destroyed label should be not found', () => {
                     expect(_.map(labels, 'id')).to.not.includes(targetLabel.id);
@@ -68,12 +67,12 @@ describe('models', () => {
             describe('#attach', () => {
                 let task;
                 let attachLabel;
-                beforeEach(() => co(function* () {
-                    task = yield Task.create(project.id, {title: 'task1', body: 'body1'});
+                beforeEach(async () => {
+                    task = await Task.create(project.id, {title: 'task1', body: 'body1'});
                     attachLabel = labels[0];
-                    yield Label.attach(project.id, attachLabel.id, task.id);
-                    task = yield Task.findById(task.id);
-                }));
+                    await Label.attach(project.id, attachLabel.id, task.id);
+                    task = await Task.findById(task.id);
+                });
 
                 it('the task should have a label', () => {
                     expect(task.labels).to.lengthOf(1);
@@ -85,14 +84,14 @@ describe('models', () => {
             describe('#attach x 3', () => {
                 let task;
                 let attachLabels;
-                beforeEach(() => co(function* () {
-                    task = yield Task.create(project.id, {title: 'task1', body: 'body1'});
+                beforeEach(async () => {
+                    task = await Task.create(project.id, {title: 'task1', body: 'body1'});
                     attachLabels = labels.slice(0, 3);
                     for (let label of attachLabels) {
-                        yield Label.attach(project.id, label.id, task.id);
+                        await Label.attach(project.id, label.id, task.id);
                     }
-                    task = yield Task.findById(task.id);
-                }));
+                    task = await Task.findById(task.id);
+                });
 
                 it('the task should have three labels', () => {
                     expect(task.labels).to.lengthOf(3);
@@ -105,11 +104,11 @@ describe('models', () => {
                 describe('#detach', () => {
                     let detachLabel;
 
-                    beforeEach(() => co(function* () {
+                    beforeEach(async () => {
                         detachLabel = attachLabels[1];
-                        yield Label.detach(project.id, detachLabel.id, task.id);
-                        task = yield Task.findById(task.id);
-                    }));
+                        await Label.detach(project.id, detachLabel.id, task.id);
+                        task = await Task.findById(task.id);
+                    });
 
                     it('the task should have two labels', () => {
                         expect(task.labels).to.lengthOf(2);
