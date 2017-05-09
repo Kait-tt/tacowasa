@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const co = require('co');
 const db = require('../../lib/schemes');
 const Member = require('../../lib/models/member');
 const Task = require('../../lib/models/task');
@@ -21,18 +20,15 @@ class SocketProject {
             .catch(err => console.error(err));
     }
 
-    joinProjectRoom (user) {
-        const that = this;
-        return co(function* () {
-            that.users[user.id] = user;
-            that.bindSocketUser(user);
-            yield that.sendInitActivityLogs(user);
-            yield that.sendInitJoinedUsers(user);
-            yield that.joinRoom(user);
-        }).catch(err => console.error(err));
+    async joinProjectRoom (user) {
+        this.users[user.id] = user;
+        this.bindSocketUser(user);
+        await this.sendInitActivityLogs(user);
+        await this.sendInitJoinedUsers(user);
+        await this.joinRoom(user);
     }
 
-    leaveProjectRoom (user) {
+    async leaveProjectRoom (user) {
         return this.leaveRoom(user);
     }
 
@@ -47,194 +43,147 @@ class SocketProject {
         addon.callAddons('SocketOn', 'register', {socketProject: this, user}, {sync: true});
     }
 
-    sendInitJoinedUsers (user) {
+    async sendInitJoinedUsers (user) {
         user.socket.emit('initJoinedUsernames', {joinedUsernames: this.joinedUsernames});
-        return Promise.resolve();
     }
 
-    sendInitActivityLogs (user) {
-        return Activity.findActivities(this.projectId)
-            .then(xs => user.socket.emit('activityHistory', {activities: xs}));
+    async sendInitActivityLogs (user) {
+        const activities = await Activity.findActivities(this.projectId);
+        user.socket.emit('activityHistory', {activities});
     }
 
     // / events
 
-    notifyText (user, text, {transaction} = {}) {
-        return Activity.add(this.projectId, user ? user.username : null, text, {transaction})
-            .then(x => this.emits(user, 'notifyText', x));
+    async notifyText (user, text, {transaction} = {}) {
+        const activity = await Activity.add(this.projectId, user ? user.username : null, text, {transaction});
+        this.emits(user, 'notifyText', activity);
     }
 
-    joinRoom (user) {
-        return this.logging(user.username, 'joinRoom', {username: user.username})
-            .then(() => {
-                this.emits(user, 'joinRoom', {username: user.username});
-                return this.notifyText(user, 'joined room');
-            });
+    async joinRoom (user) {
+        await this.logging(user.username, 'joinRoom', {username: user.username});
+        this.emits(user, 'joinRoom', {username: user.username});
+        await this.notifyText(user, 'joined room');
     }
 
-    leaveRoom (user) {
-        return this.logging(user.username, 'leaveRoom', {username: user.username})
-            .then(() => {
-                this.emits(user, 'leaveRoom', {username: user.username});
-                return this.notifyText(user, 'left room');
-            });
+    async leaveRoom (user) {
+        await this.logging(user.username, 'leaveRoom', {username: user.username});
+        this.emits(user, 'leaveRoom', {username: user.username});
+        await this.notifyText(user, 'left room');
     }
 
-    addUser (user, {username}) {
-        const that = this;
-        return co(function* () {
-            const addedUser = yield Member.add(that.projectId, username);
-            yield that.logging(user.username, 'addUser', {user: addedUser});
-            that.emits(user, 'addUser', {username, user: addedUser});
-            return yield that.notifyText(user, `added user: "${username}"`);
-        });
+    async addUser (user, {username}) {
+        const addedUser = await Member.add(this.projectId, username);
+        await this.logging(user.username, 'addUser', {user: addedUser});
+        this.emits(user, 'addUser', {username, user: addedUser});
+        await this.notifyText(user, `added user: "${username}"`);
     }
 
-    removeUser (user, {username}) {
-        const that = this;
-        return co(function* () {
-            const removedUser = yield Member.remove(that.projectId, username);
-            yield that.logging(user.username, 'removeUser', {user: removedUser});
-            that.emits(user, 'removeUser', {username});
-            return that.notifyText(user, `removed user: "${username}"`);
-        });
+    async removeUser (user, {username}) {
+        const removedUser = await Member.remove(this.projectId, username);
+        await this.logging(user.username, 'removeUser', {user: removedUser});
+        this.emits(user, 'removeUser', {username});
+        await this.notifyText(user, `removed user: "${username}"`);
     }
 
-    updateUser (user, {username, updateParams}) {
-        const that = this;
-        return co(function* () {
-            const updatedUser = yield Member.update(that.projectId, username, updateParams);
-            yield that.logging(user.username, 'updatedUser', {user: updatedUser});
-            that.emits(user, 'updateUser', {username, user: updatedUser});
-            return yield that.notifyText(user, `updated user: "${username}"`);
-        });
+    async updateUser (user, {username, updateParams}) {
+        const updatedUser = await Member.update(this.projectId, username, updateParams);
+        await this.logging(user.username, 'updatedUser', {user: updatedUser});
+        this.emits(user, 'updateUser', {username, user: updatedUser});
+        await this.notifyText(user, `updated user: "${username}"`);
     }
 
-    updateUserOrder (user, {username, beforeUsername}) {
-        const that = this;
-        return co(function* () {
-            const res = yield Member.updateOrder(that.projectId, username, beforeUsername);
-            yield that.logging(user.username, 'updateUserOrder', res);
-            that.emits(user, 'updateUserOrder', {username, beforeUsername});
-            return that.notifyText(user, `update user order: insert ${username} before ${beforeUsername}`);
-        });
+    async updateUserOrder (user, {username, beforeUsername}) {
+        const res = await Member.updateOrder(this.projectId, username, beforeUsername);
+        await this.logging(user.username, 'updateUserOrder', res);
+        this.emits(user, 'updateUserOrder', {username, beforeUsername});
+        await this.notifyText(user, `update user order: insert ${username} before ${beforeUsername}`);
     }
 
-    createTask (user, taskParams) {
-        const that = this;
-        return co(function* () {
-            const newTask = yield Task.create(that.projectId, taskParams);
-            yield that.logging(user.username, 'createTask', {task: newTask});
-            that.emits(user, 'createTask', {task: newTask});
-            return yield that.notifyText(user, `created new task: ${newTask.title}`);
-        });
+    async createTask (user, taskParams) {
+        const newTask = await Task.create(this.projectId, taskParams);
+        await this.logging(user.username, 'createTask', {task: newTask});
+        this.emits(user, 'createTask', {task: newTask});
+        return await this.notifyText(user, `created new task: ${newTask.title}`);
     }
 
-    archiveTask (user, {taskId}) {
-        const that = this;
-        return co(function* () {
-            const archivedTask = yield Task.archive(that.projectId, taskId);
-            yield that.logging(user.username, 'archiveTask', {task: archivedTask});
-            that.emits(user, 'archiveTask', {task: archivedTask});
-            return yield that.notifyText(user, `archived task: ${archivedTask.title}`);
-        });
+    async archiveTask (user, {taskId}) {
+        const archivedTask = await Task.archive(this.projectId, taskId);
+        await this.logging(user.username, 'archiveTask', {task: archivedTask});
+        this.emits(user, 'archiveTask', {task: archivedTask});
+        return await this.notifyText(user, `archived task: ${archivedTask.title}`);
     }
 
-    updateTaskStatus (user, {taskId, updateParams: {userId, stageId}}) {
-        const that = this;
-        return co(function* () {
-            const updatedTask = yield Task.updateStatus(that.projectId, taskId, {userId, stageId});
-            const assignedUser = userId && (yield Member.findByUserId(that.projectId, userId));
-            const assignedUsername = assignedUser && assignedUser.username;
-            const stage = yield Stage.findById(that.projectId, stageId);
-            yield that.logging(user.username, 'updateTaskStatus', {task: updatedTask});
-            that.emits(user, 'updateTaskStatus', {task: updatedTask});
-            return yield that.notifyText(user, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}`);
-        });
+    async updateTaskStatus (user, {taskId, updateParams: {userId, stageId}}) {
+        const updatedTask = await Task.updateStatus(this.projectId, taskId, {userId, stageId});
+        const assignedUser = userId && (await Member.findByUserId(this.projectId, userId));
+        const assignedUsername = assignedUser && assignedUser.username;
+        const stage = await Stage.findById(this.projectId, stageId);
+        await this.logging(user.username, 'updateTaskStatus', {task: updatedTask});
+        this.emits(user, 'updateTaskStatus', {task: updatedTask});
+        return await this.notifyText(user, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}`);
     }
 
-    updateTaskContent (user, {taskId, updateParams: {title, body, costId}}) {
-        const that = this;
-        return co(function* () {
-            const updatedTask = yield Task.updateContent(that.projectId, taskId, {title, body, costId});
-            yield that.logging(user.username, 'updateTaskContent', {task: updatedTask});
-            that.emits(user, 'updateTaskContent', {task: updatedTask});
-            return yield that.notifyText(user, `updateTask: {task: ${updatedTask.title}}`);
-        });
+    async updateTaskContent (user, {taskId, updateParams: {title, body, costId}}) {
+        const updatedTask = await Task.updateContent(this.projectId, taskId, {title, body, costId});
+        await this.logging(user.username, 'updateTaskContent', {task: updatedTask});
+        this.emits(user, 'updateTaskContent', {task: updatedTask});
+        return await this.notifyText(user, `updateTask: {task: ${updatedTask.title}}`);
     }
 
-    updateTaskWorkingState (user, {taskId, isWorking}) {
-        const that = this;
-        return co(function* () {
-            const task = yield Task.updateWorkingState(that.projectId, taskId, isWorking);
-            yield that.logging(user.username, 'updateTaskWorkingState', {task});
-            that.emits(user, 'updateTaskWorkingState', {task, isWorking});
-            return yield that.notifyText(user, `${isWorking ? 'start' : 'stop'} to work: ${task.title}`);
-        });
+    async updateTaskWorkingState (user, {taskId, isWorking}) {
+        const task = await Task.updateWorkingState(this.projectId, taskId, isWorking);
+        await this.logging(user.username, 'updateTaskWorkingState', {task});
+        this.emits(user, 'updateTaskWorkingState', {task, isWorking});
+        return await this.notifyText(user, `${isWorking ? 'start' : 'stop'} to work: ${task.title}`);
     }
 
-    updateTaskWorkHistory (user, {taskId, works}) {
-        const that = this;
-        return co(function* () {
-            const task = yield Task.updateWorkHistory(that.projectId, taskId, works);
-            yield that.logging(user.username, 'updateTaskWorkHistory', {});
-            that.emits(user, 'updateTaskWorkHistory', {task, works: task.works});
-            return yield that.notifyText(user, `updated work history: ${task.title}`);
-        });
+    async updateTaskWorkHistory (user, {taskId, works}) {
+        const task = await Task.updateWorkHistory(this.projectId, taskId, works);
+        await this.logging(user.username, 'updateTaskWorkHistory', {});
+        this.emits(user, 'updateTaskWorkHistory', {task, works: task.works});
+        return await this.notifyText(user, `updated work history: ${task.title}`);
     }
 
-    updateTaskOrder (user, {taskId, beforeTaskId}) {
-        const that = this;
-        return co(function* () {
-            const {task, beforeTask, updated} = yield Task.updateOrder(that.projectId, taskId, beforeTaskId);
-            if (!updated) { return Promise.resolve(); }
-            yield that.logging(user.username, 'updateTaskOrder', {});
-            that.emits(user, 'updateTaskOrder', {task, beforeTask});
-            return yield that.notifyText(user, `update task order: insert ${task.title} before ${beforeTask ? beforeTask.title : null}`);
-        });
+    async updateTaskOrder (user, {taskId, beforeTaskId}) {
+        const {task, beforeTask, updated} = await Task.updateOrder(this.projectId, taskId, beforeTaskId);
+        if (!updated) { return Promise.resolve(); }
+        await this.logging(user.username, 'updateTaskOrder', {});
+        this.emits(user, 'updateTaskOrder', {task, beforeTask});
+        return await this.notifyText(user, `update task order: insert ${task.title} before ${beforeTask ? beforeTask.title : null}`);
     }
 
-    updateTaskStatusAndOrder (user, {taskId, beforeTaskId, updateParams: {userId, stageId}}) {
-        const that = this;
-        return co(function* () {
-            const {task: updatedTask, beforeTask, updatedOrder} = yield Task.updateStatusAndOrder(that.projectId, taskId, beforeTaskId, {userId, stageId});
-            const assignedUser = userId && (yield Member.findByUserId(that.projectId, userId));
-            const assignedUsername = assignedUser && assignedUser.username;
-            const stage = yield Stage.findById(that.projectId, stageId);
-            const beforeTaskTitle = beforeTask ? beforeTask.title : null;
-            if (updatedOrder) {
-                yield that.logging(user.username, 'updateTaskStatusAndOrder', {task: updatedTask, beforeTask});
-                that.emits(user, 'updateTaskStatusAndOrder', {task: updatedTask, beforeTask});
-                return yield that.notifyText(user, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}, before: ${beforeTaskTitle}`);
-            } else {
-                yield that.logging(user.username, 'updateTaskStatus', {task: updatedTask});
-                that.emits(user, 'updateTaskStatus', {task: updatedTask});
-                return yield that.notifyText(user, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}`);
-            }
-        });
+    async updateTaskStatusAndOrder (user, {taskId, beforeTaskId, updateParams: {userId, stageId}}) {
+        const {task: updatedTask, beforeTask, updatedOrder} = await Task.updateStatusAndOrder(this.projectId, taskId, beforeTaskId, {userId, stageId});
+        const assignedUser = userId && (await Member.findByUserId(this.projectId, userId));
+        const assignedUsername = assignedUser && assignedUser.username;
+        const stage = await Stage.findById(this.projectId, stageId);
+        const beforeTaskTitle = beforeTask ? beforeTask.title : null;
+        if (updatedOrder) {
+            await this.logging(user.username, 'updateTaskStatusAndOrder', {task: updatedTask, beforeTask});
+            this.emits(user, 'updateTaskStatusAndOrder', {task: updatedTask, beforeTask});
+            return await this.notifyText(user, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}, before: ${beforeTaskTitle}`);
+        } else {
+            await this.logging(user.username, 'updateTaskStatus', {task: updatedTask});
+            this.emits(user, 'updateTaskStatus', {task: updatedTask});
+            return await this.notifyText(user, `updatedTask: {task: ${updatedTask.title}, username: ${assignedUsername}, stage: ${stage.name}`);
+        }
     }
 
-    attachLabel (user, {taskId, labelId}) {
-        const that = this;
-        return co(function* () {
-            const {task, label} = yield Label.attach(that.projectId, labelId, taskId);
-            yield that.logging(user.username, 'attachLabel', {task, label});
-            that.emits(user, 'attachLabel', {task, label});
-            return yield that.notifyText(user, `attached label: {label: ${label.name}, task: ${task.name}}`);
-        });
+    async attachLabel (user, {taskId, labelId}) {
+        const {task, label} = await Label.attach(this.projectId, labelId, taskId);
+        await this.logging(user.username, 'attachLabel', {task, label});
+        this.emits(user, 'attachLabel', {task, label});
+        return await this.notifyText(user, `attached label: {label: ${label.name}, task: ${task.name}}`);
     }
 
-    detachLabel (user, {taskId, labelId}) {
-        const that = this;
-        return co(function* () {
-            const {task, label} = yield Label.detach(that.projectId, labelId, taskId);
-            yield that.logging(user.username, 'detachLabel', {task, label});
-            that.emits(user, 'detachLabel', {task, label});
-            return yield that.notifyText(user, `detached label: {label: ${label.name}, task: ${task.name}}`);
-        });
+    async detachLabel (user, {taskId, labelId}) {
+        const {task, label} = await Label.detach(this.projectId, labelId, taskId);
+        await this.logging(user.username, 'detachLabel', {task, label});
+        this.emits(user, 'detachLabel', {task, label});
+        return await this.notifyText(user, `detached label: {label: ${label.name}, task: ${task.name}}`);
     }
 
-    logging (username, action, content = {}, {transaction} = {}) {
+    async logging (username, action, content = {}, {transaction} = {}) {
         return db.Log.create({projectId: this.projectId, action, content: JSON.stringify(_.defaults(content, {operator: username}))}, {transaction});
     }
 

@@ -1,5 +1,4 @@
 const socketio = require('socket.io');
-const co = require('co');
 const sessionMiddleware = require('../../lib/modules/sessionMiddleware');
 const Project = require('../../lib/models/project');
 const SocketUser = require('./user');
@@ -38,53 +37,47 @@ class SocketRouter {
             this.users[socket.id] = user;
             console.log(`new connected: ${socket.id} , ${user.username}`);
 
-            const that = this;
-            socket.on('joinProjectRoom', ({projectId}) => co(function* () {
-                yield that.joinProjectRoom(user, projectId);
-            }).catch(err => console.error(err)));
+            socket.on('joinProjectRoom', ({projectId}) => (async () => {
+                await this.joinProjectRoom(user, projectId);
+            })().catch(err => console.error(err)));
 
-            socket.on('leaveProjectRoom', () => co(function* () {
-                yield that.leaveProjectRoom(user);
-            }).catch(err => console.error(err)));
+            socket.on('leaveProjectRoom', () => (async () => {
+                await this.leaveProjectRoom(user);
+            })().catch(err => console.error(err)));
 
-            socket.on('disconnect', () => co(function* () {
+            socket.on('disconnect', () => (async () => {
                 if (user.projectId) {
-                    yield that.leaveProjectRoom(user);
+                    await this.leaveProjectRoom(user);
                 }
                 console.log(`disconnect: ${socket.id} , ${user.username}`);
                 user.active = false;
-                delete that.users[socket.id];
-            }).catch(err => console.error(err)));
+                delete this.users[socket.id];
+            })().catch(err => console.error(err)));
         });
     }
 
-    joinProjectRoom (user, projectId) {
-        const that = this;
-        return co(function* () {
-            const project = yield Project.findById(projectId, {include: []});
-            if (!project) throw new Error(`invalid project id: ${projectId}`);
+    async joinProjectRoom (user, projectId) {
+        const project = await Project.findById(projectId, {include: []});
+        if (!project) throw new Error(`invalid project id: ${projectId}`);
 
-            if (!that.projects[projectId]) {
-                console.log(`create room: ${projectId}`);
-                that.projects[projectId] = new SocketProject(that.io, projectId);
-            }
+        if (!this.projects[projectId]) {
+            console.log(`create room: ${projectId}`);
+            this.projects[projectId] = new SocketProject(this.io, projectId);
+        }
 
-            const projectSocket = that.projects[projectId];
+        const projectSocket = this.projects[projectId];
 
-            user.projectId = projectId;
-            user.socket.join(projectId);
-            yield projectSocket.joinProjectRoom(user);
+        user.projectId = projectId;
+        user.socket.join(projectId);
+        await projectSocket.joinProjectRoom(user);
 
-            return projectSocket;
-        });
+        return projectSocket;
     }
 
-    leaveProjectRoom (user) {
+    async leaveProjectRoom (user) {
         if (user.projectId && this.projects[user.projectId]) {
-            return this.projects[user.projectId].leaveProjectRoom(user)
-                .then(() => user.socket.leave(user.projectId));
-        } else {
-            return Promise.resolve();
+            await this.projects[user.projectId].leaveProjectRoom(user);
+            user.socket.leave(user.projectId);
         }
     }
 }
