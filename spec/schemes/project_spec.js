@@ -9,29 +9,28 @@ describe('schemes', () => {
         afterEach(() => helper.db.clean());
 
         describe('#create', () => {
-            beforeEach(() => {
-                return db.User.create({username: 'user1'})
-                    .then(user => db.Project.create({name: 'project1', createUserId: user.id}));
+            beforeEach(async () => {
+                const user = await db.User.create({username: 'user1'});
+                await db.Project.create({name: 'project1', createUserId: user.id});
             });
 
-            it('should create a project', () => {
-                return db.Project.findAll({include: [db.Stage, db.User, {model: db.Stage, as: 'defaultStage'}]})
-                    .then(projects => {
-                        expect(projects).to.have.lengthOf(1);
-                        expect(projects[0]).to.have.property('name', 'project1');
+            it('should create a project', async () => {
+                const projects = await db.Project.findAll({include: [db.Stage, db.User, {model: db.Stage, as: 'defaultStage'}]});
 
-                        // id
-                        expect(projects[0]).to.have.property('id');
-                        expect(projects[0].id).to.have.lengthOf(12);
+                expect(projects).to.have.lengthOf(1);
+                expect(projects[0]).to.have.property('name', 'project1');
 
-                        // users
-                        expect(projects[0]).to.have.property('users');
-                        expect(projects[0].users).to.have.lengthOf(0);
+                // id
+                expect(projects[0]).to.have.property('id');
+                expect(projects[0].id).to.have.lengthOf(12);
 
-                        // stages
-                        expect(projects[0]).to.have.property('stages');
-                        expect(projects[0].stages).to.have.lengthOf(0);
-                    });
+                // users
+                expect(projects[0]).to.have.property('users');
+                expect(projects[0].users).to.have.lengthOf(0);
+
+                // stages
+                expect(projects[0]).to.have.property('stages');
+                expect(projects[0].stages).to.have.lengthOf(0);
             });
         });
     });
