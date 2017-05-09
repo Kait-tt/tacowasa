@@ -1,5 +1,4 @@
 'use strict';
-const co = require('co');
 const db = require('../../schemas');
 const Iteration = require('../../models/iteration');
 const Project = require('../../../../lib/models/project');
@@ -12,14 +11,12 @@ describe('addons', () => {
             describe('Iteration', () => {
                 let project;
 
-                before(co.wrap(function* () {
-                    const _project = yield Project.create('project1', 'user1');
-                    project = yield Project.findById(_project.id);
-                }));
+                before(async () => {
+                    const _project = await Project.create('project1', 'user1');
+                    project = await Project.findById(_project.id);
+                });
                 after(() => helper.db.clean());
-                afterEach(co.wrap(function* () {
-                    yield db.Iteration.destroy({where: {}});
-                }));
+                afterEach(() => db.Iteration.destroy({where: {}}));
 
                 describe('#_isValidDate', () => {
                     let date;
@@ -72,12 +69,12 @@ describe('addons', () => {
                         endTime: Date.now()
                     }));
 
-                    it('should create new iteration', co.wrap(function* () {
-                        const iterations = yield Iteration.findByProjectId(project.id);
+                    it('should create new iteration', async () => {
+                        const iterations = await Iteration.findByProjectId(project.id);
                         expect(iterations).to.have.lengthOf(1);
                         expect(iterations).to.have.deep.property('[0].startTime');
                         expect(iterations).to.have.deep.property('[0].endTime');
-                    }));
+                    });
 
                     context('and create', () => {
                         beforeEach(() => Iteration.create(project.id, {
@@ -85,10 +82,10 @@ describe('addons', () => {
                             endTime: Date.now() + 10000
                         }));
 
-                        it('should create new iteration', co.wrap(function* () {
-                            const iterations = yield Iteration.findByProjectId(project.id);
+                        it('should create new iteration', async () => {
+                            const iterations = await Iteration.findByProjectId(project.id);
                             expect(iterations).to.have.lengthOf(2);
-                        }));
+                        });
                     });
                 });
             });

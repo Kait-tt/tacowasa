@@ -1,5 +1,4 @@
 'use strict';
-const co = require('co');
 const config = require('config');
 const moment = require('moment');
 const AddonSocketOn = require('../addon/socket_on');
@@ -19,64 +18,52 @@ class StatsSocketOn extends AddonSocketOn {
             'updateNotifyStagnant'];
     }
 
-    static fetchStats (socketProject, user) {
-        return co(function* () {
-            yield socketProject.logging(user.username, 'fetchStats');
-            StatsSocketOn.stats(socketProject, user);
-            StatsSocketOn.startStatsInterval(socketProject, user);
-        });
+    static async fetchStats (socketProject, user) {
+        await socketProject.logging(user.username, 'fetchStats');
+        StatsSocketOn.stats(socketProject, user);
+        StatsSocketOn.startStatsInterval(socketProject, user);
     }
 
-    static createIteration (socketProject, user, {startTime, endTime}) {
-        return co(function* () {
-            const iteration = yield Iteration.create(socketProject.projectId, {startTime, endTime});
-            yield socketProject.logging(user.username, 'createIteration', {startTime, endTime});
-            socketProject.emits(user, 'createIteration', {iteration});
-            yield socketProject.notifyText(user, `createIteration: ${startTime} - ${endTime}`);
-            yield StatsSocketOn.stats(socketProject, user, {force: true});
-        });
+    static async createIteration (socketProject, user, {startTime, endTime}) {
+        const iteration = await Iteration.create(socketProject.projectId, {startTime, endTime});
+        await socketProject.logging(user.username, 'createIteration', {startTime, endTime});
+        socketProject.emits(user, 'createIteration', {iteration});
+        await socketProject.notifyText(user, `createIteration: ${startTime} - ${endTime}`);
+        await StatsSocketOn.stats(socketProject, user, {force: true});
     }
 
-    static removeIteration (socketProject, user, {iterationId}) {
-        return co(function* () {
-            yield Iteration.remove(socketProject.projectId, iterationId);
-            yield socketProject.logging(user.username, 'removeIteration', {iterationId});
-            socketProject.emits(user, 'removeIteration', {iterationId});
-            yield socketProject.notifyText(user, `removeIteration: ${iterationId}`);
-            yield StatsSocketOn.stats(socketProject, user, {force: true});
-        });
+    static async removeIteration (socketProject, user, {iterationId}) {
+        await Iteration.remove(socketProject.projectId, iterationId);
+        await socketProject.logging(user.username, 'removeIteration', {iterationId});
+        socketProject.emits(user, 'removeIteration', {iterationId});
+        await socketProject.notifyText(user, `removeIteration: ${iterationId}`);
+        await StatsSocketOn.stats(socketProject, user, {force: true});
     }
 
-    static updateIteration (socketProject, user, {iterationId, startTime, endTime}) {
-        return co(function* () {
-            const iteration = yield Iteration.update(socketProject.projectId, iterationId, {startTime, endTime});
-            yield socketProject.logging(user.username, 'updateIteration', {iterationId, startTime, endTime});
-            socketProject.emits(user, 'updateIteration', {iteration});
-            yield socketProject.notifyText(user, `updateIteration: ${iterationId}, ${startTime} - ${endTime}`);
-            yield StatsSocketOn.stats(socketProject, user, {force: true});
-        });
+    static async updateIteration (socketProject, user, {iterationId, startTime, endTime}) {
+        const iteration = await Iteration.update(socketProject.projectId, iterationId, {startTime, endTime});
+        await socketProject.logging(user.username, 'updateIteration', {iterationId, startTime, endTime});
+        socketProject.emits(user, 'updateIteration', {iteration});
+        await socketProject.notifyText(user, `updateIteration: ${iterationId}, ${startTime} - ${endTime}`);
+        await StatsSocketOn.stats(socketProject, user, {force: true});
     }
 
-    static updatePromisedWorkTime (socketProject, user, {userId, iterationId, promisedMinutes}) {
-        return co(function* () {
-            const memberWorkTime = yield MemberWorkTime.updatePromisedWorkTime(socketProject.projectId, userId, iterationId, promisedMinutes);
-            yield socketProject.logging(user.username, 'updatePromisedWorkTime', {userId, iterationId, promisedMinutes});
-            socketProject.emits(user, 'updatePromisedWorkTime', {memberWorkTime});
-            const iteration = yield db.Iteration.findOne({where: {id: iterationId}});
-            const start = moment(iteration.startTime).format('YYYY-MM-DD');
-            const end = moment(iteration.endTime).format('YYYY-MM-DD');
-            yield socketProject.notifyText(user, `updatePromisedWorkTime: ${userId}, ${start} - ${end}, ${promisedMinutes}`);
-            yield StatsSocketOn.stats(socketProject, user, {force: true});
-        });
+    static async updatePromisedWorkTime (socketProject, user, {userId, iterationId, promisedMinutes}) {
+        const memberWorkTime = await MemberWorkTime.updatePromisedWorkTime(socketProject.projectId, userId, iterationId, promisedMinutes);
+        await socketProject.logging(user.username, 'updatePromisedWorkTime', {userId, iterationId, promisedMinutes});
+        socketProject.emits(user, 'updatePromisedWorkTime', {memberWorkTime});
+        const iteration = await db.Iteration.findOne({where: {id: iterationId}});
+        const start = moment(iteration.startTime).format('YYYY-MM-DD');
+        const end = moment(iteration.endTime).format('YYYY-MM-DD');
+        await socketProject.notifyText(user, `updatePromisedWorkTime: ${userId}, ${start} - ${end}, ${promisedMinutes}`);
+        await StatsSocketOn.stats(socketProject, user, {force: true});
     }
 
-    static updateNotifyStagnant (socketProject, user, {url}) {
-        return co(function* () {
-            yield socketProject.logging(user.username, 'updateNotifyStagnant', {url});
-            socketProject.emits(user, 'updateNotifyStagnant', {url});
-            yield StagnationTask.updateNotifyUrl(socketProject.projectId, {url});
-            yield socketProject.notifyText(user, `updateNotifyStagnant: ${url}`);
-        });
+    static async updateNotifyStagnant (socketProject, user, {url}) {
+        await socketProject.logging(user.username, 'updateNotifyStagnant', {url});
+        socketProject.emits(user, 'updateNotifyStagnant', {url});
+        await StagnationTask.updateNotifyUrl(socketProject.projectId, {url});
+        await socketProject.notifyText(user, `updateNotifyStagnant: ${url}`);
     }
 
     static startStatsInterval (socketProject, user) {
@@ -91,8 +78,8 @@ class StatsSocketOn extends AddonSocketOn {
     }
 
     static stats (socketProject, user, {force = false} = {}) {
-        return co(function* () {
-            const stats = yield ProjectStats.calcAll(socketProject.projectId, {force});
+        (async () => {
+            const stats = await ProjectStats.calcAll(socketProject.projectId, {force});
             user.socket.emit('stats', stats);
         }).catch(err => console.error(err));
     }

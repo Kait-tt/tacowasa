@@ -1,46 +1,41 @@
 'use strict';
-const co = require('co');
 const tableName = 'memberStats';
 const db = require('../schemas');
 
 module.exports = {
-    up: function(queryInterface, Sequelize) {
-        return co(function* () {
-            yield db.sequelize.query(`delete from ${tableName}`);
-            yield queryInterface.removeColumn(tableName, 'throughput');
-            yield queryInterface.addColumn(tableName, 'costId', {
-                allowNull: false,
-                type: Sequelize.INTEGER
-            });
-            yield queryInterface.addColumn(tableName, 'mean', {
-                allowNull: true,
-                type: Sequelize.FLOAT
-            });
-            yield queryInterface.addColumn(tableName, 'low', {
-                allowNull: true,
-                type: Sequelize.FLOAT
-            });
-            yield queryInterface.addColumn(tableName, 'high', {
-                allowNull: true,
-                type: Sequelize.FLOAT
-            });
-            yield queryInterface.addIndex(tableName, ['memberId', 'costId'], {
-                indexName: 'UniqueMemberAndCost',
-                indicesType: 'UNIQUE'
-            });
+    up: async function(queryInterface, Sequelize) {
+        await db.sequelize.query(`delete from ${tableName}`);
+        await queryInterface.removeColumn(tableName, 'throughput');
+        await queryInterface.addColumn(tableName, 'costId', {
+            allowNull: false,
+            type: Sequelize.INTEGER
+        });
+        await queryInterface.addColumn(tableName, 'mean', {
+            allowNull: true,
+            type: Sequelize.FLOAT
+        });
+        await queryInterface.addColumn(tableName, 'low', {
+            allowNull: true,
+            type: Sequelize.FLOAT
+        });
+        await queryInterface.addColumn(tableName, 'high', {
+            allowNull: true,
+            type: Sequelize.FLOAT
+        });
+        await queryInterface.addIndex(tableName, ['memberId', 'costId'], {
+            indexName: 'UniqueMemberAndCost',
+            indicesType: 'UNIQUE'
         });
     },
-    down: function(queryInterface, Sequelize) {
-        return co(function* () {
-            yield queryInterface.removeColumn(tableName, 'costId');
-            yield queryInterface.removeColumn(tableName, 'mean');
-            yield queryInterface.removeColumn(tableName, 'low');
-            yield queryInterface.removeColumn(tableName, 'high');
-            yield queryInterface.addColumn(tableName, 'throughput', {
-                allowNull: false,
-                type: Sequelize.FLOAT
-            });
-            yield queryInterface.removeIndex(tableName, 'UniqueMemberAndCost');
+    down: async function(queryInterface, Sequelize) {
+        await queryInterface.removeColumn(tableName, 'costId');
+        await queryInterface.removeColumn(tableName, 'mean');
+        await queryInterface.removeColumn(tableName, 'low');
+        await queryInterface.removeColumn(tableName, 'high');
+        await queryInterface.addColumn(tableName, 'throughput', {
+            allowNull: false,
+            type: Sequelize.FLOAT
         });
+        await queryInterface.removeIndex(tableName, 'UniqueMemberAndCost');
     }
 };
