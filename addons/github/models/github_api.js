@@ -1,6 +1,5 @@
 'use strict';
 const GitHub = require('github');
-const co = require('co');
 const config = require('config');
 const _ = require('lodash');
 const db = require('../schemas');
@@ -21,118 +20,107 @@ class GitHubAPI {
         }
     }
 
-    createTask (projectId, {id: taskId, title, body, stage, user: assignee, labels}, {transaction} = {}) {
-        const that = this;
-
-        return db.sequelize.transaction({transaction}, transaction => {
-            return co(function* () {
-                const repository = yield db.GitHubRepository.findOne({where: {projectId}, transaction});
-                if (!repository) { return null; }
-                const {username: user, reponame: repo} = repository;
-
-                const taskOnGitHub = yield that.api.issues.create({
-                    user,
-                    repo,
-                    title,
-                    body,
-                    labels,
-                    assignees: assignee ? [assignee.username] : []
-                });
-
-                if (['done', 'archive'].includes(stage.name)) {
-                    yield that.api.issues.edit({
-                        user, repo, state: 'closed', number: taskOnGitHub.number
-                    });
-                }
-
-                const serializedTask = yield GitHubAPI.serializeTask(projectId, taskOnGitHub, {transaction});
-
-                // relate github task
-                return yield db.GitHubTask.create({
-                    projectId,
-                    taskId,
-                    number: serializedTask.githubTask.number,
-                    isPullRequest: serializedTask.githubTask.isPullRequest
-                }, {transaction});
-            });
-        });
-    }
-
-    updateTask (projectId, {id: taskId, stage, user: assignee, title, body, labels}) {
-        const that = this;
-        return co(function* () {
-            const repository = yield db.GitHubRepository.findOne({where: {projectId}});
+    async createTask (projectId, {id: taskId, title, body, stage, user: assignee, labels}, {transaction} = {}) {
+        return db.transaction({transaction}, async transaction => {
+            const repository = await db.GitHubRepository.findOne({where: {projectId}, transaction});
             if (!repository) { return null; }
             const {username: user, reponame: repo} = repository;
 
-            const githubTask = yield db.GitHubTask.findOne({where: {
-                projectId, taskId
-            }});
-            if (!githubTask) { return null; }
-
-            return yield that.api.issues.edit({
+            const taskOnGitHub = await this.api.issues.create({
                 user,
                 repo,
-                number: githubTask.number,
                 title,
                 body,
-                state: ['archive', 'done'].includes(stage.name) ? 'closed' : 'open',
-                assignees: assignee ? [assignee.username] : [],
-                labels: labels.map(x => x.name)
+                labels,
+                assignees: assignee ? [assignee.username] : []
             });
+
+            if (['done', 'archive'].includes(stage.name)) {
+                await this.api.issues.edit({
+                    user, repo, state: 'closed', number: taskOnGitHub.number
+                });
+            }
+
+            const serializedTask = await GitHubAPI.serializeTask(projectId, taskOnGitHub, {transaction});
+
+            // relate github task
+            return await db.GitHubTask.create({
+                projectId,
+                taskId,
+                number: serializedTask.githubTask.number,
+                isPullRequest: serializedTask.githubTask.isPullRequest
+            }, {transaction});
         });
     }
 
-    importProject ({user, repo, createUsername}, {transaction} = {}) {
-        const that = this;
+    async updateTask (projectId, {id: taskId, stage, user: assignee, title, body, labels}) {
+        const repository = await db.GitHubRepository.findOne({where: {projectId}});
+        if (!repository) { return null; }
+        const {username: user, reponame: repo} = repository;
 
-        return db.sequelize.transaction({transaction}, transaction => {
-            return co(function* () {
-                const repository = yield that.fetchRepository({user, repo});
-                const project = yield Project.create(repo, createUsername, {transaction});
-                const projectId = project.id;
+        const githubTask = await db.GitHubTask.findOne({where: {
+            projectId, taskId
+        }});
+        if (!githubTask) { return null; }
 
-                // add github repository relation
-                yield db.GitHubRepository.create({
+        return await this.api.issues.edit({
+            user,
+            repo,
+            number: githubTask.number,
+            title,
+            body,
+            state: ['archive', 'done'].includes(stage.name) ? 'closed' : 'open',
+            assignees: assignee ? [assignee.username] : [],
+            labels: labels.map(x => x.name)
+        });
+    }
+
+    async importProject ({user, repo, createUsername}, {transaction} = {}) {
+        return db.transaction({transaction}, async transaction => {
+            const repository = await this.fetchRepository({user, repo});
+            const project = await Project.create(repo, createUsername, {transaction});
+            const projectId = project.id;
+
+            // add github repository relation
+            await db.GitHubRepository.create({
+                projectId,
+                username: user,
+                reponame: repo,
+                sync: true
+            }, {transaction});
+
+            // add users
+            for (let username of repository.users) {
+                if (username !== createUsername) {
+                    await Member.add(projectId, username, {}, {transaction});
+                }
+            }
+
+            // add labels
+            await Label.destroyAll(projectId, {transaction});
+            for (let label of repository.labels) {
+                await Label.create(projectId, label, {transaction});
+            }
+
+            // add tasks and github task
+            for (let task of _.reverse(repository.tasks)) {
+                task = await GitHubAPI.serializeTask(projectId, task, {transaction});
+                const addedTask = await Task.create(projectId, task, {transaction});
+                await db.GitHubTask.create({
                     projectId,
-                    username: user,
-                    reponame: repo,
-                    sync: true
+                    taskId: addedTask.id,
+                    number: task.githubTask.number,
+                    isPullRequest: task.githubTask.isPullRequest
                 }, {transaction});
+            }
 
-                // add users
-                for (let username of repository.users) {
-                    if (username !== createUsername) {
-                        yield Member.add(projectId, username, {}, {transaction});
-                    }
-                }
+            await this.createHook({projectId, user, repo});
 
-                // add labels
-                yield Label.destroyAll(projectId, {transaction});
-                for (let label of repository.labels) {
-                    yield Label.create(projectId, label, {transaction});
-                }
-
-                // add tasks and github task
-                for (let task of _.reverse(repository.tasks)) {
-                    task = yield GitHubAPI.serializeTask(projectId, task, {transaction});
-                    const addedTask = yield Task.create(projectId, task, {transaction});
-                    yield db.GitHubTask.create({
-                        projectId,
-                        taskId: addedTask.id,
-                        number: task.githubTask.number,
-                        isPullRequest: task.githubTask.isPullRequest
-                    }, {transaction});
-                }
-
-                yield that.createHook({projectId, user, repo});
-
-                return Project.findById(projectId, {transaction});
-            });
+            return await Project.findById(projectId, {transaction});
         });
     }
 
-    createHook ({projectId, user, repo}) {
+    async createHook ({projectId, user, repo}) {
         return this.api.repos.createHook({
             repo,
             user,
@@ -151,121 +139,109 @@ class GitHubAPI {
     //   task: {title, body, labels}
     //   label: {name, color}
     // 存在しないタスクについては考慮しない
-    syncAllTasksAndLabelsFromGitHub (projectId, {transaction} = {}) {
-        const that = this;
-        return db.sequelize.transaction({transaction}, transaction => {
-            return co(function*() {
-                const repository = yield db.GitHubRepository.findOne({where: {projectId}, transaction});
-                if (!repository) { throw Error(`repository of ${projectId} was not found`); }
-                const {username: user, reponame: repo} = repository;
+    async syncAllTasksAndLabelsFromGitHub (projectId, {transaction} = {}) {
+        return db.transaction({transaction}, async transaction => {
+            const repository = await db.GitHubRepository.findOne({where: {projectId}, transaction});
+            if (!repository) { throw Error(`repository of ${projectId} was not found`); }
+            const {username: user, reponame: repo} = repository;
 
-                const tasksOnGitHub = yield that.fetchTasks({user, repo});
-                const labelsOnGitHub = yield that.api.issues.getLabels({user, repo, per_page: 100});
+            const tasksOnGitHub = await this.fetchTasks({user, repo});
+            const labelsOnGitHub = await this.api.issues.getLabels({user, repo, per_page: 100});
 
-                // remove all labels and task labels
-                const oldLabels = yield db.Label.findAll({where: {projectId}, transaction});
-                for (let oldLabel of oldLabels) {
-                    yield db.TaskLabel.destroy({where: {labelId: oldLabel.id}, transaction});
+            // remove all labels and task labels
+            const oldLabels = await db.Label.findAll({where: {projectId}, transaction});
+            for (let oldLabel of oldLabels) {
+                await db.TaskLabel.destroy({where: {labelId: oldLabel.id}, transaction});
+            }
+            await db.Label.destroy({where: {projectId}, transaction});
+
+            // add all labels
+            const labels = [];
+            for (let labelOnGitHub of labelsOnGitHub) {
+                const label = await db.Label.create({
+                    projectId,
+                    name: labelOnGitHub.name,
+                    color: labelOnGitHub.color
+                }, {transaction});
+                labels.push(label);
+            }
+
+            // attach all task labels
+            for (let taskOnGitHub of tasksOnGitHub) {
+                const githubTask = await db.GitHubTask.findOne({where: {number: String(taskOnGitHub.number), projectId}, transaction});
+                if (!githubTask) { continue; }
+                const task = await db.Task.findOne({where: {id: githubTask.taskId, projectId}, transaction});
+                if (!task) { continue; }
+                for (let taskLabelOnGitHub of taskOnGitHub.labels || []) {
+                    const label = _.find(labels, {name: taskLabelOnGitHub.name});
+                    if (!label) { continue; }
+                    await db.TaskLabel.create({taskId: task.id, labelId: label.id}, {transaction});
                 }
-                yield db.Label.destroy({where: {projectId}, transaction});
-
-                // add all labels
-                const labels = [];
-                for (let labelOnGitHub of labelsOnGitHub) {
-                    const label = yield db.Label.create({
-                        projectId,
-                        name: labelOnGitHub.name,
-                        color: labelOnGitHub.color
-                    }, {transaction});
-                    labels.push(label);
-                }
-
-                // attach all task labels
-                for (let taskOnGitHub of tasksOnGitHub) {
-                    const githubTask = yield db.GitHubTask.findOne({where: {number: String(taskOnGitHub.number), projectId}, transaction});
-                    if (!githubTask) { continue; }
-                    const task = yield db.Task.findOne({where: {id: githubTask.taskId, projectId}, transaction});
-                    if (!task) { continue; }
-                    for (let taskLabelOnGitHub of taskOnGitHub.labels || []) {
-                        const label = _.find(labels, {name: taskLabelOnGitHub.name});
-                        if (!label) { continue; }
-                        yield db.TaskLabel.create({taskId: task.id, labelId: label.id}, {transaction});
-                    }
-                }
-            });
+            }
         });
     }
 
-    fetchRepository ({user, repo}) {
-        const that = this;
+    async fetchRepository ({user, repo}) {
+        const users = await this.api.repos.getCollaborators({user, repo});
+        const tasks = await this.fetchTasks({user, repo});
+        const labels = await this.api.issues.getLabels({user, repo, per_page: 100});
 
-        return co(function* () {
-            const users = yield that.api.repos.getCollaborators({user, repo});
-            const tasks = yield that.fetchTasks({user, repo});
-            const labels = yield that.api.issues.getLabels({user, repo, per_page: 100});
-
-            return {
-                repository: {user, repo, url: `https://github.com/${user}/${repo}`},
-                tasks,
-                users: _.map(users, 'login'),
-                labels
-            };
-        });
+        return {
+            repository: {user, repo, url: `https://github.com/${user}/${repo}`},
+            tasks,
+            users: _.map(users, 'login'),
+            labels
+        };
     }
 
-    fetchTasks ({user, repo, state = 'all', perPage = 100, page = 1}) {
-        const that = this;
+    async fetchTasks ({user, repo, state = 'all', perPage = 100, page = 1}) {
         const tasks = [];
 
-        return co(function* () {
-            let data;
-            do {
-                data = yield that.api.issues.getForRepo({user, repo, state, per_page: perPage, page});
-                data.filter(x => !x.pull_request).forEach(x => tasks.push(x));
-                page = GitHubAPI.getNext(data.meta);
-            } while (page);
-            return tasks;
-        });
+        do {
+            const data = await this.api.issues.getForRepo({user, repo, state, per_page: perPage, page});
+            data.filter(x => !x.pull_request).forEach(x => tasks.push(x));
+            page = GitHubAPI.getNext(data.meta);
+        } while (page);
+
+        return tasks;
     }
 
     // github issue -> tacowasa task
-    static serializeTask (projectId, task, {transaction} = {}) {
-        return co(function* () {
-            const project = yield db.Project.findOne({where: {id: projectId}, transaction});
+    static async serializeTask (projectId, task, {transaction} = {}) {
+        const project = await db.Project.findOne({where: {id: projectId}, transaction});
 
-            let stageName;
-            if (task.state === 'open') {
-                stageName = task.assignees.length ? 'todo' : 'issue';
-            } else {
-                stageName = 'archive';
+        let stageName;
+        if (task.state === 'open') {
+            stageName = task.assignees.length ? 'todo' : 'issue';
+        } else {
+            stageName = 'archive';
+        }
+        const stage = await db.Stage.findOne({where: {projectId, name: stageName}, transaction});
+
+        let user;
+        if (stage.assigned && task.assignees.length) {
+            const assignee = task.assignees[0];
+            user = await User.findOrCreate(assignee.login, {transaction});
+        } else {
+            user = null;
+        }
+
+        const projectLabels = await db.Label.findAll({where: {projectId}, transaction});
+        const labels = _.compact(task.labels.map(({name}) => _.find(projectLabels, {name})));
+
+        return {
+            title: task.title || '',
+            body: task.body || '',
+            projectId,
+            stageId: stage.id,
+            userId: user ? user.id : null,
+            costId: project.defaultCostId,
+            labelIds: _.map(labels, 'id'),
+            githubTask: {
+                number: task.number,
+                isPullRequest: task.pull_request
             }
-            const stage = yield db.Stage.findOne({where: {projectId, name: stageName}, transaction});
-
-            let user;
-            if (stage.assigned && task.assignees.length) {
-                const assignee = task.assignees[0];
-                user = yield User.findOrCreate(assignee.login, {transaction});
-            } else {
-                user = null;
-            }
-
-            const projectLabels = yield db.Label.findAll({where: {projectId}, transaction});
-            const labels = _.compact(task.labels.map(({name}) => _.find(projectLabels, {name})));
-
-            return {
-                title: task.title || '',
-                body: task.body || '',
-                projectId,
-                stageId: stage.id,
-                userId: user ? user.id : null,
-                costId: project.defaultCostId,
-                labelIds: _.map(labels, 'id'),
-                githubTask: {
-                    number: task.number,
-                    isPullRequest: task.pull_request
-                }
-            };
-        });
+        };
     }
 
     static getNext (meta) {
