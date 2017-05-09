@@ -1,5 +1,4 @@
 'use strict';
-const co = require('co');
 const _ = require('lodash');
 const fs = require('fs');
 const db = require('../addons/github/schemas');
@@ -50,74 +49,70 @@ function serializeMongoJSON (str) {
 
 const users = [];
 
-function findUsers () {
+async function findUsers () {
     const srcUsers = serializeMongoJSON(fs.readFileSync(`${inputDir}/users.json`, 'utf8'));
-    return co(function* () {
-        for (let {_id, userName: username} of srcUsers) {
-            const user = yield db.User.findOne({where: {username}});
-            users.push(_.assign({_id}, user.toJSON()));
-        }
-    });
+    for (let {_id, userName: username} of srcUsers) {
+        const user = await db.User.findOne({where: {username}});
+        users.push(_.assign({_id}, user.toJSON()));
+    }
 }
 
-function updateTaskStatus () {
+async function updateTaskStatus () {
     const srcProjects = serializeMongoJSON(fs.readFileSync(`${inputDir}/projects.json`, 'utf8'));
     const githubApi = new GitHubAPI(githubToken);
 
-    return co(function* () {
-        const project = _.find(srcProjects, {id: projectId});
-        if (!project) { throw new Error(`project was not found: ${projectId}`); }
+    const project = _.find(srcProjects, {id: projectId});
+    if (!project) { throw new Error(`project was not found: ${projectId}`); }
 
-        for (let {assignee, stage, github: {number: githubNumber}} of project.issues) {
-            const githubTask = yield db.GitHubTask.findOne({where: {projectId: project.id, number: String(githubNumber)}});
-            const task = yield db.Task.findOne({
-                where: {
-                    id: githubTask.taskId
-                },
-                include: [
-                    {model: db.Stage, as: 'stage'},
-                    {model: db.User, as: 'user'}
-                ]});
+    for (let {assignee, stage, github: {number: githubNumber}} of project.issues) {
+        const githubTask = await db.GitHubTask.findOne({where: {projectId: project.id, number: String(githubNumber)}});
+        const task = await db.Task.findOne({
+            where: {
+                id: githubTask.taskId
+            },
+            include: [
+                {model: db.Stage, as: 'stage'},
+                {model: db.User, as: 'user'}
+            ]});
 
-            let username = null;
-            let stageName = stage;
+        let username = null;
+        let stageName = stage;
 
-            if (assignee) {
-                const user = _.find(users, {_id: assignee});
-                if (!user) { throw new Error(`user not found: ${assignee}`); }
-                username = user.username;
-            }
-
-            const curUsername = task.user ? task.user.username : null;
-            if (task.stage.name === stageName && curUsername === username) { continue; }
-
-            console.log(`update task: ${task.title} , id : ${task.id} , number : ${githubTask.number}`);
-
-            const nextStage = yield db.Stage.findOne({where: {projectId, name: stageName}});
-            const nextUser = username ? (yield db.User.findOne({where: {username}})) : null;
-            yield Task.updateStatus(projectId, task.id, {
-                userId: nextUser ? nextUser.id : null,
-                stageId: nextStage.id
-            });
-
-            const updatedTask = yield Task.findById(task.id);
-            if (nextUser && nextUser.username !== 'snakazawa') {
-                updatedTask.user = null;
-            }
-            yield githubApi.updateTask(projectId, updatedTask);
+        if (assignee) {
+            const user = _.find(users, {_id: assignee});
+            if (!user) { throw new Error(`user not found: ${assignee}`); }
+            username = user.username;
         }
-    });
+
+        const curUsername = task.user ? task.user.username : null;
+        if (task.stage.name === stageName && curUsername === username) { continue; }
+
+        console.log(`update task: ${task.title} , id : ${task.id} , number : ${githubTask.number}`);
+
+        const nextStage = await db.Stage.findOne({where: {projectId, name: stageName}});
+        const nextUser = username ? (await db.User.findOne({where: {username}})) : null;
+        await Task.updateStatus(projectId, task.id, {
+            userId: nextUser ? nextUser.id : null,
+            stageId: nextStage.id
+        });
+
+        const updatedTask = await Task.findById(task.id);
+        if (nextUser && nextUser.username !== 'snakazawa') {
+            updatedTask.user = null;
+        }
+        await githubApi.updateTask(projectId, updatedTask);
+    }
 }
 
 function main () {
-    co(function* () {
+    (async () => {
         console.log('find users...');
-        yield findUsers();
+        await findUsers();
         console.log('done');
         console.log('update task status...');
-        yield updateTaskStatus();
+        await updateTaskStatus();
         console.log('done');
         // return Promise.reject('test reject'); // for test
-    }).catch(err => console.error(err));
+    })().catch(err => console.error(err));
 }
 

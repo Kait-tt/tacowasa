@@ -30,9 +30,9 @@ const changeLogs = pickChangeStateLog(srcLogs);
 
 const _sid = setTimeout(() => {}, 100000); // for error catch
 
-db.coTransaction({}, function* (transaction) {
+db.transaction(async transaction => {
     for (let {id: projectId, name, issues} of srcProjects) {
-        const project = yield db.Project.findOne({where: {id: projectId}, transaction});
+        const project = await db.Project.findOne({where: {id: projectId}, transaction});
         if (!project) {
             console.log(`${name} project was not found`);
             continue;
@@ -41,11 +41,11 @@ db.coTransaction({}, function* (transaction) {
         console.log(`sync : ${name} project...`);
 
         for (let {_id, title, github, created_at: createdAt} of issues) {
-            const githubTask = yield db.GitHubTask.findOne({where: {projectId, number: github.number}, transaction});
+            const githubTask = await db.GitHubTask.findOne({where: {projectId, number: github.number}, transaction});
             if (!githubTask) {
                 throw new Error(`github task was not found : ${title}`);
             }
-            let task = yield db.Task.findOne({where: {id: githubTask.taskId}, include: [{model: db.Stage, as: 'stage'}], transaction});
+            let task = await db.Task.findOne({where: {id: githubTask.taskId}, include: [{model: db.Stage, as: 'stage'}], transaction});
             if (!task) {
                 throw new Error(`task was not found: ${title}`);
             }
@@ -54,10 +54,10 @@ db.coTransaction({}, function* (transaction) {
             if (createdAt && Number(new Date(task.createdAt)) !== Number(new Date(createdAt))) {
                 console.log(`fix createdAt of ${task.id} to ${new Date(createdAt)} from ${new Date(task.createdAt)}`);
                 const createdAtStr = moment(createdAt).utcOffset('+00:00').format();
-                yield db.sequelize.query(`update tasks set createdAt = "${createdAtStr}" where id = ${task.id}`);
+                await db.sequelize.query(`update tasks set createdAt = "${createdAtStr}" where id = ${task.id}`);
             }
 
-            task = yield db.Task.findOne({where: {id: githubTask.taskId}, include: [{model: db.Stage, as: 'stage'}], transaction});
+            task = await db.Task.findOne({where: {id: githubTask.taskId}, include: [{model: db.Stage, as: 'stage'}], transaction});
 
             // update completed at
             const taskLogs = _.filter(changeLogs, {issueId: _id});
@@ -74,7 +74,7 @@ db.coTransaction({}, function* (transaction) {
 
             if (completedAt && _.includes(['done', 'archive'], task.stage.name)) {
                 console.log(`fix completedAt of ${task.id} to ${new Date(completedAt)} from ${new Date(task.completedAt)}`);
-                yield task.update({completedAt: new Date(completedAt)}, {transaction});
+                await task.update({completedAt: new Date(completedAt)}, {transaction});
             }
         }
     }

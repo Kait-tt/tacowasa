@@ -2,14 +2,14 @@
 const _ = require('lodash');
 const db = require('../lib/schemes');
 
-db.coTransaction({}, function* (transaction) {
-    const projects = yield db.Project.findAll({transaction});
+db.transaction(async transaction => {
+    const projects = await db.Project.findAll({transaction});
 
     for (let project of projects) {
         console.log(`start fix project : ${project.name}`);
 
-        const tasks = yield db.Task.findAll({where: {projectId: project.id}, include: [{model: db.Stage, as: 'stage'}], transaction});
-        let logs = yield db.Log.findAll({
+        const tasks = await db.Task.findAll({where: {projectId: project.id}, include: [{model: db.Stage, as: 'stage'}], transaction});
+        let logs = await db.Log.findAll({
             where: {
                 projectId: project.id,
                 action: {in: ['archiveTask', 'updateTaskStatus', 'updateTaskStatusAndOrder']}
@@ -25,11 +25,11 @@ db.coTransaction({}, function* (transaction) {
             if (log) {
                 if (Number(task.completedAt) !== Number(log.time)) {
                     console.log(`fix ${task.id}.completedAt to ${new Date(log.time)}`);
-                    yield db.Task.update({completedAt: new Date(log.time)}, {where: {id: task.id}, transaction});
+                    await db.Task.update({completedAt: new Date(log.time)}, {where: {id: task.id}, transaction});
                 }
             } else if (!task.completedAt && _.includes(['done', 'archive'], task.stage.name)) {
                 console.log(`fix ${task.id}.completedAt to createdAt`);
-                yield db.Task.update({completedAt: task.createdAt}, {where: {id: task.id}, transaction});
+                await db.Task.update({completedAt: task.createdAt}, {where: {id: task.id}, transaction});
             }
         }
     }
