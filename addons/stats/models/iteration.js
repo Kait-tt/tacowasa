@@ -6,7 +6,7 @@ const INVALID_DATE = 'Invalid Date';
 
 class Iteration {
     static create (projectId, {startTime, endTime}, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* (transaction) {
+        return db.transaction({transaction}, async transaction => {
             const start = new Date(startTime);
             const end = new Date(endTime);
             if (!Iteration._isValidDate(start)) {
@@ -19,7 +19,7 @@ class Iteration {
                 throw new Error(`invalid term : ${startTime} - ${endTime}`);
             }
 
-            const existsIterations = yield db.Iteration.findAll({where: {projectId}, transaction});
+            const existsIterations = await db.Iteration.findAll({where: {projectId}, transaction});
             const isDuplicated = existsIterations.some(it => {
                 const s = new Date(it.startTime);
                 const e = new Date(it.endTime);
@@ -30,13 +30,13 @@ class Iteration {
                 throw new Error('iteration terms are duplicated');
             }
 
-            const iteration = yield db.Iteration.create({projectId, startTime, endTime}, {transaction});
+            const iteration = await db.Iteration.create({projectId, startTime, endTime}, {transaction});
             return iteration.toJSON();
         });
     }
 
     static update (projectId, iterationId, {startTime, endTime}, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* (transaction) {
+        return db.transaction({transaction}, async transaction => {
             const start = new Date(startTime);
             const end = new Date(endTime);
             if (!Iteration._isValidDate(start)) {
@@ -49,7 +49,7 @@ class Iteration {
                 throw new Error(`invalid term : ${startTime} - ${endTime}`);
             }
 
-            const iterations = yield db.Iteration.findAll({where: {projectId}, transaction});
+            const iterations = await db.Iteration.findAll({where: {projectId}, transaction});
             const otherIterations = iterations.filter(x => x.id !== iterationId);
             const isDuplicated = otherIterations.some(it => {
                 const s = new Date(it.startTime);
@@ -61,9 +61,9 @@ class Iteration {
                 throw new Error('iteration terms are duplicated');
             }
 
-            yield db.Iteration.update({startTime, endTime}, {where: {id: iterationId, projectId}, transaction});
+            await db.Iteration.update({startTime, endTime}, {where: {id: iterationId, projectId}, transaction});
 
-            const iteration = yield db.Iteration.findOne({where: {id: iterationId, projectId}, transaction});
+            const iteration = await db.Iteration.findOne({where: {id: iterationId, projectId}, transaction});
             return iteration ? iteration.toJSON() : null;
         });
     }

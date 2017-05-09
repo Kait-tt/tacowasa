@@ -6,41 +6,41 @@ const TaskExporter = require('../models/task_exporter');
 
 class Predictor {
     static calc (projectId, {transaction} = {}) {
-        return db.coTransaction([transaction], function* (transaction) {
-            const predicts = yield Predictor._calc(projectId, {transaction});
-            yield Predictor._updateMemberStats(projectId, predicts, {transaction});
+        return db.transaction([transaction], async transaction => {
+            const predicts = await Predictor._calc(projectId, {transaction});
+            await Predictor._updateMemberStats(projectId, predicts, {transaction});
             return predicts;
         });
     }
 
     static _calc (projectId, {transaction} = {}) {
-        return db.coTransaction([transaction], function* (transaction) {
-            const project = yield db.Project.findOne({where: {id: projectId}, transaction});
+        return db.transaction([transaction], async transaction => {
+            const project = await db.Project.findOne({where: {id: projectId}, transaction});
             if (!project) {
                 throw new Error(`${projectId} was not found`);
             }
 
-            const {tasks} = yield TaskExporter.exportOne(projectId);
+            const {tasks} = await TaskExporter.exportOne(projectId);
 
-            const members = yield db.Member.findAll({where: {projectId}, transaction});
+            const members = await db.Member.findAll({where: {projectId}, transaction});
             const userIds = members.map(x => x.userId);
 
-            const costs = yield db.Cost.findAll({where: {projectId}, transaction});
+            const costs = await db.Cost.findAll({where: {projectId}, transaction});
             const costValues = costs
                 .map(x => x.value)
                 .filter(x => x !== 0 && x !== 99);
 
-            return yield Predictor._execChild(tasks, userIds, costValues);
+            return await Predictor._execChild(tasks, userIds, costValues);
         });
     }
 
     static _updateMemberStats (projectId, predicts, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* (transaction) {
-            const members = yield db.Member.findAll({where: {projectId}, transaction});
+        return db.transaction({transaction}, async transaction => {
+            const members = await db.Member.findAll({where: {projectId}, transaction});
             const memberIds = members.map(x => x.id);
-            const costs = yield db.Cost.findAll({where: {projectId}, transaction});
+            const costs = await db.Cost.findAll({where: {projectId}, transaction});
 
-            yield db.MemberStats.destroy({where: {memberId: {in: memberIds}}, transaction});
+            await db.MemberStats.destroy({where: {memberId: {in: memberIds}}, transaction});
 
             for (let {userId, cost: costValue, mean, low, high} of predicts) {
                 const member = members.find(x => x.userId === userId);
@@ -51,7 +51,7 @@ class Predictor {
                 if (!cost) { throw new Error(`cost was not found: costValue=${costValue}`); }
                 const costId = cost.id;
 
-                yield db.MemberStats.create({memberId, costId, mean, low, high}, {transaction});
+                await db.MemberStats.create({memberId, costId, mean, low, high}, {transaction});
             }
         });
     }

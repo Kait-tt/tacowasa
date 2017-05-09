@@ -9,8 +9,8 @@ class BurnDownChart {
     }
 
     static calc (projectId, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* (transaction) {
-            let tasks = yield db.Task.findAll({
+        return db.transaction({transaction}, async transaction => {
+            let tasks = await db.Task.findAll({
                 where: {projectId},
                 include: [
                     {model: db.Stage, as: 'stage'},
@@ -21,12 +21,12 @@ class BurnDownChart {
             });
             tasks = tasks.map(x => x.toJSON());
 
-            const iterations = yield db.Iteration.findAll({where: {projectId}, transaction});
+            const iterations = await db.Iteration.findAll({where: {projectId}, transaction});
 
             const bdc = BurnDownChart._calc(tasks, iterations);
 
-            yield db.BurnDownChart.destroy({where: {projectId}, transaction});
-            yield db.BurnDownChart.bulkCreate(bdc.map(x => _.assign(x, {projectId})), {transaction});
+            await db.BurnDownChart.destroy({where: {projectId}, transaction});
+            await db.BurnDownChart.bulkCreate(bdc.map(x => _.assign(x, {projectId})), {transaction});
 
             return bdc;
         });

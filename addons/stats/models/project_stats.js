@@ -10,40 +10,40 @@ const Predictor = require('./predictor');
 
 class ProjectStats {
     static calcAll (projectId, {transaction, force = false} = {}) {
-        return db.coTransaction({transaction}, function* (transaction) {
-            let doCalc = force || !(yield ProjectStats.checkCache(projectId, {transaction}));
+        return db.transaction({transaction}, async transaction => {
+            let doCalc = force || !(await ProjectStats.checkCache(projectId, {transaction}));
 
             if (doCalc) {
                 // create or update project stats, and lock
-                yield db.ProjectStats.upsert({
+                await db.ProjectStats.upsert({
                     projectId
                 }, {fields: ['projectId'], transaction});
 
-                yield MemberWorkTime.calcAll(projectId, {transaction});
-                yield Predictor.calc(projectId, {transaction});
-                yield StagnationTask.calcAll(projectId, {transaction});
-                yield BurnDownChart.calc(projectId, {transaction});
+                await MemberWorkTime.calcAll(projectId, {transaction});
+                await Predictor.calc(projectId, {transaction});
+                await StagnationTask.calcAll(projectId, {transaction});
+                await BurnDownChart.calc(projectId, {transaction});
             }
 
-            const projectStats = yield db.ProjectStats.findOne({where: {projectId}, transaction});
+            const projectStats = await db.ProjectStats.findOne({where: {projectId}, transaction});
 
             return {
                 project: projectStats ? projectStats.toJSON() : null,
-                members: yield ProjectStats.findEachMembers(projectId, {transaction}),
-                iterations: yield Iteration.findByProjectId(projectId, {transaction}),
-                workTimes: yield MemberWorkTime.findByProjectId(projectId, {transaction}),
-                stagnantTaskIds: yield StagnationTask.findByProjectId(projectId, {transaction}),
-                burnDownChart: yield BurnDownChart.findByProjectId(projectId, {transaction})
+                members: await ProjectStats.findEachMembers(projectId, {transaction}),
+                iterations: await Iteration.findByProjectId(projectId, {transaction}),
+                workTimes: await MemberWorkTime.findByProjectId(projectId, {transaction}),
+                stagnantTaskIds: await StagnationTask.findByProjectId(projectId, {transaction}),
+                burnDownChart: await BurnDownChart.findByProjectId(projectId, {transaction})
             };
         });
     }
 
     static findEachMembers (projectId, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* (transaction) {
-            const members = yield db.Member.findAll({where: {projectId}, transaction});
+        return db.transaction({transaction}, async transaction => {
+            const members = await db.Member.findAll({where: {projectId}, transaction});
             const res = [];
             for (let member of members) {
-                const memberStats = yield db.MemberStats.findAll({where: {memberId: member.id}, transaction});
+                const memberStats = await db.MemberStats.findAll({where: {memberId: member.id}, transaction});
                 for (let stats of memberStats) {
                     res.push(_.assign(stats.toJSON(), {userId: member.userId}));
                 }
@@ -53,8 +53,8 @@ class ProjectStats {
     }
 
     static checkCache (projectId, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* (transaction) {
-            const projectStats = yield db.ProjectStats.findOne({where: {projectId}, transaction});
+        return db.transaction({transaction}, async transaction => {
+            const projectStats = await db.ProjectStats.findOne({where: {projectId}, transaction});
             if (!projectStats) { return false; }
             return Date.now() - new Date(projectStats.updatedAt) < config.get('stats.cacheTime');
         });

@@ -1,6 +1,5 @@
 'use strict';
 
-const co = require('co');
 const config = require('config');
 
 const addons = (config.get('addons') || []).map(({path}) => require(path));
@@ -14,14 +13,14 @@ function callAddons (type, key, params, {sync = false} = {}) {
         }
         return params;
     } else {
-        return co(function* () {
+        return (async () => {
             for (let addon of addons) {
                 if (addon[type] && addon[type][key]) {
-                    params = yield addon[type][key](params);
+                    params = await addon[type][key](params);
                 }
             }
             return params;
-        });
+        })();
     }
 }
 

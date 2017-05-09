@@ -4,8 +4,8 @@ const db = require('../schemas');
 
 class MemberWorkTime {
     static findByProjectIdAndUserId (projectId, userId, options = {}) {
-        return db.coTransaction({transaction: options.transaction}, function* (transaction) {
-            const member = yield db.Member.findOne({where: {projectId, userId}, transaction});
+        return db.transaction({transaction: options.transaction}, async transaction => {
+            const member = await db.Member.findOne({where: {projectId, userId}, transaction});
             if (!member) { return []; }
             const workTimes = db.MemberWorkTime.findAll(_.assign({memberId: member.id}, options, {transaction}));
             return workTimes.map(x => x.toJSON());
@@ -13,11 +13,11 @@ class MemberWorkTime {
     }
 
     static findByProjectId (projectId, options = {}) {
-        return db.coTransaction({transaction: options.transaction}, function* (transaction) {
-            const members = yield db.Member.findAll({where: {projectId}, transaction});
+        return db.transaction({transaction: options.transaction}, async transaction => {
+            const members = await db.Member.findAll({where: {projectId}, transaction});
             const res = [];
             for (let member of members) {
-                const workTimes = yield db.MemberWorkTime.findAll(_.assign({where: {memberId: member.id}}, options, {transaction}));
+                const workTimes = await db.MemberWorkTime.findAll(_.assign({where: {memberId: member.id}}, options, {transaction}));
                 workTimes.forEach(workTime => {
                     res.push(_.assign(workTime.toJSON(), {userId: member.userId}));
                 });
@@ -27,11 +27,11 @@ class MemberWorkTime {
     }
 
     static create (projectId, userId, iterationId, {promisedMinutes, actualMinutes = 0}, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* (transaction) {
-            const member = yield db.Member.findOne({where: {projectId, userId}, transaction});
+        return db.transaction({transaction}, async transaction => {
+            const member = await db.Member.findOne({where: {projectId, userId}, transaction});
             if (!member) { throw new Error(`member was not found given {projectId: ${projectId}, userId: ${userId}}`); }
 
-            const res = yield db.MemberWorkTime.create({
+            const res = await db.MemberWorkTime.create({
                 memberId: member.id,
                 projectId,
                 iterationId,
@@ -44,21 +44,21 @@ class MemberWorkTime {
     }
 
     static updatePromisedWorkTime (projectId, userId, iterationId, promisedMinutes, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* (transaction) {
-            const member = yield db.Member.findOne({where: {projectId, userId}, transaction});
+        return db.transaction({transaction}, async transaction => {
+            const member = await db.Member.findOne({where: {projectId, userId}, transaction});
             if (!member) { throw new Error(`member was not found by {projectId: ${projectId}, userId: ${userId}}`); }
 
-            const memberWorkTime = yield db.MemberWorkTime.findOne({
+            const memberWorkTime = await db.MemberWorkTime.findOne({
                 where: {memberId: member.id, iterationId},
                 transaction
             });
 
             let res;
             if (memberWorkTime) {
-                yield db.MemberWorkTime.update({promisedMinutes}, {where: {id: memberWorkTime.id}}, transaction);
-                res = yield db.MemberWorkTime.findOne({where: {id: memberWorkTime.id}}, transaction);
+                await db.MemberWorkTime.update({promisedMinutes}, {where: {id: memberWorkTime.id}}, transaction);
+                res = await db.MemberWorkTime.findOne({where: {id: memberWorkTime.id}}, transaction);
             } else {
-                res = yield db.MemberWorkTime.create({
+                res = await db.MemberWorkTime.create({
                     memberId: member.id,
                     iterationId,
                     promisedMinutes
@@ -70,16 +70,16 @@ class MemberWorkTime {
     }
 
     static calcAll (projectId, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* (transaction) {
-            const tasks = yield db.Task.findAll({
+        return db.transaction({transaction}, async transaction => {
+            const tasks = await db.Task.findAll({
                 where: {projectId},
                 include: [{model: db.Work, as: 'works', separate: true}],
                 transaction
             });
             const works = _.chain(tasks).map(x => x.works || []).flatten().filter(x => x.isEnded).value();
 
-            const members = yield db.Member.findAll({where: {projectId}, transaction});
-            const iterations = yield db.Iteration.findAll({where: {projectId}, transaction});
+            const members = await db.Member.findAll({where: {projectId}, transaction});
+            const iterations = await db.Iteration.findAll({where: {projectId}, transaction});
 
             const memberWorks = {};
             members.forEach(x => { memberWorks[x.userId] = []; });
@@ -96,14 +96,14 @@ class MemberWorkTime {
             }
 
             for (let {memberId, iterationId, time} of actualTimes) {
-                const memberWorkTime = yield db.MemberWorkTime.findOne({where: {memberId, iterationId}, transaction});
+                const memberWorkTime = await db.MemberWorkTime.findOne({where: {memberId, iterationId}, transaction});
 
                 const actualMinutes = Math.floor(time / 60 / 1000);
 
                 if (memberWorkTime) {
-                    yield db.MemberWorkTime.update({actualMinutes}, {where: {id: memberWorkTime.id}}, transaction);
+                    await db.MemberWorkTime.update({actualMinutes}, {where: {id: memberWorkTime.id}}, transaction);
                 } else {
-                    yield db.MemberWorkTime.create({
+                    await db.MemberWorkTime.create({
                         memberId,
                         iterationId,
                         promisedMinutes: 0,

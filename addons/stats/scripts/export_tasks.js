@@ -27,14 +27,14 @@ const outputType = commander.type;
 const pretty = commander.pretty;
 const header = commander.header;
 
-db.coTransaction({}, function* (transaction) {
+db.transaction(async transaction => {
     let projectIds = [];
     for (let projectName of projectNames) {
-        const project = yield db.Project.findOne({where: {name: projectName}, transaction});
+        const project = await db.Project.findOne({where: {name: projectName}, transaction});
         if (!project) { throw new Error(`${projectName} was not found`); }
         projectIds.push(project.id);
     }
-    return yield TaskExporter.exportAll(projectIds);
+    return await TaskExporter.exportAll(projectIds);
 })
     .then(res => {
         const outstr = {

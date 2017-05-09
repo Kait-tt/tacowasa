@@ -5,12 +5,12 @@ const Util = require('../modules/util');
 
 class TaskExporter {
     static exportOne (projectId, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* (transaction) {
-            const project = yield db.Project.findOne({where: {id: projectId}, transaction});
+        return db.transaction({transaction}, async transaction => {
+            const project = await db.Project.findOne({where: {id: projectId}, transaction});
             if (!project) { throw new Error(`${projectId} was not found`); }
 
             const now = new Date();
-            const tasks = yield db.Task.findAll({
+            const tasks = await db.Task.findAll({
                 where: {projectId: project.id},
                 include: [
                     {model: db.Work, as: 'works', separate: true, include: [{model: db.Stage, as: 'stage'}]},
@@ -49,10 +49,10 @@ class TaskExporter {
     }
 
     static exportAll (projectIds, {transaction} = {}) {
-        return db.coTransaction({transaction}, function* (transaction) {
+        return db.transaction({transaction}, async transaction => {
             const res = [];
             for (let projectId of projectIds) {
-                res.push(yield TaskExporter.exportOne(projectId, {transaction}));
+                res.push(await TaskExporter.exportOne(projectId, {transaction}));
             }
             return res;
         });

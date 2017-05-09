@@ -4,10 +4,10 @@ const Predictor = require('../models/predictor');
 
 const projectName = 'tacowasa';
 
-db.coTransaction({}, function* (transaction) {
-    const project = yield db.Project.findOne({where: {name: projectName}, transaction});
+db.transaction(async transaction => {
+    const project = await db.Project.findOne({where: {name: projectName}, transaction});
     if (!project) { throw new Error(`${projectName} was not found`); }
 
-    const res = yield Predictor._calc(project.id, {transaction});
+    const res = await Predictor._calc(project.id, {transaction});
     console.log(res);
 }).catch(e => console.error(e));
