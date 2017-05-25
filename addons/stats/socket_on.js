@@ -81,7 +81,7 @@ class StatsSocketOn extends AddonSocketOn {
         (async () => {
             const stats = await ProjectStats.calcAll(socketProject.projectId, {force});
             user.socket.emit('stats', stats);
-        }).catch(err => console.error(err));
+        })().catch(err => console.error(err));
     }
 }
 
