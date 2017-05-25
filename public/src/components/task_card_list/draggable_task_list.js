@@ -1,6 +1,5 @@
 'use strict';
 const ko = require('knockout');
-require('jquery-ui');
 require('./knockout-sortable');
 const EventEmitter2 = require('eventemitter2');
 const _ = require('lodash');

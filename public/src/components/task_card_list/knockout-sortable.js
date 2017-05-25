@@ -2,6 +2,7 @@
 // edit: snakazawa (2016)
 require('jquery-ui/ui/widgets/sortable');
 require('jquery-ui/ui/widgets/draggable');
+require('jquery-ui-touch-punch');
 const ko = require('knockout');
 const _ = require('lodash');
 
