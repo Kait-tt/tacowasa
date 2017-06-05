@@ -4,6 +4,7 @@ const fs = require('fs');
 const _ = require('lodash');
 const moment = require('moment');
 const {min, max, floor, ceil} = Math;
+const db = require('../../../lib/schemes');
 
 commander
     .option('--source [path]', '(required) Source tsv file')
@@ -18,22 +19,82 @@ if (!commander.source || !commander.start || !commander.end) {
     process.exit(1);
 }
 
-const sourcePath = commander.source;
-const outputPath = commander.output;
-const startDate = commander.start;
-const endDate = commander.end;
+main(commander)
+    .then(() => {
+        console.log('Completed.\n');
+        process.exit(0);
+    })
+    .catch(e => {
+        console.error(e);
+        process.exit(1);
+    });
 
-const source = loadTsv(sourcePath);
+async function main ({source: sourcePath, output: outputPath, start: startDate, end: endDate}) {
+    const works = loadTsv(sourcePath);
 
-const timelines = convertToTimeline(source, startDate, endDate);
+    await expandWorks(works);
 
-const outstr = convertToTsv(timelines);
+    const usernames = _.uniq(works.map(x => x.user.username));
+    const costValues = _.uniq(works.map(x => x.cost.value));
 
-if (outputPath) {
-    fs.writeFileSync(outputPath, outstr);
-    console.log(`${outputPath} was created`);
-} else {
-    console.log(outstr);
+    for (let username of usernames) {
+        for (let costValue of costValues) {
+            const filteredWorks = works.filter(x => x.user.username === username && x.cost.value === costValue);
+            if (!filteredWorks.length) { continue; }
+
+            const timelines = convertToTimeline(filteredWorks, startDate, endDate);
+
+            const outstr = convertToTsv(timelines);
+
+            if (outputPath) {
+                const matched = outputPath.match(/(.*)\.(\w+)$/);
+                let path;
+                if (matched) {
+                    path = `${matched[1]}_${username}_${costValue}.${matched[2]}`;
+                } else {
+                    path = `${outputPath}_${username}_${costValue}`;
+                }
+
+                fs.writeFileSync(path, outstr);
+                console.log(`${path} was created`);
+            } else {
+                console.log(outstr);
+            }
+        }
+    }
+}
+
+async function expandWorks (works) {
+    const memoTasks = {};
+    const memoUsers = {};
+    const memoCosts = {};
+
+    for (let work of works) {
+        const {taskId, userId} = work;
+
+        let task = memoTasks[taskId];
+        if (!task) {
+            task = (await db.Task.findOne({where: {id: taskId}})).toJSON();
+            memoTasks[taskId] = task;
+        }
+
+        let user = memoUsers[userId];
+        if (!user) {
+            user = (await db.User.findOne({where: {id: userId}})).toJSON();
+            memoUsers[userId] = user;
+        }
+
+        const costId = task.costId;
+        let cost = memoCosts[costId];
+        if (!cost) {
+            cost = (await db.Cost.findOne({where: {id: costId}})).toJSON();
+            memoCosts[costId] = cost;
+        }
+
+        work.task = task;
+        work.user = user;
+        work.cost = cost;
+    }
 }
 
 function loadTsv (path) {
