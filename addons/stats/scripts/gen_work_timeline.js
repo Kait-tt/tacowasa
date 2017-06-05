@@ -5,6 +5,7 @@ const _ = require('lodash');
 const moment = require('moment');
 const {min, max, floor, ceil} = Math;
 const db = require('../../../lib/schemes');
+const Predictor = require('../models/predictor');
 
 commander
     .option('--source [path]', '(required) Source tsv file')
@@ -34,17 +35,21 @@ async function main ({source: sourcePath, output: outputPath, start: startDate, 
 
     await expandWorks(works);
 
-    const usernames = _.uniq(works.map(x => x.user.username));
+    const users = _.uniqBy(works.map(x => x.user), 'username');
     const costValues = _.uniq(works.map(x => x.cost.value));
 
-    for (let username of usernames) {
+    for (let user of users) {
         for (let costValue of costValues) {
-            const filteredWorks = works.filter(x => x.user.username === username && x.cost.value === costValue);
+            const filteredWorks = works.filter(x => x.user.username === user.username && x.cost.value === costValue);
             if (!filteredWorks.length) { continue; }
 
             const timelines = convertToTimeline(filteredWorks, startDate, endDate);
 
+            const predict = predictWorktimeAllTimeline(filteredWorks, user.id, costValue, startDate, endDate);
+
             const outstr = convertToTsv(timelines);
+
+            process.exit(0);
 
             if (outputPath) {
                 const matched = outputPath.match(/(.*)\.(\w+)$/);
@@ -164,4 +169,34 @@ function convertToTsv (timelines) {
     }
 
     return lines.map(line => line.join('\t')).join('\n');
+}
+
+async function predictWorktimeAllTimeline (tasks, userId, cost, startDate, endDate) {
+    const timeline = [];
+    const endMoment = moment(endDate);
+    let currentMoment = moment(startDate);
+
+    let beforeLength = null;
+    let before = null;
+
+    while (currentMoment.isBefore(endMoment)) {
+        currentMoment.add(1, 'days');
+
+        const filteredTasks = tasks.filter(x => currentMoment.isAfter(x.completedAt));
+        if (filteredTasks.length === beforeLength) {
+            timeline.push(before);
+        } else {
+            const predicted = await predictWorkTime(filteredTasks, userId, cost);
+            console.log(predicted);
+            beforeLength = filteredTasks.length;
+            before = predicted;
+            timeline.push(predicted);
+        }
+    }
+
+    return timeline;
+}
+
+async function predictWorkTime (tasks, userId, cost) {
+    return Predictor._execChild(tasks, [userId], [cost]);
 }
