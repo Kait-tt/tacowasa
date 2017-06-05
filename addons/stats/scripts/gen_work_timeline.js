@@ -6,6 +6,7 @@ const moment = require('moment');
 const {min, max, floor, ceil} = Math;
 const db = require('../../../lib/schemes');
 const Predictor = require('../models/predictor');
+const TaskExporter = require('../models/task_exporter');
 
 commander
     .option('--source [path]', '(required) Source tsv file')
@@ -36,28 +37,27 @@ async function main ({source: sourcePath, output: outputPath, start: startDate, 
     await expandWorks(works);
 
     const users = _.uniqBy(works.map(x => x.user), 'username');
-    const costValues = _.uniq(works.map(x => x.cost.value));
+    const costs = _.uniq(works.map(x => x.cost), 'value');
+    const projectId = costs[0].projectId; // ここ良くない
 
     for (let user of users) {
-        for (let costValue of costValues) {
-            const filteredWorks = works.filter(x => x.user.username === user.username && x.cost.value === costValue);
+        for (let cost of costs) {
+            const filteredWorks = works.filter(x => x.user.username === user.username && x.cost.value === cost.value);
             if (!filteredWorks.length) { continue; }
 
             const timelines = convertToTimeline(filteredWorks, startDate, endDate);
 
-            const predict = predictWorktimeAllTimeline(filteredWorks, user.id, costValue, startDate, endDate);
+            const predicts = await predictWorktimeAllTimeline(projectId, user.id, cost.value, startDate, endDate);
 
-            const outstr = convertToTsv(timelines);
-
-            process.exit(0);
+            const outstr = convertToTsv(timelines, predicts);
 
             if (outputPath) {
                 const matched = outputPath.match(/(.*)\.(\w+)$/);
                 let path;
                 if (matched) {
-                    path = `${matched[1]}_${username}_${costValue}.${matched[2]}`;
+                    path = `${matched[1]}_${user.username}_${cost.value}.${matched[2]}`;
                 } else {
-                    path = `${outputPath}_${username}_${costValue}`;
+                    path = `${outputPath}_${user.username}_${cost.value}`;
                 }
 
                 fs.writeFileSync(path, outstr);
@@ -153,50 +153,60 @@ function convertToTimeline (src, startDate, endDate) {
     return timelines;
 }
 
-function convertToTsv (timelines) {
+function convertToTsv (timelines, predicts) {
     const taskIds = Object.keys(timelines);
     if (!taskIds.length) { return ''; }
+    const predictKeys = Object.keys(predicts);
 
-    const lines = [['Days'].concat(taskIds.slice())];
+    const lines = [['Days'].concat(taskIds.slice()).concat(predictKeys.slice())];
     const n = timelines[taskIds[0]].length;
+    const m = predicts[predictKeys[0]].length;
+    console.assert(n === m, `${n} ${m}`);
 
     for (let i = 0; i < n; ++i) {
-        const line = taskIds.map(taskId => timelines[taskId][i]);
+        const line1 = taskIds.map(taskId => timelines[taskId][i]);
+        const line2 = predictKeys.map(key => predicts[key][i]);
         const days = floor(i / 24);
         const hours = i % 24;
-        line.unshift(`${days}:${hours}`);
+        const line = _.flatten([`${days}:${hours}`, line1, line2]);
         lines.push(line);
     }
 
     return lines.map(line => line.join('\t')).join('\n');
 }
 
-async function predictWorktimeAllTimeline (tasks, userId, cost, startDate, endDate) {
-    const timeline = [];
-    const endMoment = moment(endDate);
+async function predictWorktimeAllTimeline (projectId, userId, cost, startDate, endDate) {
+    const {tasks} = await TaskExporter.exportOne(projectId);
+
+    const predictKeys = ['mean', 'low', 'high'];
+    const timelines = {mean: [], low: [], high: []};
+    const endMoment = moment(endDate).add(1, 'hours');
     let currentMoment = moment(startDate);
 
     let beforeLength = null;
     let before = null;
 
     while (currentMoment.isBefore(endMoment)) {
-        currentMoment.add(1, 'days');
-
         const filteredTasks = tasks.filter(x => currentMoment.isAfter(x.completedAt));
         if (filteredTasks.length === beforeLength) {
-            timeline.push(before);
+            predictKeys.forEach(key => timelines[key].push(before[key]));
         } else {
             const predicted = await predictWorkTime(filteredTasks, userId, cost);
-            console.log(predicted);
             beforeLength = filteredTasks.length;
             before = predicted;
-            timeline.push(predicted);
+            predictKeys.forEach(key => timelines[key].push(predicted[key]));
         }
+
+        currentMoment.add(1, 'hours');
     }
 
-    return timeline;
+    return timelines;
 }
 
 async function predictWorkTime (tasks, userId, cost) {
-    return Predictor._execChild(tasks, [userId], [cost]);
+    return Predictor._execChild(tasks, [userId], [cost]).then(x => x[0].mean ? {
+        mean: x[0].mean / 60,
+        low: x[0].low / 60,
+        high: x[0].high / 60
+    } : x[0]);
 }
