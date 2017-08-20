@@ -79,7 +79,7 @@ class BurnDownChartComponent {
                     .values()
                     .map((it, idx) => ({
                         label: {
-                            text: it.idx + 1,
+                            text: (it.idx + 1 + '').split('').join('<br>'),
                             align: 'center'
                         },
                         color: bandColors[idx % bandColors.length],

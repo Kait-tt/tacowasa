@@ -36,11 +36,11 @@ class MembersPredictChartComponent {
             chart: { type: 'errorbar', inverted: true },
             title: { text: '推定必要作業時間' },
             xAxis: {
-                title: { text: '開発者' },
+                title: { text: 'Developers' },
                 categories: users.map(x => x.username())
             },
             yAxis: {
-                title: { text: '推定平均時間' },
+                title: { text: 'Predicted completion time' },
                 labels: { formatter: function () { return Util.minutesFormatHM(this.value); } },
                 tickInterval: 30,
                 min: 0

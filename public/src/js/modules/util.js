@@ -107,7 +107,7 @@ const util = {
     minutesFormatHM: minutes => {
         const minute = Math.floor(minutes % 60);
         const hour = Math.floor(minutes / 60);
-        return hour ? `${hour}時間${minute}分` : `${minute}分`;
+        return hour ? `${hour}h${minute}m` : `${minute}m`;
     },
 
     dateFormatYMDHM: time => {
