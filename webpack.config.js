@@ -25,31 +25,17 @@ const webpackConfig = {
                 test: /\.scss$/,
                 use: ExtractTextPlugin.extract({
                     fallback: 'style-loader',
-                    use: [
-                        {
-                            loader: 'css-loader'
-                        },
-                        {
-                            loader: 'sass-loader',
-                            options: {
-                                includePaths: [path.join(__dirname, '/public/src/scss')]
-                            }
-                        }
-                    ]
+                    use: ['css-loader', 'sass-loader']
                 })
             },
             {
                 test: /$.html/,
-                use: [
-                    {
-                        loader: 'html-loader',
-                        options: {
-                            attrs: ['minimize'],
-                            removeComments: false,
-                            minimize: true
-                        }
-                    }
-                ]
+                loader: 'html-loader',
+                options: {
+                    attrs: ['minimize'],
+                    removeComments: false,
+                    minimize: true
+                }
             },
             {
                 test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
@@ -57,39 +43,27 @@ const webpackConfig = {
             },
             {
                 test: /\.(woff|woff2)$/,
-                use: [
-                    {
-                        loader: 'url-loader',
-                        options: {
-                            prefix: 'font/',
-                            limit: 5000
-                        }
-                    }
-                ]
+                loader: 'url-loader',
+                options: {
+                    prefix: 'font/',
+                    limit: 5000
+                }
             },
             {
                 test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-                use: [
-                    {
-                        loader: 'url-loader',
-                        options: {
-                            limit: 10000,
-                            minetype: 'application/octet-stream'
-                        }
-                    }
-                ]
+                loader: 'url-loader',
+                options: {
+                    limit: 10000,
+                    minetype: 'application/octet-stream'
+                }
             },
             {
                 test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-                use: [
-                    {
-                        loader: 'url-loader',
-                        options: {
-                            limit: 10000,
-                            minetype: 'image/svg+xml'
-                        }
-                    }
-                ]
+                loader: 'url-loader',
+                options: {
+                    limit: 10000,
+                    minetype: 'image/svg+xml'
+                }
             }
         ]
     },
