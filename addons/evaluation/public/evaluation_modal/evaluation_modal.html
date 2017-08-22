@@ -1,0 +1,246 @@
+<div class="modal fade" id="evaluation-modal" tabindex="-1" role="dialog" aria-labelledby="evaluation-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="create-task-modal-label">Evaluation</h4>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs" role="tablist">
+          <li role="presentation" class="active">
+            <a href="#evaluation-problem" aria-controls="evaluation-problem" role="tab" data-toggle="tab">
+              <i class="glyphicon glyphicon-fire"></i> 問題 <span class="badge">1</span>
+            </a>
+          </li>
+          <li role="presentation">
+            <a href="#evaluation-cause" aria-controls="evaluation-cause" role="tab" data-toggle="tab">
+              <i class="glyphicon glyphicon-flash"></i> 原因 <span class="badge">3</span>
+            </a>
+          </li>
+          <li role="presentation">
+            <a href="#evaluation-solver" aria-controls="evaluation-solver" role="tab" data-toggle="tab">
+              <i class="glyphicon glyphicon-tint"></i> 解決策 <span class="badge">3</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane active" id="evaluation-problem">
+            <div class="panel panel-danger">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <i class="glyphicon glyphicon-fire"></i> 問題タスクの発生
+                </h3>
+              </div>
+              <div class="panel-body">
+                <div>
+                  <p>進行中の以下のタスクが<strong>問題タスク</strong>として検知されました。</p>
+                  <ul>
+                    <li>#1 hoge (担当者:A, 作業時間/予測時間: XX/YY)</li>
+                    <li>#2 piyo (担当者:A, 作業時間/予測時間: XX/YY)</li>
+                  </ul>
+                </div>
+                <div>
+                  <p class="text-warning"><i class="glyphicon glyphicon-flash"></i> 予測される原因</p>
+                  <div>
+                    <ul>
+                      <li><input type="checkbox"> <a href="#" data-bind="click: () => changeTab('cause')">巨大なタスク</a></li>
+                      <li><input type="checkbox"> <a href="#" data-bind="click: () => changeTab('cause')">甘い見積り</a></li>
+                      <li><input type="checkbox"> <a href="#" data-bind="click: () => changeTab('cause')">不明</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <button class="btn btn-primary" type="button">解決済みにする</button>
+              </div>
+            </div>
+            <div class="panel panel-success">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <i class="glyphicon glyphicon-ok"></i> プロジェクトの完了予測
+                </h3>
+              </div>
+              <div class="panel-body">
+                プロジェクトは期間内に完了しそうです。
+              </div>
+            </div>
+          </div>
+
+          <div role="tabpanel" class="tab-pane" id="evaluation-cause">
+            <div class="panel panel-warning">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <i class="glyphicon glyphicon-warning-sign"></i> 巨大なタスク
+                </h3>
+              </div>
+              <div class="panel-body">
+                <div>
+                  <p>タスクが大きすぎる可能性があります。</p>
+                </div>
+                <div>
+                  <p class="text-info"><i class="glyphicon glyphicon-tint"></i> 解決策</p>
+                  <div>
+                    <ul>
+                      <li><input type="checkbox"> <a href="#" data-bind="click: () => changeTab('solver')">タスクの分析・設計</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 引き起こしている問題</p>
+                  <div>
+                    <ul>
+                      <li><a href="#" data-bind="click: () => changeTab('problem')">問題タスクの発生</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <button class="btn btn-primary" type="button">解決済みにする</button>
+              </div>
+            </div>
+
+            <div class="panel panel-warning">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <i class="glyphicon glyphicon-warning-sign"></i> 甘い見積り
+                </h3>
+              </div>
+              <div class="panel-body">
+                <div>
+                  <p>見積りが甘い可能性があります。</p>
+                </div>
+                <div>
+                  <p class="text-info"><i class="glyphicon glyphicon-tint"></i> 解決策</p>
+                  <div>
+                    <ul>
+                      <li><input type="checkbox"> <a href="#" data-bind="click: () => changeTab('solver')">見積り方法の見直し</a></li>
+                      <li><input type="checkbox"> <a href="#" data-bind="click: () => changeTab('solver')">振り返り</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 引き起こしている問題</p>
+                  <div>
+                    <ul>
+                      <li><a href="#" data-bind="click: () => changeTab('problem')">問題タスクの発生</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <button class="btn btn-primary" type="button">解決済みにする</button>
+              </div>
+            </div>
+
+            <div class="panel panel-warning">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <i class="glyphicon glyphicon-warning-sign"></i> 不明
+                </h3>
+              </div>
+              <div class="panel-body">
+                <div>
+                  <p>原因が不明です。</p>
+                </div>
+                <div>
+                  <p class="text-info"><i class="glyphicon glyphicon-tint"></i> 解決策</p>
+                  <div>
+                    <ul>
+                      <li><input type="checkbox"> <a href="#" data-bind="click: () => changeTab('solver')">振り返り</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 引き起こしている問題</p>
+                  <div>
+                    <ul>
+                      <li><a href="#" data-bind="click: () => changeTab('problem')">問題タスクの発生</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <button class="btn btn-primary" type="button">解決済みにする</button>
+              </div>
+            </div>
+          </div>
+
+          <div role="tabpanel" class="tab-pane" id="evaluation-solver">
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <i class="glyphicon glyphicon-thumbs-up"></i> タスクの分析・設計
+                </h3>
+              </div>
+              <div class="panel-body">
+                <div>
+                  <p>タスクの分析・設計をしましょう。</p>
+                </div>
+                <div>
+                  <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 関係する問題</p>
+                  <div>
+                    <ul>
+                      <li><a href="#" data-bind="click: () => changeTab('problem')">問題タスクの発生</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <button class="btn btn-primary" type="button">解決済みにする</button>
+              </div>
+            </div>
+
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <i class="glyphicon glyphicon-thumbs-up"></i> 見積り方法の見直し
+                </h3>
+              </div>
+              <div class="panel-body">
+                <div>
+                  <p>見積り方法を見直しましょう。</p>
+                </div>
+                <div>
+                  <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 関係する問題</p>
+                  <div>
+                    <ul>
+                      <li><a href="#" data-bind="click: () => changeTab('problem')">問題タスクの発生</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <button class="btn btn-primary" type="button">解決済みにする</button>
+              </div>
+            </div>
+
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <i class="glyphicon glyphicon-thumbs-up"></i> 振り返り
+                </h3>
+              </div>
+              <div class="panel-body">
+                <div>
+                  <p>振り返りをして原因を考えましょう。</p>
+                </div>
+                <div>
+                  <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 関係する問題</p>
+                  <div>
+                    <ul>
+                      <li><a href="#" data-bind="click: () => changeTab('problem')">問題タスクの発生</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <button class="btn btn-primary" type="button">解決済みにする</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

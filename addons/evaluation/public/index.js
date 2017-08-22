@@ -19,6 +19,11 @@ module.exports = {
         const evaluationModalButton = new EvaluationModalButton();
         evaluationModalButton.register();
         toolbarButtons.appendChild(document.createElement(evaluationModalButton.componentName));
+
+        // test
+        setTimeout(() => {
+            $('#evaluation-modal').modal('show');
+        }, 500);
     }
 };
 
