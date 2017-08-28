@@ -33,6 +33,7 @@ module.exports = {
         socket.on('evaluation', evaluation => {
             console.log(evaluation); // TODO: remove
             const res = createEvaluation(evaluation);
+            console.log(res);
             problems(res.problems);
             causes(res.causes);
             solvers(res.solvers);
@@ -60,6 +61,10 @@ function createEvaluation (evaluation) {
 
     problems.map(problem => {
         problem.causes = problem.causes.map(name => causes.find(cause => cause.name === name));
+    });
+
+    causes.map(cause => {
+        cause.solvers = cause.solvers.map(name => solvers.find(solver => solver.name === name));
     });
 
     return {problems, causes, solvers};

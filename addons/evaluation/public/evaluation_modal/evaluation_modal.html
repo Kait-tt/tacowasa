@@ -13,11 +13,6 @@
             </a>
           </li>
           <li role="presentation">
-            <a href="#evaluation-cause" aria-controls="evaluation-cause" role="tab" data-toggle="tab">
-              <i class="glyphicon glyphicon-flash"></i> 原因 <span class="badge">3</span>
-            </a>
-          </li>
-          <li role="presentation">
             <a href="#evaluation-solver" aria-controls="evaluation-solver" role="tab" data-toggle="tab">
               <i class="glyphicon glyphicon-tint"></i> 解決策 <span class="badge">3</span>
             </a>
@@ -29,105 +24,6 @@
             <!-- ko foreach: problemComponents -->
             <div data-bind="component: componentName"></div>
             <!-- /ko -->
-          </div>
-
-          <div role="tabpanel" class="tab-pane" id="evaluation-cause">
-            <div class="panel panel-warning">
-              <div class="panel-heading">
-                <h3 class="panel-title">
-                  <i class="glyphicon glyphicon-warning-sign"></i> 巨大なタスク
-                </h3>
-              </div>
-              <div class="panel-body">
-                <div>
-                  <p>タスクが大きすぎる可能性があります。</p>
-                </div>
-                <div>
-                  <p class="text-info"><i class="glyphicon glyphicon-tint"></i> 解決策</p>
-                  <div>
-                    <ul>
-                      <li><input type="checkbox"> <a href="#" data-bind="click: () => changeTab('solver')">タスクの分析・設計</a></li>
-                    </ul>
-                  </div>
-                </div>
-                <div>
-                  <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 引き起こしている問題</p>
-                  <div>
-                    <ul>
-                      <li><a href="#" data-bind="click: () => changeTab('problem')">問題タスクの発生</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="panel-footer">
-                <button class="btn btn-primary" type="button">解決済みにする</button>
-              </div>
-            </div>
-
-            <div class="panel panel-warning">
-              <div class="panel-heading">
-                <h3 class="panel-title">
-                  <i class="glyphicon glyphicon-warning-sign"></i> 甘い見積り
-                </h3>
-              </div>
-              <div class="panel-body">
-                <div>
-                  <p>見積りが甘い可能性があります。</p>
-                </div>
-                <div>
-                  <p class="text-info"><i class="glyphicon glyphicon-tint"></i> 解決策</p>
-                  <div>
-                    <ul>
-                      <li><input type="checkbox"> <a href="#" data-bind="click: () => changeTab('solver')">見積り方法の見直し</a></li>
-                      <li><input type="checkbox"> <a href="#" data-bind="click: () => changeTab('solver')">振り返り</a></li>
-                    </ul>
-                  </div>
-                </div>
-                <div>
-                  <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 引き起こしている問題</p>
-                  <div>
-                    <ul>
-                      <li><a href="#" data-bind="click: () => changeTab('problem')">問題タスクの発生</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="panel-footer">
-                <button class="btn btn-primary" type="button">解決済みにする</button>
-              </div>
-            </div>
-
-            <div class="panel panel-warning">
-              <div class="panel-heading">
-                <h3 class="panel-title">
-                  <i class="glyphicon glyphicon-warning-sign"></i> 不明
-                </h3>
-              </div>
-              <div class="panel-body">
-                <div>
-                  <p>原因が不明です。</p>
-                </div>
-                <div>
-                  <p class="text-info"><i class="glyphicon glyphicon-tint"></i> 解決策</p>
-                  <div>
-                    <ul>
-                      <li><input type="checkbox"> <a href="#" data-bind="click: () => changeTab('solver')">振り返り</a></li>
-                    </ul>
-                  </div>
-                </div>
-                <div>
-                  <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 引き起こしている問題</p>
-                  <div>
-                    <ul>
-                      <li><a href="#" data-bind="click: () => changeTab('problem')">問題タスクの発生</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="panel-footer">
-                <button class="btn btn-primary" type="button">解決済みにする</button>
-              </div>
-            </div>
           </div>
 
           <div role="tabpanel" class="tab-pane" id="evaluation-solver">

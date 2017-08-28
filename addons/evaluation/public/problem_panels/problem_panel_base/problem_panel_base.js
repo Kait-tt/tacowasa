@@ -23,8 +23,8 @@ class ProblemPanelBase extends EventEmitter {
         return require('html-loader!./problem_panel_base.html');
     }
 
-    goToCauseTab () {
-        $('a[href="#evaluation-cause"]').tab('show');
+    goToSolverTab () {
+        $('a[href="#evaluation-solver"]').tab('show');
     }
 }
 

@@ -14,15 +14,19 @@
         <!-- ko if: problem.isOccurred -->
         <div class="problem-description problem-bad-description" data-bind="text: problem.badDescription"></div>
         <div class="problem-causes">
-            <p class="text-warning"><i class="glyphicon glyphicon-flash"></i> 予測される原因</p>
+            <p class="text-warning"><i class="glyphicon glyphicon-flash"></i> 予測される原因と解決策</p>
             <div>
-                <ul data-bind="foreach: problem.causes">
+                <ul data-bind="foreach: { data: problem.causes, as: 'cause' }">
                     <li>
-                        <input type="checkbox">
-                        <a href="#" data-bind="
-                            click: $component.goToCauseTab,
-                            text: title">
-                        </a>
+                        <input type="checkbox" disabled>
+                        <span href="#" data-bind="text: cause.title"></span>
+
+                        <ul data-bind="foreach: { data: cause.solvers,  as: 'solver' }">
+                            <li>
+                                <input type="checkbox">
+                                <a href="#" data-bind="click: $component.goToSolverTab, text: solver.title"></a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </div>
