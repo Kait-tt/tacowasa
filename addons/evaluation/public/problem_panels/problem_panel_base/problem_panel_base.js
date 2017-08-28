@@ -26,6 +26,10 @@ class ProblemPanelBase extends EventEmitter {
     goToSolverTab () {
         $('a[href="#evaluation-solver"]').tab('show');
     }
+
+    solve () {
+        this.problem.isOccurred(false);
+    }
 }
 
 module.exports = ProblemPanelBase;
