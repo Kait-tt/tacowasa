@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const sortBy = require('lodash/sortBy');
 
 class Evaluator {
     constructor ({projectId}) {
@@ -36,23 +37,23 @@ class Evaluator {
 
     serialize () {
         return {
-            problems: this.problems.map(problem => ({
+            problems: sortBy(this.problems.map(problem => ({
                 name: problem.constructor.name,
                 title: problem.constructor.title,
                 goodDescription: problem.constructor.goodDescription,
                 badDescription: problem.constructor.badDescription,
                 causes: problem.causes.map(cause => cause.constructor.name)
-            })),
-            causes: this.causes.map(cause => ({
+            })), 'name'),
+            causes: sortBy(this.causes.map(cause => ({
                 name: cause.constructor.name,
                 title: cause.constructor.title,
                 solvers: cause.solvers.map(solver => solver.constructor.name)
-            })),
-            solvers: this.solvers.map(solver => ({
+            })), 'name'),
+            solvers: sortBy(this.solvers.map(solver => ({
                 name: solver.constructor.name,
                 title: solver.constructor.title,
                 description: solver.constructor.description
-            }))
+            })), 'name')
         };
     }
 }
