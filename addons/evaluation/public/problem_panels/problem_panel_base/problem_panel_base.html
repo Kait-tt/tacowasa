@@ -5,7 +5,11 @@
     }">
     <div class="panel-heading">
         <h3 class="panel-title">
-            <i class="glyphicon glyphicon-fire"></i>
+            <i class="glyphicon" data-bind="
+                css: {
+                    'glyphicon-check': !problem.isOccurred(),
+                    'glyphicon-fire': problem.isOccurred()
+                }"></i>
             <span class="problem-title" data-bind="text: problem.title"></span>
         </h3>
     </div>
