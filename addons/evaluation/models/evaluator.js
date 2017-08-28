@@ -38,10 +38,14 @@ class Evaluator {
         return {
             problems: this.problems.map(problem => ({
                 name: problem.constructor.name,
+                title: problem.constructor.title,
+                goodDescription: problem.constructor.goodDescription,
+                badDescription: problem.constructor.badDescription,
                 causes: problem.causes.map(cause => cause.constructor.name)
             })),
             causes: this.causes.map(cause => ({
                 name: cause.constructor.name,
+                title: cause.constructor.title,
                 solvers: cause.solvers.map(solver => solver.constructor.name)
             })),
             solvers: this.solvers.map(solver => ({

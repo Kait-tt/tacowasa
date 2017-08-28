@@ -1,5 +1,6 @@
 'use strict';
 
 module.exports = {
-    name: 'evaluation'
+    name: 'evaluation',
+    SocketOn: require('./socket_on')
 };

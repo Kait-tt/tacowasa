@@ -1,5 +1,5 @@
 'use strict';
-const ko = require('knockout');
+// const ko = require('knockout');
 const EvaluationModalButton = require('./evaluation_modal_button');
 const EvaluationModal = require('./evaluation_modal');
 
@@ -20,12 +20,19 @@ module.exports = {
         evaluationModalButton.register();
         toolbarButtons.appendChild(document.createElement(evaluationModalButton.componentName));
 
+        // init socket events
+
+        socket.on('evaluation', evaluation => {
+            console.log(evaluation);
+        });
+
+        socket.on('initJoinedUsernames', () => { // init
+            socket.emit('fetchEvaluation');
+        });
+
         // test
         setTimeout(() => {
             $('#evaluation-modal').modal('show');
         }, 500);
     }
 };
-
-
-
