@@ -1,0 +1,41 @@
+<div class="panel problem-panel" data-bind="
+    css: {
+        'panel-success': !problem.isOccurred(),
+        'panel-danger': problem.isOccurred()
+    }">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <i class="glyphicon glyphicon-fire"></i>
+            <span class="problem-title" data-bind="text: problem.title"></span>
+        </h3>
+    </div>
+
+    <div class="panel-body">
+        <!-- ko if: problem.isOccurred -->
+        <div class="problem-description problem-bad-description" data-bind="text: problem.badDescription"></div>
+        <div class="problem-causes">
+            <p class="text-warning"><i class="glyphicon glyphicon-flash"></i> 予測される原因</p>
+            <div>
+                <ul data-bind="foreach: problem.causes">
+                    <li>
+                        <input type="checkbox">
+                        <a href="#" data-bind="
+                            click: $component.goToCauseTab,
+                            text: title">
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- /ko -->
+        <!-- ko if: !problem.isOccurred() -->
+        <div class="problem-description problem-bad-description" data-bind="text: problem.goodDescription"></div>
+        <!-- /ko -->
+    </div>
+
+    <!-- ko if: problem.isOccurred -->
+    <div class="panel-footer">
+        <button class="btn btn-primary" type="button">解決済みにする</button>
+    </div>
+    <!-- /ko -->
+</div>

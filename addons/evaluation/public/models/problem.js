@@ -7,11 +7,7 @@ class Problem {
         this.badDescription = params.badDescription;
         this.goodDescription = params.goodDescription;
         this.causes = params.causes;
-        this.isOccured = ko.observable(false); // TODO
-
-        this.description = ko.computed(() => {
-            return this.isOccured() ? this.badDescription : this.goodDescription;
-        });
+        this.isOccurred = ko.observable(params.name.startsWith('Task')); // TODO
     }
 }
 

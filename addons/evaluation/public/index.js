@@ -5,6 +5,7 @@ const Cause = require('./models/cause');
 const Solver = require('./models/solver');
 const EvaluationModalButton = require('./evaluation_modal_button');
 const EvaluationModal = require('./evaluation_modal');
+const ProblemPanels = require('./problem_panels');
 
 module.exports = {
     init: (kanban, {alert}) => {
@@ -32,9 +33,13 @@ module.exports = {
         socket.on('evaluation', evaluation => {
             console.log(evaluation); // TODO: remove
             const res = createEvaluation(evaluation);
-            problems.slice(0, problems.length, res.problems);
-            causes.slice(0, causes.length, res.causes);
-            solvers.slice(0, solvers.length, res.solvers);
+            problems(res.problems);
+            causes(res.causes);
+            solvers(res.solvers);
+
+            const problemComponents = createProblemPanels(problems);
+            problemComponents.forEach(component => component.register());
+            evaluationModal.problemComponents(problemComponents);
         });
 
         socket.on('initJoinedUsernames', () => { // init
@@ -58,4 +63,11 @@ function createEvaluation (evaluation) {
     });
 
     return {problems, causes, solvers};
+}
+
+function createProblemPanels (problems) {
+    return problems().map(problem => {
+        const Panel = ProblemPanels[problem.name];
+        return new Panel({}, problem);
+    });
 }
