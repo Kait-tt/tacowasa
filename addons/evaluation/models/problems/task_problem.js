@@ -9,6 +9,18 @@ class TaskProblem extends ProblemAbstract {
         ];
     }
 
+    static get title () {
+        return '問題タスクの発生';
+    }
+
+    static get goodDescription () {
+        return '問題タスクは発生していません。';
+    }
+
+    static get badDescription () {
+        return '問題タスクが発生しています。';
+    }
+
     static checkProblem () {
         throw new Error('must be implemented');
     }

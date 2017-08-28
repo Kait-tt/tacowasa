@@ -9,6 +9,18 @@ class ProjectCompletionPrediction extends ProblemAbstract {
         ];
     }
 
+    static get title () {
+        return 'プロジェクトの完了予測';
+    }
+
+    static get goodDescription () {
+        return 'プロジェクトは期間内に完了しそうです。';
+    }
+
+    static get badDescription () {
+        return 'プロジェクトは期間内に完了しそうにありません。';
+    }
+
     static checkProblem () {
         throw new Error('must be implemented');
     }
