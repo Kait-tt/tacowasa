@@ -22,12 +22,12 @@
             <div>
                 <ul data-bind="foreach: { data: problem.causes, as: 'cause' }">
                     <li>
-                        <input type="checkbox" disabled>
+                        <input type="checkbox" data-bind="checked: cause.isSolved" disabled>
                         <span href="#" data-bind="text: cause.title"></span>
 
                         <ul data-bind="foreach: { data: cause.solvers,  as: 'solver' }">
                             <li>
-                                <input type="checkbox">
+                                <input type="checkbox" data-bind="checked: solver.isSolved" disabled>
                                 <a href="#" data-bind="click: $component.goToSolverTab, text: solver.title"></a>
                             </li>
                         </ul>
