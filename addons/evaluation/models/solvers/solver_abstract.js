@@ -7,6 +7,10 @@ class SolverAbstract {
         throw new Error('must be implemented');
     }
 
+    static get description () {
+        throw new Error('must be implemented');
+    }
+
     static get checkDurationSeconds () {
         return 5 * 60; // 5 minutes
     }

@@ -6,7 +6,11 @@ class ReconsiderationPromisedTime extends SolverAbstract {
     }
 
     static get title () {
-        return '約束時間を見なおそう';
+        return '約束時間の調整';
+    }
+
+    static get description () {
+        return '約束時間を見直しましょう。';
     }
 }
 

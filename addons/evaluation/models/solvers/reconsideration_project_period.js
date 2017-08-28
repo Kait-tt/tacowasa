@@ -6,7 +6,11 @@ class ReconsiderationProjectPeriod extends SolverAbstract {
     }
 
     static get title () {
-        return 'プロジェクト期間を見なおそう';
+        return 'プロジェクト期間の調整';
+    }
+
+    static get description () {
+        return 'プロジェクト期間を調整しましょう。';
     }
 }
 

@@ -50,7 +50,8 @@ class Evaluator {
             })),
             solvers: this.solvers.map(solver => ({
                 name: solver.constructor.name,
-                title: solver.constructor.title
+                title: solver.constructor.title,
+                description: solver.constructor.description
             }))
         };
     }

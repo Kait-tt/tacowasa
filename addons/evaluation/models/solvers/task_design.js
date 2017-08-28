@@ -6,7 +6,11 @@ class TaskDesign extends SolverAbstract {
     }
 
     static get title () {
-        return 'タスクの設計をしよう';
+        return 'タスクの分析・設計';
+    }
+
+    static get description () {
+        return 'タスクの分析・設計をしましょう。';
     }
 }
 

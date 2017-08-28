@@ -6,7 +6,11 @@ class Retrospective extends SolverAbstract {
     }
 
     static get title () {
-        return '原因を考えて振り返りをしよう';
+        return '振り返り';
+    }
+
+    static get description () {
+        return '振り返りをして原因を考えましょう。';
     }
 }
 

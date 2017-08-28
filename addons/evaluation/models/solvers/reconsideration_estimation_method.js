@@ -6,7 +6,11 @@ class ReconsiderationEstimationMethod extends SolverAbstract {
     }
 
     static get title () {
-        return '見積り方法を見なおそう';
+        return '見積り方法の見直し';
+    }
+
+    static get description () {
+        return '見積り方法を見直しましょう。';
     }
 }
 

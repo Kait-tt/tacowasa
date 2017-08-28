@@ -6,7 +6,11 @@ class ReconsiderationTaskQuantity extends SolverAbstract {
     }
 
     static get title () {
-        return '全体のタスク量を見なおそう';
+        return '全体のタスク量の調整';
+    }
+
+    static get description () {
+        return '全体のタスク量を調整しましょう。';
     }
 }
 
