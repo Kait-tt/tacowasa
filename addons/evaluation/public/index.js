@@ -6,6 +6,9 @@ const Solver = require('./models/solver');
 const EvaluationModalButton = require('./evaluation_modal_button');
 const EvaluationModal = require('./evaluation_modal');
 const ProblemPanels = require('./problem_panels');
+const SolverPanels = require('./solver_panels');
+const flatten = require('lodash/flatten');
+const intersection = require('lodash/intersection');
 
 module.exports = {
     init: (kanban, {alert}) => {
@@ -30,10 +33,8 @@ module.exports = {
 
         // init socket events
 
-        socket.on('evaluation', evaluation => {
-            console.log(evaluation); // TODO: remove
+        socket.once('evaluation', evaluation => {
             const res = createEvaluation(evaluation);
-            console.log(res);
             problems(res.problems);
             causes(res.causes);
             solvers(res.solvers);
@@ -41,6 +42,10 @@ module.exports = {
             const problemComponents = createProblemPanels(problems);
             problemComponents.forEach(component => component.register());
             evaluationModal.problemComponents(problemComponents);
+
+            const solverComponents = createSolverPanels(solvers);
+            solverComponents.forEach(component => component.register());
+            evaluationModal.solverComponents(solverComponents);
         });
 
         socket.on('initJoinedUsernames', () => { // init
@@ -55,16 +60,21 @@ module.exports = {
 };
 
 function createEvaluation (evaluation) {
-    const problems = evaluation.problems.map(params => new Problem(params));
-    const causes = evaluation.causes.map(params => new Cause(params));
     const solvers = evaluation.solvers.map(params => new Solver(params));
 
-    problems.map(problem => {
-        problem.causes = problem.causes.map(name => causes.find(cause => cause.name === name));
+    const causes = evaluation.causes.map(params => {
+        params.solvers = params.solvers.map(name => solvers.find(solver => solver.name === name));
+        return new Cause(params);
     });
 
-    causes.map(cause => {
-        cause.solvers = cause.solvers.map(name => solvers.find(solver => solver.name === name));
+    const problems = evaluation.problems.map(params => {
+        params.causes = params.causes.map(name => causes.find(cause => cause.name === name));
+        return new Problem(params);
+    });
+
+    solvers.forEach(solver => {
+        const relatedCauses = causes.filter(cause => cause.solvers().includes(solver));
+        solver.relatedProblems(flatten(problems.filter(problem => intersection(problem.causes(), relatedCauses).length)));
     });
 
     return {problems, causes, solvers};
@@ -74,5 +84,12 @@ function createProblemPanels (problems) {
     return problems().map(problem => {
         const Panel = ProblemPanels[problem.name];
         return new Panel({}, problem);
+    });
+}
+
+function createSolverPanels (solvers) {
+    return solvers().map(solver => {
+        const Panel = SolverPanels[solver.name];
+        return new Panel({}, solver);
     });
 }

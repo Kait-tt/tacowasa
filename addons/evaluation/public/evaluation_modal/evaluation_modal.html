@@ -25,79 +25,10 @@
             <div data-bind="component: componentName"></div>
             <!-- /ko -->
           </div>
-
           <div role="tabpanel" class="tab-pane" id="evaluation-solver">
-            <div class="panel panel-info">
-              <div class="panel-heading">
-                <h3 class="panel-title">
-                  <i class="glyphicon glyphicon-thumbs-up"></i> タスクの分析・設計
-                </h3>
-              </div>
-              <div class="panel-body">
-                <div>
-                  <p>タスクの分析・設計をしましょう。</p>
-                </div>
-                <div>
-                  <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 関係する問題</p>
-                  <div>
-                    <ul>
-                      <li><a href="#" data-bind="click: () => changeTab('problem')">問題タスクの発生</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="panel-footer">
-                <button class="btn btn-primary" type="button">解決済みにする</button>
-              </div>
-            </div>
-
-            <div class="panel panel-info">
-              <div class="panel-heading">
-                <h3 class="panel-title">
-                  <i class="glyphicon glyphicon-thumbs-up"></i> 見積り方法の見直し
-                </h3>
-              </div>
-              <div class="panel-body">
-                <div>
-                  <p>見積り方法を見直しましょう。</p>
-                </div>
-                <div>
-                  <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 関係する問題</p>
-                  <div>
-                    <ul>
-                      <li><a href="#" data-bind="click: () => changeTab('problem')">問題タスクの発生</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="panel-footer">
-                <button class="btn btn-primary" type="button">解決済みにする</button>
-              </div>
-            </div>
-
-            <div class="panel panel-info">
-              <div class="panel-heading">
-                <h3 class="panel-title">
-                  <i class="glyphicon glyphicon-thumbs-up"></i> 振り返り
-                </h3>
-              </div>
-              <div class="panel-body">
-                <div>
-                  <p>振り返りをして原因を考えましょう。</p>
-                </div>
-                <div>
-                  <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 関係する問題</p>
-                  <div>
-                    <ul>
-                      <li><a href="#" data-bind="click: () => changeTab('problem')">問題タスクの発生</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="panel-footer">
-                <button class="btn btn-primary" type="button">解決済みにする</button>
-              </div>
-            </div>
+            <!-- ko foreach: solverComponents -->
+            <div data-bind="component: componentName"></div>
+            <!-- /ko -->
           </div>
         </div>
       </div>

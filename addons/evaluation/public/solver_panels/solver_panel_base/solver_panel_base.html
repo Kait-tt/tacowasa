@@ -1,0 +1,34 @@
+<div class="panel solver-panel" data-bind="
+    css: {
+        'panel-success': solver.isSolved(),
+        'panel-info': !solver.isSolved()
+    }">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <i class="glyphicon" data-bind="
+                css: {
+                    'glyphicon-check': solver.isSolved(),
+                    'glyphicon-thumbs-up': !solver.isSolved()
+                }"></i>
+            <span class="solver-title" data-bind="text: solver.title"></span>
+        </h3>
+    </div>
+
+    <div class="panel-body">
+        <div class="solver-description" data-bind="text: solver.description"></div>
+        <div class="solver-related-problems">
+            <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 関連する問題</p>
+            <div>
+                <ul data-bind="foreach: solver.relatedProblems">
+                    <li><a href="#" data-bind="click: $component.goToProblemTab, text: title"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ko if: !solver.isSolved() -->
+    <div class="panel-footer">
+        <button class="btn btn-primary" type="button">解決済みにする</button>
+    </div>
+    <!-- /ko -->
+</div>

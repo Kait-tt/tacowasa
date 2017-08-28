@@ -6,7 +6,7 @@ class Problem {
         this.title = params.title;
         this.badDescription = params.badDescription;
         this.goodDescription = params.goodDescription;
-        this.causes = params.causes;
+        this.causes = ko.observableArray(params.causes);
         this.isOccurred = ko.observable(params.name.startsWith('Task')); // TODO
     }
 }

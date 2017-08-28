@@ -17,10 +17,16 @@ class EvaluationModal extends AbstractModalComponent {
                 this.problemComponents(xs);
             }
         });
-    }
 
-    changeTab(name) {
-        $(`a[href="#evaluation-${name}"]`).tab('show');
+        this.solverComponents = ko.observableArray();
+
+        // auto sort solver components
+        this.solverComponents.subscribe(components => {
+            const xs = sortBy(components, x => [x.solver.isSolved(), x.solver.name]);
+            if (!isEqual(_map(components, 'solver.name'), _map(xs, 'solver.name'))) {
+                this.solverComponents(xs);
+            }
+        });
     }
 
     get template () { return require('html-loader!./evaluation_modal.html'); }

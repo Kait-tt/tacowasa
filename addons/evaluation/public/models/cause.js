@@ -4,7 +4,8 @@ class Cause {
     constructor (params) {
         this.name = params.name;
         this.title = params.title;
-        this.solvers = params.solvers;
+        this.solvers = ko.observableArray(params.solvers);
+        this.isSolved = ko.computed(() => this.solvers().some(solver => solver.isSolved()));
     }
 }
 
