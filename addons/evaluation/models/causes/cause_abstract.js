@@ -5,6 +5,10 @@ class CauseAbstract {
         });
     }
 
+    static get title () {
+        throw new Error('must be implemented');
+    }
+
     static get SolverClasses () {
         return [];
     }

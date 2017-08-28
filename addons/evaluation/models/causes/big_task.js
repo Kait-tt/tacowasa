@@ -6,6 +6,10 @@ class BigTask extends CauseAbstract {
             require('../solvers/task_design')
         ];
     }
+
+    static get title () {
+        return '巨大なタスク';
+    }
 }
 
 module.exports = BigTask;

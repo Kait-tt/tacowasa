@@ -8,6 +8,10 @@ class PoorEstimation extends CauseAbstract {
             require('../solvers/retrospective')
         ];
     }
+
+    static get title () {
+        return '甘い見積り';
+    }
 }
 
 module.exports = PoorEstimation;

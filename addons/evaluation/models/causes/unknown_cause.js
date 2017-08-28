@@ -1,12 +1,16 @@
 const CauseAbstract = require('./cause_abstract');
 
-class UnknownCuase extends CauseAbstract {
+class UnknownCause extends CauseAbstract {
     static get SolverClasses () {
         return [
             require('../solvers/retrospective')
         ];
     }
+
+    static get title () {
+        return '不明';
+    }
 }
 
 
-module.exports = UnknownCuase;
+module.exports = UnknownCause;

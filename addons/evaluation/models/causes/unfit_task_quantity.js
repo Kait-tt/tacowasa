@@ -6,6 +6,10 @@ class UnfitTaskQuantity extends CauseAbstract {
             require('../solvers/reconsideration_task_quantity')
         ];
     }
+
+    static get title () {
+        return '多すぎるタスク';
+    }
 }
 
 module.exports = UnfitTaskQuantity;

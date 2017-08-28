@@ -6,6 +6,10 @@ class UnfitPromisedTime extends CauseAbstract {
             require('../solvers/reconsideration_promised_time')
         ];
     }
+
+    static get title () {
+        return '不適切な約束時間';
+    }
 }
 
 module.exports = UnfitPromisedTime;
