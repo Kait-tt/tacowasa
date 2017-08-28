@@ -3,6 +3,10 @@ class SolverAbstract {
         this.projectSolver = [];
     }
 
+    static get title () {
+        throw new Error('must be implemented');
+    }
+
     static get checkDurationSeconds () {
         return 5 * 60; // 5 minutes
     }

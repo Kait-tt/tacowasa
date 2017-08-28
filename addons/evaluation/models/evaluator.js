@@ -49,7 +49,8 @@ class Evaluator {
                 solvers: cause.solvers.map(solver => solver.constructor.name)
             })),
             solvers: this.solvers.map(solver => ({
-                name: solver.constructor.name
+                name: solver.constructor.name,
+                title: solver.constructor.title
             }))
         };
     }
