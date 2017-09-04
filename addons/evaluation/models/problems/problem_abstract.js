@@ -55,16 +55,21 @@ class ProblemAbstract {
         return await this.createProjectProblem({transaction});
     }
 
-    async updateStatus({isOccurred}, {transaction} = {}) {
-        return await db.EvaluationProjectProblem.update({
+    async updateStatus ({isOccurred}, {transaction} = {}) {
+        const projectProblem = await this.findOrCreateProjectProblem({transaction});
+
+        await projectProblem.update({
             isOccurred
         }, {
-            where: {
-                projectId: this.projectId,
-                problemName: this.constructor.name
-            },
             transaction
         });
+    }
+
+    async needCheckProblem () {
+        const projectProblem = await this.findProjectProblem();
+        if (!projectProblem) { return true; }
+        const expire = Number(new Date(projectProblem.updatedAt)) + this.constructor.checkDurationSeconds * 1000;
+        return Date.now() > expire;
     }
 }
 
