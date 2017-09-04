@@ -1,4 +1,6 @@
 const ProblemAbstract = require('./problem_abstract');
+const db = require('../../schemas');
+const StagnationTask = require('../../../stats/models/stagnation_task');
 
 class TaskProblem extends ProblemAbstract {
     static get CauseClasses () {
@@ -21,8 +23,9 @@ class TaskProblem extends ProblemAbstract {
         return '問題タスクが発生しています。';
     }
 
-    static checkProblem () {
-        throw new Error('must be implemented');
+    async checkProblem () {
+        const problemTaskIds = await StagnationTask.findByProjectId(this.projectId);
+        await this.updateStatus({isOccurred: !!problemTaskIds.length});
     }
 }
 
