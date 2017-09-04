@@ -28,8 +28,23 @@ class ProblemAbstract {
         return [];
     }
 
-    async checKProblem () {
+    async checkProblem () {
+        const isOccurred = await this._checkProblem();
+        if (isOccurred) {
+            await this.updateAllSolverChildren({isSolved: false});
+        }
+    }
+
+    async _checkProblem () {
         throw new Error('must be implemented');
+    }
+
+    async updateAllSolverChildren ({isSolved}, {transaction} = {}) {
+        for (let cause of this.causes) {
+            for (let solver of cause.solvers) {
+                await solver.updateStatus({isSolved}, {transaction});
+            }
+        }
     }
 
     async findProjectProblem ({transaction} = {}) {

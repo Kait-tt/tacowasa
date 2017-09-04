@@ -21,9 +21,11 @@ class ProjectCompletionPrediction extends ProblemAbstract {
         return 'プロジェクトは期間内に完了しそうにありません。';
     }
 
-    async checkProblem () {
+    async _checkProblem () {
         // TODO: implement
-        await this.updateStatus({isOccurred: true});
+        const isOccurred = true;
+        await this.updateStatus({isOccurred});
+        return isOccurred;
     }
 }
 

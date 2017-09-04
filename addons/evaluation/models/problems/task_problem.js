@@ -22,9 +22,11 @@ class TaskProblem extends ProblemAbstract {
         return '問題タスクが発生しています。';
     }
 
-    async checkProblem () {
+    async _checkProblem () {
         const problemTaskIds = await StagnationTask.findByProjectId(this.projectId);
-        await this.updateStatus({isOccurred: !!problemTaskIds.length});
+        const isOccurred = !!problemTaskIds.length;
+        await this.updateStatus({isOccurred});
+        return isOccurred;
     }
 }
 
