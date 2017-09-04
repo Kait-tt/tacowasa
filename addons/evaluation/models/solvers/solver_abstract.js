@@ -47,9 +47,12 @@ class SolverAbstract {
     async updateStatus ({isSolved}, {transaction} = {}) {
         const projectSolver = await this.findOrCreateProjectSolver({transaction});
 
-        await projectSolver.update({
+        await db.EvaluationProjectSolver.update({
             isSolved
         }, {
+            where: {
+                id: projectSolver.id
+            },
             transaction
         });
     }

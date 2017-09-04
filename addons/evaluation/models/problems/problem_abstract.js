@@ -33,6 +33,7 @@ class ProblemAbstract {
         if (isOccurred) {
             await this.updateAllSolverChildren({isSolved: false});
         }
+        return isOccurred;
     }
 
     async _checkProblem () {
@@ -73,9 +74,12 @@ class ProblemAbstract {
     async updateStatus ({isOccurred}, {transaction} = {}) {
         const projectProblem = await this.findOrCreateProjectProblem({transaction});
 
-        await projectProblem.update({
+        await db.EvaluationProjectProblem.update({
             isOccurred
         }, {
+            where: {
+                id: projectProblem.id
+            },
             transaction
         });
     }

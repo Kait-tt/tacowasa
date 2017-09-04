@@ -11,6 +11,7 @@ class EvaluationSocketOn extends AddonSocketOn {
         await socketProject.logging(user.username, 'fetchEvaluation');
         const evaluator = new Evaluator({projectId: socketProject.projectId});
         user.socket.emit('evaluation', await evaluator.serialize());
+        this.startEvaluateInterval(socketProject, user);
     }
 
     static async solveEvaluationProblem (socketProject, user, {problemName}) {
@@ -31,6 +32,26 @@ class EvaluationSocketOn extends AddonSocketOn {
         await solver.updateStatus({isSolved: true});
 
         this._emitUpdateEvaluation(user, {solvers: [await solver.serialize()]})
+    }
+
+    static startEvaluateInterval (socketProject, user) {
+        this.evaluate(socketProject, user);
+        const _id = setInterval(() => {
+            if (user.active) {
+                this.evaluate(socketProject, user);
+            } else {
+                clearInterval(_id);
+            }
+        }, 60 * 1000);
+        return _id;
+    }
+
+    static evaluate (socketProject, user) {
+        (async () => {
+            const evaluator = new Evaluator({projectId: socketProject.projectId});
+            const changes = await evaluator.evaluate();
+            this._emitUpdateEvaluation(user, changes);
+        })().catch(err => console.error(err));
     }
 
     static _emitUpdateEvaluation (user, {problems = [], causes = [], solvers = []}) {

@@ -48,11 +48,18 @@ class Evaluator {
     }
 
     async evaluate ({force} = {force: false}) { // no transaction
+        const changes = {problems: []};
+
         for (let problem of this.problems) {
             if (force || await problem.needCheckProblem()) {
-                await problem.checkProblem();
+                const isOccurred = await problem.checkProblem();
+                if (isOccurred) {
+                    changes.problems.push(await problem.serialize());
+                }
             }
         }
+
+        return changes;
     }
 
     static _requires (dirname) {
