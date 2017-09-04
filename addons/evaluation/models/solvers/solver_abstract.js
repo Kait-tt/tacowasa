@@ -1,6 +1,8 @@
+const db = require('../../schemas');
+
 class SolverAbstract {
-    constructor () {
-        this.projectSolver = [];
+    constructor ({projectId}) {
+        this.projectId = projectId;
     }
 
     static get title () {
@@ -17,6 +19,39 @@ class SolverAbstract {
 
     static checkSolved () {
         throw new Error('must be implemented');
+    }
+
+    async findProjectSolver ({transaction} = {}) {
+        return await db.EvaluationProjectSolver.findOne({where: {
+            projectId: this.projectId,
+            solverName: this.constructor.name
+        },
+            transaction
+        });
+    }
+
+    async createProjectSolver ({transaction} = {}) {
+        return await db.EvaluationProjectSolver.create({
+            projectId: this.projectId,
+            solverName: this.constructor.name,
+            isSolved: true
+        }, {transaction});
+    }
+
+    async findOrCreateProjectSolver ({transaction} = {}) {
+        const res = await this.findProjectSolver({transaction});
+        if (res) { return res; }
+        return await this.createProjectSolver({transaction});
+    }
+
+    async updateStatus ({isSolved}, {transaction} = {}) {
+        const projectSolver = await this.findOrCreateProjectSolver({transaction});
+
+        await projectSolver.update({
+            isSolved
+        }, {
+            transaction
+        });
     }
 }
 
