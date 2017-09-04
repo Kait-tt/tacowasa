@@ -9,12 +9,16 @@
         <ul class="nav nav-tabs" role="tablist">
           <li role="presentation" class="active">
             <a href="#evaluation-problem" aria-controls="evaluation-problem" role="tab" data-toggle="tab">
-              <i class="glyphicon glyphicon-fire"></i> 問題 <span class="badge">1</span>
+              <i class="glyphicon glyphicon-fire"></i>
+              問題
+              <span class="badge" data-bind="text: $component.problemCount">0</span>
             </a>
           </li>
           <li role="presentation">
             <a href="#evaluation-solver" aria-controls="evaluation-solver" role="tab" data-toggle="tab">
-              <i class="glyphicon glyphicon-tint"></i> 解決策 <span class="badge">3</span>
+              <i class="glyphicon glyphicon-tint"></i>
+              解決策
+              <span class="badge" data-bind="text: $component.solverCount">0</span>
             </a>
           </li>
         </ul>

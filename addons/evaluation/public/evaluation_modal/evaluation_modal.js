@@ -27,6 +27,15 @@ class EvaluationModal extends AbstractModalComponent {
                 this.solverComponents(xs);
             }
         });
+
+        // counter
+        this.problemCount = ko.computed(() => {
+            return this.problemComponents().filter(x => x.problem.isOccurred()).length;
+        });
+
+        this.solverCount = ko.computed(() => {
+            return this.solverComponents().filter(x => !x.solver.isSolved()).length;
+        });
     }
 
     get template () { return require('html-loader!./evaluation_modal.html'); }
