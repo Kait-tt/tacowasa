@@ -28,7 +28,7 @@ class SolverPanelBase extends EventEmitter {
     }
 
     solve () {
-        this.solver.isSolved(true);
+        this.emit('solve');
     }
 }
 

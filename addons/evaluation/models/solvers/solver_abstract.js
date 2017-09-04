@@ -53,6 +53,17 @@ class SolverAbstract {
             transaction
         });
     }
+
+    async serialize () {
+        const projectSolver = await this.findOrCreateProjectSolver();
+        return {
+            name: this.constructor.name,
+            title: this.constructor.title,
+            description: this.constructor.description,
+            isSolved: projectSolver.isSolved,
+            updatedAt: projectSolver.updatedAt
+        };
+    }
 }
 
 module.exports = SolverAbstract;

@@ -89,6 +89,19 @@ class ProblemAbstract {
         const expire = Number(new Date(projectProblem.updatedAt)) + this.constructor.checkDurationSeconds * 1000;
         return Date.now() > expire;
     }
+
+    async serialize () {
+        const projectProblem = await this.findOrCreateProjectProblem();
+        return {
+            name: this.constructor.name,
+            title: this.constructor.title,
+            goodDescription: this.constructor.goodDescription,
+            badDescription: this.constructor.badDescription,
+            causes: this.causes.map(cause => cause.constructor.name),
+            isOccurred: projectProblem.isOccurred,
+            updatedAt: projectProblem.updatedAt
+        };
+    }
 }
 
 module.exports = ProblemAbstract;

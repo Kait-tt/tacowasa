@@ -40,12 +40,42 @@ module.exports = {
             solvers(res.solvers);
 
             const problemComponents = createProblemPanels(problems);
-            problemComponents.forEach(component => component.register());
+            problemComponents.forEach(component => {
+                component.register();
+                component.on('solve', () => {
+                    socket.emit('solveEvaluationProblem', {
+                        problemName: component.problem.name
+                    });
+                });
+            });
             evaluationModal.problemComponents(problemComponents);
 
             const solverComponents = createSolverPanels(solvers);
-            solverComponents.forEach(component => component.register());
+            solverComponents.forEach(component => {
+                component.register();
+                component.on('solve', () => {
+                    socket.emit('solveEvaluationSolver', {
+                        solverName: component.solver.name
+                    });
+                });
+            });
             evaluationModal.solverComponents(solverComponents);
+        });
+
+        socket.on('updateEvaluation', changes => {
+            changes.problems.forEach(changedProblem => {
+                const problem = problems().find(x => x.name === changedProblem.name);
+                ['isOccurred'].forEach(key => {
+                    problem[key](changedProblem[key]);
+                });
+            });
+
+            changes.solvers.forEach(changedSolver => {
+                const solver = solvers().find(x => x.name === changedSolver.name);
+                ['isSolved'].forEach(key => {
+                    solver[key](changedSolver[key]);
+                });
+            });
         });
 
         socket.on('initJoinedUsernames', () => { // init

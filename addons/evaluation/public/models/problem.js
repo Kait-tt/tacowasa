@@ -7,7 +7,7 @@ class Problem {
         this.badDescription = params.badDescription;
         this.goodDescription = params.goodDescription;
         this.causes = ko.observableArray(params.causes);
-        this.isOccurred = ko.observable(true); // TODO
+        this.isOccurred = ko.observable(params.isOccurred);
     }
 }
 

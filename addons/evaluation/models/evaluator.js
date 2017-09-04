@@ -27,6 +27,18 @@ class Evaluator {
         return this._requires('solvers');
     }
 
+    static findProblem (name) {
+        return this.ProblemClasses.find(x => x.name === name);
+    }
+
+    static findCause (name) {
+        return this.CauseClasses.find(x => x.name === name);
+    }
+
+    static findSolver (name) {
+        return this.SolverClasses.find(x => x.name === name);
+    }
+
     static async evaluateAllProjects ({force} = {force: false}) { // no transaction
         const projects = await db.Project.findAll({where: {enabled: true}});
         for (let {id} of projects) {
@@ -54,33 +66,15 @@ class Evaluator {
 
     async serialize () {
         return {
-            problems: sortBy(await Promise.all(this.problems.map(async problem => {
-                const projectProblem = await problem.findOrCreateProjectProblem();
-                return {
-                    name: problem.constructor.name,
-                    title: problem.constructor.title,
-                    goodDescription: problem.constructor.goodDescription,
-                    badDescription: problem.constructor.badDescription,
-                    causes: problem.causes.map(cause => cause.constructor.name),
-                    isOccurred: projectProblem.isOccurred,
-                    updatedAt: projectProblem.updatedAt
-                };
-            })), 'name'),
-            causes: sortBy(this.causes.map(cause => ({
-                name: cause.constructor.name,
-                title: cause.constructor.title,
-                solvers: cause.solvers.map(solver => solver.constructor.name)
-            })), 'name'),
-            solvers: sortBy(await Promise.all(this.solvers.map(async solver => {
-                const projectSolver = await solver.findOrCreateProjectSolver();
-                return {
-                    name: solver.constructor.name,
-                    title: solver.constructor.title,
-                    description: solver.constructor.description,
-                    isSolved: projectSolver.isSolved,
-                    updatedAt: projectSolver.updatedAtgg
-                };
-            })), 'name')
+            problems: sortBy(await Promise.all(this.problems.map(problem =>
+                problem.serialize()
+            )), 'name'),
+            causes: sortBy(await Promise.all(this.causes.map(cause =>
+                cause.serialize()
+            )), 'name'),
+            solvers: sortBy(await Promise.all(this.solvers.map(async solver =>
+                solver.serialize()
+            )), 'name')
         };
     }
 }

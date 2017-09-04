@@ -13,6 +13,14 @@ class CauseAbstract {
     static get SolverClasses () {
         return [];
     }
+
+    async serialize () {
+        return {
+            name: this.constructor.name,
+            title: this.constructor.title,
+            solvers: this.solvers.map(solver => solver.constructor.name)
+        };
+    }
 }
 
 module.exports = CauseAbstract;

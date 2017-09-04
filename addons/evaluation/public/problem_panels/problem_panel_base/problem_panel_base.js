@@ -28,7 +28,7 @@ class ProblemPanelBase extends EventEmitter {
     }
 
     solve () {
-        this.problem.isOccurred(false);
+        this.emit('solve');
     }
 }
 
