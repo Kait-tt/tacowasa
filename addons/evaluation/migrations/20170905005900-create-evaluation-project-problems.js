@@ -11,6 +11,10 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.STRING
             },
+            problemName: {
+                allowNull: false,
+                type: Sequelize.STRING
+            },
             isOccurred: {
                 allowNull: false,
                 type: Sequelize.BOOLEAN,
@@ -26,6 +30,15 @@ module.exports = {
             }
         }, {
             engine: process.env.NODE_ENV === 'test' ? 'MYISAM' : 'InnoDB',
+        }).then(() => {
+            return queryInterface.addIndex(
+                'evaluationProjectProblems',
+                ['projectId', 'problemName'],
+                {
+                    indexName: 'UniqueProjectIdProblemName',
+                    indicesType: 'UNIQUE'
+                }
+            )
         });
     },
     down: function(queryInterface, Sequelize) {

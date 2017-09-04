@@ -1,6 +1,10 @@
 'use strict';
 module.exports = function (sequelize, DataTypes) {
     const EvaluationProjectProblems = sequelize.define('evaluationProjectProblems', {
+        problemName: {
+            allowNull: false,
+            type: DataTypes.STRING
+        },
         isOccurred: {
             allowNull: false,
             type: DataTypes.BOOLEAN,
@@ -14,7 +18,13 @@ module.exports = function (sequelize, DataTypes) {
                         allowNull: false
                     }
                 });
-            }
+            },
+            indexes: [
+                {
+                    unique: true,
+                    fields: ['projectId', 'problemName']
+                }
+            ]
         }
     });
     return EvaluationProjectProblems;
