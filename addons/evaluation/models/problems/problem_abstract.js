@@ -54,6 +54,18 @@ class ProblemAbstract {
         if (res) { return res; }
         return await this.createProjectProblem({transaction});
     }
+
+    async updateStatus({isOccurred}, {transaction} = {}) {
+        return await db.EvaluationProjectProblem.update({
+            isOccurred
+        }, {
+            where: {
+                projectId: this.projectId,
+                problemName: this.constructor.name
+            },
+            transaction
+        });
+    }
 }
 
 module.exports = ProblemAbstract;
