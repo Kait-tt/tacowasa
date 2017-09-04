@@ -68,6 +68,9 @@ class ProblemAbstract {
     async needCheckProblem () {
         const projectProblem = await this.findProjectProblem();
         if (!projectProblem) { return true; }
+        // 既に問題が発生していたら更新しない
+        // 問題の解決確認はユーザーが行う
+        if (projectProblem.isOccurred) { return false; }
         const expire = Number(new Date(projectProblem.updatedAt)) + this.constructor.checkDurationSeconds * 1000;
         return Date.now() > expire;
     }
