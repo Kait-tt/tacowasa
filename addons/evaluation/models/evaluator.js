@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const sortBy = require('lodash/sortBy');
+const db = require('../schemas');
 
 class Evaluator {
     constructor ({projectId}) {
@@ -24,6 +25,22 @@ class Evaluator {
 
     static get SolverClasses () {
         return this._requires('solvers');
+    }
+
+    static async evaluateAllProjects ({force} = {force: false}) { // no transaction
+        const projects = await db.Project.findAll({where: {enabled: true}});
+        for (let {id} of projects) {
+            const evaluator = new this({projectId: id});
+            await evaluator.evaluate({force});
+        }
+    }
+
+    async evaluate ({force} = {force: false}) { // no transaction
+        for (let problem of this.problems) {
+            if (force || await problem.needCheckProblem()) {
+                await problem.checkProblem();
+            }
+        }
     }
 
     static _requires (dirname) {

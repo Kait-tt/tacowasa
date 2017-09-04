@@ -1,5 +1,4 @@
 const ProblemAbstract = require('./problem_abstract');
-const db = require('../../schemas');
 const StagnationTask = require('../../../stats/models/stagnation_task');
 
 class TaskProblem extends ProblemAbstract {
