@@ -1,6 +1,6 @@
 'use strict';
 module.exports = function (sequelize, DataTypes) {
-    const EvaluationProjectProblems = sequelize.define('evaluationProjectProblems', {
+    const EvaluationProjectProblem = sequelize.define('evaluationProjectProblem', {
         problemName: {
             allowNull: false,
             type: DataTypes.STRING
@@ -13,7 +13,7 @@ module.exports = function (sequelize, DataTypes) {
     }, {
         classMethods: {
             associate: function (models) {
-                EvaluationProjectProblems.belongsTo(models.Project, {
+                EvaluationProjectProblem.belongsTo(models.Project, {
                     foreignKey: {
                         allowNull: false
                     }
@@ -27,5 +27,5 @@ module.exports = function (sequelize, DataTypes) {
             ]
         }
     });
-    return EvaluationProjectProblems;
+    return EvaluationProjectProblem;
 };
