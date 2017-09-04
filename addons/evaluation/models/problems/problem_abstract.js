@@ -4,7 +4,7 @@ class ProblemAbstract {
     constructor ({projectId}) {
         this.projectId = projectId;
         this.causes = this.constructor.CauseClasses.map(CauseClass => {
-            return new CauseClass();
+            return new CauseClass({projectId});
         });
     }
 

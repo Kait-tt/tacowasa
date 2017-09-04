@@ -1,7 +1,8 @@
 class CauseAbstract {
-    constructor () {
+    constructor ({projectId}) {
+        this.projectId = projectId;
         this.solvers = this.constructor.SolverClasses.map(SolverClass => {
-            return new SolverClass();
+            return new SolverClass({projectId});
         });
     }
 

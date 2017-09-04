@@ -52,24 +52,34 @@ class Evaluator {
             .map(file => require(path.join(dirPath, file)));
     }
 
-    serialize () {
+    async serialize () {
         return {
-            problems: sortBy(this.problems.map(problem => ({
-                name: problem.constructor.name,
-                title: problem.constructor.title,
-                goodDescription: problem.constructor.goodDescription,
-                badDescription: problem.constructor.badDescription,
-                causes: problem.causes.map(cause => cause.constructor.name)
+            problems: sortBy(await Promise.all(this.problems.map(async problem => {
+                const projectProblem = await problem.findOrCreateProjectProblem();
+                return {
+                    name: problem.constructor.name,
+                    title: problem.constructor.title,
+                    goodDescription: problem.constructor.goodDescription,
+                    badDescription: problem.constructor.badDescription,
+                    causes: problem.causes.map(cause => cause.constructor.name),
+                    isOccurred: projectProblem.isOccurred,
+                    updatedAt: projectProblem.updatedAt
+                };
             })), 'name'),
             causes: sortBy(this.causes.map(cause => ({
                 name: cause.constructor.name,
                 title: cause.constructor.title,
                 solvers: cause.solvers.map(solver => solver.constructor.name)
             })), 'name'),
-            solvers: sortBy(this.solvers.map(solver => ({
-                name: solver.constructor.name,
-                title: solver.constructor.title,
-                description: solver.constructor.description
+            solvers: sortBy(await Promise.all(this.solvers.map(async solver => {
+                const projectSolver = await solver.findOrCreateProjectSolver();
+                return {
+                    name: solver.constructor.name,
+                    title: solver.constructor.title,
+                    description: solver.constructor.description,
+                    isSolved: projectSolver.isSolved,
+                    updatedAt: projectSolver.updatedAtgg
+                };
             })), 'name')
         };
     }

@@ -9,8 +9,8 @@ class EvaluationSocketOn extends AddonSocketOn {
 
     static async fetchEvaluation (socketProject, user) {
         await socketProject.logging(user.username, 'fetchEvaluation');
-        const evaluator = new Evaluator({});
-        user.socket.emit('evaluation', evaluator.serialize());
+        const evaluator = new Evaluator({projectId: socketProject.projectId});
+        user.socket.emit('evaluation', await evaluator.serialize());
     }
 }
 
