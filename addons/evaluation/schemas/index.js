@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
-const db = require('../../../lib/schemes/');
+const db = require('../../stats/schemas'); // depend on stats addon
 
 let addonModelNames = [];
 
