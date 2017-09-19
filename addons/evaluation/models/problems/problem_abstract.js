@@ -73,6 +73,7 @@ class ProblemAbstract {
 
     async updateStatus ({isOccurred}, {transaction} = {}) {
         const projectProblem = await this.findOrCreateProjectProblem({transaction});
+        const beforeIsOccurred = projectProblem.isOccurred;
 
         await db.EvaluationProjectProblem.update({
             isOccurred
@@ -82,6 +83,13 @@ class ProblemAbstract {
             },
             transaction
         });
+
+        if (beforeIsOccurred !== isOccurred) {
+            await db.EvaluationProjectProblemLog.create({
+                evaluationProjectProblemId: projectProblem.id,
+                isOccurred
+            });
+        }
     }
 
     async needCheckProblem () {
