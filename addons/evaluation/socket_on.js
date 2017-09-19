@@ -14,12 +14,12 @@ class EvaluationSocketOn extends AddonSocketOn {
         this.startEvaluateInterval(socketProject, user);
     }
 
-    static async solveEvaluationProblem (socketProject, user, {problemName}) {
+    static async solveEvaluationProblem (socketProject, user, {problemName, memo}) {
         await socketProject.logging(user.username, 'solveEvaluationProblem', {problemName});
 
         const Problem = Evaluator.findProblem(problemName);
         const problem = new Problem({projectId: socketProject.projectId});
-        await problem.updateStatus({isOccurred: false});
+        await problem.updateStatus({isOccurred: false, memo});
 
         this._emitUpdateEvaluation(socketProject, user, {problems: [await problem.serialize()]})
     }

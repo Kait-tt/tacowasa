@@ -6,7 +6,7 @@ const _map = require('lodash/map');
 const isEqual = require('lodash/isEqual');
 
 class EvaluationModal extends AbstractModalComponent {
-    constructor ({eventEmitterOptions} = {}) {
+    constructor ({eventEmitterOptions} = {}, selectedProblem) {
         super(eventEmitterOptions);
         this.problemComponents = ko.observableArray();
 

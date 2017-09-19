@@ -7,6 +7,7 @@ const EvaluationModalButton = require('./evaluation_modal_button');
 const EvaluationModal = require('./evaluation_modal');
 const ProblemPanels = require('./problem_panels');
 const SolverPanels = require('./solver_panels');
+const SolveProblemModal = require('./solve_problem_modal');
 const flatten = require('lodash/flatten');
 const intersection = require('lodash/intersection');
 
@@ -17,6 +18,7 @@ module.exports = {
         const problems = ko.observableArray();
         const causes = ko.observableArray();
         const solvers = ko.observableArray();
+        const selectedProblem = ko.observable();
 
         // create evaluation modal
         const evaluationModal = new EvaluationModal();
@@ -31,6 +33,17 @@ module.exports = {
         evaluationModalButton.register();
         toolbarButtons.appendChild(document.createElement(evaluationModalButton.componentName));
 
+        // create solve problem modal
+        const solveProblemModal = new SolveProblemModal({}, selectedProblem);
+        solveProblemModal.register();
+        document.body.appendChild(document.createElement(solveProblemModal.modalName));
+        solveProblemModal.on('solve', ({problem, memo}) => {
+            socket.emit('solveEvaluationProblem', {
+                problemName: problem.name,
+                memo
+            });
+        });
+
         // init socket events
 
         socket.once('evaluation', evaluation => {
@@ -39,14 +52,9 @@ module.exports = {
             causes(res.causes);
             solvers(res.solvers);
 
-            const problemComponents = createProblemPanels(problems);
+            const problemComponents = createProblemPanels(problems, selectedProblem);
             problemComponents.forEach(component => {
                 component.register();
-                component.on('solve', () => {
-                    socket.emit('solveEvaluationProblem', {
-                        problemName: component.problem.name
-                    });
-                });
             });
             evaluationModal.problemComponents(problemComponents);
 
@@ -110,10 +118,10 @@ function createEvaluation (evaluation) {
     return {problems, causes, solvers};
 }
 
-function createProblemPanels (problems) {
+function createProblemPanels (problems, selectedProblem) {
     return problems().map(problem => {
         const Panel = ProblemPanels[problem.name];
-        return new Panel({}, problem);
+        return new Panel({}, problem, selectedProblem);
     });
 }
 

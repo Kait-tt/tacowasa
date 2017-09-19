@@ -71,7 +71,7 @@ class ProblemAbstract {
         return await this.createProjectProblem({transaction});
     }
 
-    async updateStatus ({isOccurred}, {transaction} = {}) {
+    async updateStatus ({isOccurred, memo}, {transaction} = {}) {
         const projectProblem = await this.findOrCreateProjectProblem({transaction});
         const beforeIsOccurred = projectProblem.isOccurred;
 
@@ -87,7 +87,8 @@ class ProblemAbstract {
         if (beforeIsOccurred !== isOccurred) {
             await db.EvaluationProjectProblemLog.create({
                 evaluationProjectProblemId: projectProblem.id,
-                isOccurred
+                isOccurred,
+                memo
             });
         }
     }

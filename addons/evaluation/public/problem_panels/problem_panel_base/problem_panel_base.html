@@ -43,7 +43,9 @@
 
     <!-- ko if: problem.isOccurred -->
     <div class="panel-footer">
-        <button class="btn btn-primary" type="button" data-bind="click: solve">解決済みにする</button>
+        <!--<button class="btn btn-primary" type="button" data-bind="click: solve">解決済みにする</button>-->
+        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#solve-problem-modal"
+                data-bind="click: solve">解決する</button>
     </div>
     <!-- /ko -->
 </div>
