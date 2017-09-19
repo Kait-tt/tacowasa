@@ -21,7 +21,7 @@ class EvaluationSocketOn extends AddonSocketOn {
         const problem = new Problem({projectId: socketProject.projectId});
         await problem.updateStatus({isOccurred: false});
 
-        this._emitUpdateEvaluation(user, {problems: [await problem.serialize()]})
+        this._emitUpdateEvaluation(socketProject, user, {problems: [await problem.serialize()]})
     }
 
     static async solveEvaluationSolver (socketProject, user, {solverName}) {
@@ -31,7 +31,7 @@ class EvaluationSocketOn extends AddonSocketOn {
         const solver = new Solver({projectId: socketProject.projectId});
         await solver.updateStatus({isSolved: true});
 
-        this._emitUpdateEvaluation(user, {solvers: [await solver.serialize()]})
+        this._emitUpdateEvaluation(socketProject, user, {solvers: [await solver.serialize()]})
     }
 
     static startEvaluateInterval (socketProject, user) {
@@ -50,12 +50,12 @@ class EvaluationSocketOn extends AddonSocketOn {
         (async () => {
             const evaluator = new Evaluator({projectId: socketProject.projectId});
             const changes = await evaluator.evaluate();
-            this._emitUpdateEvaluation(user, changes);
+            this._emitUpdateEvaluation(socketProject, user, changes);
         })().catch(err => console.error(err));
     }
 
-    static _emitUpdateEvaluation (user, {problems = [], causes = [], solvers = []}) {
-        user.socket.emit('updateEvaluation', {
+    static _emitUpdateEvaluation (socketProject, user, {problems = [], causes = [], solvers = []}) {
+        socketProject.emits(user, 'updateEvaluation', {
             problems,
             causes,
             solvers
