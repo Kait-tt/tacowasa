@@ -16,33 +16,103 @@ class GitHubAddonSocketEmit {
             });
     }
 
-    static archiveTask (params) {
-        if (params.user.isGitHub) { return Promise.resolve(params); }
-        return GitHubAddonSocketEmit.updateTask(params);
+    static archiveTask ({projectId, user, params, socketProject}) {
+        if (user.isGitHub) { return Promise.resolve({projectId, user, params, socketProject}); }
+        const {task} = params;
+        return GitHubAddonSocketEmit.updateTask({
+            projectId,
+            user,
+            socketProject,
+            params: {
+                task: {
+                    id: task.id,
+                    stage: task.stage,
+                    user: task.user
+                }
+            }
+        });
     }
 
-    static updateTaskStatus (params) {
-        if (params.user.isGitHub) { return Promise.resolve(params); }
-        return GitHubAddonSocketEmit.updateTask(params);
+    static updateTaskStatus ({projectId, user, params, socketProject}) {
+        if (user.isGitHub) { return Promise.resolve({projectId, user, params, socketProject}); }
+        const {task} = params;
+        return GitHubAddonSocketEmit.updateTask({
+            projectId,
+            user,
+            socketProject,
+            params: {
+                task: {
+                    id: task.id,
+                    stage: task.stage,
+                    user: task.user
+                }
+            }
+        });
     }
 
-    static updateTaskStatusAndOrder (params) {
-        if (params.user.isGitHub) { return Promise.resolve(params); }
-        return GitHubAddonSocketEmit.updateTask(params);
+    static updateTaskStatusAndOrder ({projectId, user, params, socketProject}) {
+        if (user.isGitHub) { return Promise.resolve({projectId, user, params, socketProject}); }
+        const {task} = params;
+        return GitHubAddonSocketEmit.updateTask({
+            projectId,
+            user,
+            socketProject,
+            params: {
+                task: {
+                    id: task.id,
+                    stage: task.stage,
+                    user: task.user
+                }
+            }
+        });
     }
 
-    static updateTaskContent (params) {
-        if (params.user.isGitHub) { return Promise.resolve(params); }
-        return GitHubAddonSocketEmit.updateTask(params);
+    static updateTaskContent ({projectId, user, params, socketProject}) {
+        if (user.isGitHub) { return Promise.resolve({projectId, user, params, socketProject}); }
+        const {task} = params;
+        return GitHubAddonSocketEmit.updateTask({
+            projectId,
+            user,
+            socketProject,
+            params: {
+                task: {
+                    id: task.id,
+                    title: task.title,
+                    body: task.body
+                }
+            }
+        });
     }
 
-    static attachLabel (params) {
-        if (params.user.isGitHub) { return Promise.resolve(params); }
-        return GitHubAddonSocketEmit.updateTask(params);
+    static attachLabel ({projectId, user, params, socketProject}) {
+        if (user.isGitHub) { return Promise.resolve({projectId, user, params, socketProject}); }
+        const {task} = params;
+        return GitHubAddonSocketEmit.updateTask({
+            projectId,
+            user,
+            socketProject,
+            params: {
+                task: {
+                    id: task.id,
+                    labels: task.labels
+                }
+            }
+        });
     }
-    static detachLabel (params) {
-        if (params.user.isGitHub) { return Promise.resolve(params); }
-        return GitHubAddonSocketEmit.updateTask(params);
+    static detachLabel ({projectId, user, params, socketProject}) {
+        if (user.isGitHub) { return Promise.resolve({projectId, user, params, socketProject}); }
+        const {task} = params;
+        return GitHubAddonSocketEmit.updateTask({
+            projectId,
+            user,
+            socketProject,
+            params: {
+                task: {
+                    id: task.id,
+                    labels: task.labels
+                }
+            }
+        });
     }
 
     static updateTask ({projectId, user, params, socketProject}) {
