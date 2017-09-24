@@ -14,11 +14,11 @@ body{
   position: relative;
   z-index: 1;
   transition: width .2s ease-in-out;
-  width: ($stage-block-width + $stage-block-horizontal-margin * 2) * 7 + $stage-block-horizontal-margin * 2;
+  width: ($stage-block-width + $stage-block-horizontal-margin * 2) * 9 + $stage-block-horizontal-margin * 2;
 }
 
 #main.compact {
-  width: ($stage-block-width + $stage-block-horizontal-margin * 2) * 5 + $stage-block-horizontal-margin * 2;
+  width: ($stage-block-width + $stage-block-horizontal-margin * 2) * 6 + $stage-block-horizontal-margin * 2;
 
   .task-board {
     height: 100%;
@@ -29,7 +29,7 @@ body{
   }
 
   .stage-block[data-stage-name="issue"] {
-    margin-left: -$stage-block-width - $stage-block-horizontal-margin * 2;
+    margin-left: -$stage-block-width * 2 - $stage-block-horizontal-margin * 4;
     overflow: hidden;
   }
 
@@ -37,8 +37,13 @@ body{
     overflow: hidden;
   }
 
+  .stage-block[data-stage-name="memo"] {
+    margin-left: -$stage-block-width - $stage-block-horizontal-margin * 2;
+    overflow: hidden;
+  }
+
   .user-block-area {
-    left: $stage-block-width * 1 + $stage-block-horizontal-margin * 2;
+    left: $stage-block-width * 2 + $stage-block-horizontal-margin * 4;
   }
 }
 
@@ -104,7 +109,7 @@ body{
 .user-block-area {
   position: absolute;
   top: 70px;
-  left: $stage-block-width * 2 + $stage-block-horizontal-margin * 4;
+  left: $stage-block-width * 4 + $stage-block-horizontal-margin * 8;
   width: $stage-block-width * 3 + $stage-block-horizontal-margin * 6;
   overflow: auto;
   height: calc(100% - 70px);
