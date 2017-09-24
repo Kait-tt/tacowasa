@@ -68,13 +68,22 @@ class SolverAbstract {
 
     async serialize () {
         const projectSolver = await this.findOrCreateProjectSolver();
+        const logs = await this.findLogs(projectSolver.id);
         return {
             name: this.constructor.name,
             title: this.constructor.title,
             description: this.constructor.description,
             isSolved: projectSolver.isSolved,
-            updatedAt: projectSolver.updatedAt
+            updatedAt: projectSolver.updatedAt,
+            logs: logs.map(x => x.toJSON())
         };
+    }
+
+    async findLogs (projectSolverId) {
+        return db.EvaluationProjectSolverLog.findAll({
+            where: {evaluationProjectSolverId: projectSolverId},
+            fields: ['isSolved', 'memo', 'createdAt']
+        });
     }
 }
 

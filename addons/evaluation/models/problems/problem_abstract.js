@@ -105,6 +105,7 @@ class ProblemAbstract {
 
     async serialize () {
         const projectProblem = await this.findOrCreateProjectProblem();
+        const logs = await this.findLogs(projectProblem.id);
         return {
             name: this.constructor.name,
             title: this.constructor.title,
@@ -112,8 +113,16 @@ class ProblemAbstract {
             badDescription: this.constructor.badDescription,
             causes: this.causes.map(cause => cause.constructor.name),
             isOccurred: projectProblem.isOccurred,
-            updatedAt: projectProblem.updatedAt
+            updatedAt: projectProblem.updatedAt,
+            logs: logs.map(x => x.toJSON())
         };
+    }
+
+    async findLogs (projectProblemId) {
+        return db.EvaluationProjectProblemLog.findAll({
+            where: {evaluationProjectProblemId: projectProblemId},
+            fields: ['isOccurred', 'memo', 'createdAt']
+        });
     }
 }
 

@@ -45,10 +45,18 @@
         <!-- /ko -->
     </div>
 
-    <!-- ko if: problem.isOccurred -->
     <div class="panel-footer">
+        <!-- ko if: problem.isOccurred -->
         <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#solve-problem-modal"
                 data-bind="click: solve">解決する</button>
+        <!-- /ko -->
+        <button class="btn btn-default" type="button" data-toggle="modal" data-target="#solve-memo-modal"
+                data-bind="css: { 'pull-right': problem.isOccurred },
+                           click: showMemos,
+                           enabled: problem.solveMemos().length">
+            <i class="glyphicon glyphicon-comment"></i>
+            解決メモ
+            <span class="badge" data-bind="text: problem.solveMemos().length"></span>
+        </button>
     </div>
-    <!-- /ko -->
 </div>

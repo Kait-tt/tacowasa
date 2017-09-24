@@ -3,10 +3,10 @@ const ko = require('knockout');
 const EventEmitter = require('eventemitter2');
 
 class ProblemPanelBase extends EventEmitter {
-    constructor ({eventEmitterOptions} = {}, problem, selectedProblem) {
+    constructor ({eventEmitterOptions} = {}, problem, selectedEvaluation) {
         super(eventEmitterOptions);
         this.problem = problem;
-        this.selectedProblem = selectedProblem;
+        this.selectedEvaluation = selectedEvaluation;
     }
 
     register () {
@@ -29,7 +29,11 @@ class ProblemPanelBase extends EventEmitter {
     }
 
     solve () {
-        this.selectedProblem(this.problem);
+        this.selectedEvaluation(this.problem);
+    }
+
+    showMemos () {
+        this.selectedEvaluation(this.problem);
     }
 }
 

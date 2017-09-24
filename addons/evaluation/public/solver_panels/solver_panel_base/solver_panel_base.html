@@ -30,10 +30,18 @@
         </div>
     </div>
 
-    <!-- ko if: !solver.isSolved() -->
     <div class="panel-footer">
+        <!-- ko if: !solver.isSolved() -->
         <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#solve-solver-modal"
                 data-bind="click: solve">解決する</button>
+        <!-- /ko -->
+        <button class="btn btn-default" type="button" data-toggle="modal" data-target="#solve-memo-modal"
+                data-bind="css: { 'pull-right': !solver.isSolved() },
+                           click: showMemos,
+                           attr: { disabled: !solver.solveMemos().length }">
+            <i class="glyphicon glyphicon-comment"></i>
+            解決メモ
+            <span class="badge" data-bind="text: solver.solveMemos().length"></span>
+        </button>
     </div>
-    <!-- /ko -->
 </div>

@@ -1,0 +1,22 @@
+<div class="modal fade" id="solve-memo-modal" tabindex="-1" role="dialog" aria-labelledby="solve-memo-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Solve memos</h4>
+      </div>
+      <div class="modal-body" data-bind="if: $component.selectedEvaluation">
+        <p><strong data-bind="text: $component.selectedEvaluation().title"></strong>の解決メモ</p>
+        <!-- ko foreach: $component.selectedEvaluation().solveMemos -->
+        <div>
+          <p>
+            解決日:
+            <span data-bind="text: $component.moment(updatedAt).format('LLL')"></span>
+          </p>
+          <pre data-bind="text: memo"></pre>
+        </div>
+        <!-- /ko -->
+      </div>
+    </div>
+  </div>
+</div>

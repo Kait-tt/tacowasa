@@ -10,6 +10,8 @@ class Solver {
         this.relatedProblems = ko.observableArray();
         this.updatedAt = ko.observable(params.updatedAt);
         this.updatedAtMoment = ko.pureComputed(() => moment(this.updatedAt()));
+        this.logs = ko.observableArray(params.logs);
+        this.solveMemos = ko.pureComputed(() => this.logs().filter(x => x.memo));
     }
 }
 
