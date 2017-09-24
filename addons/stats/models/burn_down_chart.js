@@ -19,7 +19,9 @@ class BurnDownChart {
                 ],
                 transaction
             });
-            tasks = tasks.map(x => x.toJSON());
+            tasks = tasks
+                .filter(x => x.stage.name !== 'memo')
+                .map(x => x.toJSON());
 
             const iterations = await db.Iteration.findAll({where: {projectId}, transaction});
 
