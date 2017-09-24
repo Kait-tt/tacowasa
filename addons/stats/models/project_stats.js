@@ -15,26 +15,26 @@ class ProjectStats {
         const doCalc = force || expired;
 
         if (doCalc) {
-            // create or update project stats, and lock
+            // create or update project stats
             await db.ProjectStats.upsert({
                 projectId
-            }, {fields: ['projectId'], transaction});
+            }, {fields: ['projectId']});
 
-            await MemberWorkTime.calcAll(projectId, {transaction});
-            await Predictor.calc(projectId, {transaction});
-            await StagnationTask.calcAll(projectId, {transaction});
-            await BurnDownChart.calc(projectId, {transaction});
+            await MemberWorkTime.calcAll(projectId);
+            await Predictor.calc(projectId);
+            await StagnationTask.calcAll(projectId);
+            await BurnDownChart.calc(projectId);
         }
 
-        const projectStats = await db.ProjectStats.findOne({where: {projectId}, transaction});
+        const projectStats = await db.ProjectStats.findOne({where: {projectId}});
 
         return {
             project: projectStats ? projectStats.toJSON() : null,
-            members: await ProjectStats.findEachMembers(projectId, {transaction}),
-            iterations: await Iteration.findByProjectId(projectId, {transaction}),
-            workTimes: await MemberWorkTime.findByProjectId(projectId, {transaction}),
-            stagnantTaskIds: await StagnationTask.findByProjectId(projectId, {transaction}),
-            burnDownChart: await BurnDownChart.findByProjectId(projectId, {transaction})
+            members: await ProjectStats.findEachMembers(projectId),
+            iterations: await Iteration.findByProjectId(projectId),
+            workTimes: await MemberWorkTime.findByProjectId(projectId),
+            stagnantTaskIds: await StagnationTask.findByProjectId(projectId),
+            burnDownChart: await BurnDownChart.findByProjectId(projectId)
         };
     }
 
