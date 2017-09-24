@@ -6,6 +6,7 @@ const baseSolvers = [
     'ReconsiderationProjectPeriod',
     'ReconsiderationPromisedTime',
     'ReconsiderationTaskQuantity',
+    'ReconsiderationWorkProcess',
     'Retrospective',
     'TaskDesign'
 ];

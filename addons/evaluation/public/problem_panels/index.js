@@ -3,6 +3,7 @@ const kebabCase = require('lodash/kebabCase');
 
 const baseProblems = [
     'ProjectCompletionPrediction',
+    'PromisedTime',
     'TaskProblem'
 ];
 
