@@ -53,7 +53,7 @@
         <button class="btn btn-default" type="button" data-toggle="modal" data-target="#solve-memo-modal"
                 data-bind="css: { 'pull-right': problem.isOccurred },
                            click: showMemos,
-                           enabled: problem.solveMemos().length">
+                           attr: { disabled: !problem.solveMemos().length }">
             <i class="glyphicon glyphicon-comment"></i>
             解決メモ
             <span class="badge" data-bind="text: problem.solveMemos().length"></span>
