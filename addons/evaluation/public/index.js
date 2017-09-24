@@ -104,9 +104,9 @@ module.exports = {
         });
 
         // test // TODO: remove
-        setTimeout(() => {
-            $('#evaluation-modal').modal('show');
-        }, 500);
+        // setTimeout(() => {
+        //     $('#evaluation-modal').modal('show');
+        // }, 500);
     }
 };
 
