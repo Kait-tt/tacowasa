@@ -55,8 +55,8 @@ class MemberWorkTime {
 
             let res;
             if (memberWorkTime) {
-                await db.MemberWorkTime.update({promisedMinutes}, {where: {id: memberWorkTime.id}}, transaction);
-                res = await db.MemberWorkTime.findOne({where: {id: memberWorkTime.id}}, transaction);
+                await db.MemberWorkTime.update({promisedMinutes}, {where: {id: memberWorkTime.id}, transaction});
+                res = await db.MemberWorkTime.findOne({where: {id: memberWorkTime.id}, transaction});
             } else {
                 res = await db.MemberWorkTime.create({
                     memberId: member.id,
