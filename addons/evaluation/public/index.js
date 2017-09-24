@@ -139,9 +139,7 @@ function createProblemPanels (problems, selectedEvaluation) {
 }
 
 function createSolverPanels (solvers, selectedEvaluation) {
-    console.log(Object.keys(SolverPanels));
     return solvers().map(solver => {
-        console.log(solver.name);
         const Panel = SolverPanels[solver.name];
         return new Panel({}, solver, selectedEvaluation);
     });
