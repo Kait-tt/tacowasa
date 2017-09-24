@@ -21,17 +21,17 @@ class EvaluationSocketOn extends AddonSocketOn {
         const problem = new Problem({projectId: socketProject.projectId});
         await problem.updateStatus({isOccurred: false, memo});
 
-        this._emitUpdateEvaluation(socketProject, user, {problems: [await problem.serialize()]})
+        this._emitUpdateEvaluation(socketProject, user, {problems: [await problem.serialize()]});
     }
 
-    static async solveEvaluationSolver (socketProject, user, {solverName}) {
+    static async solveEvaluationSolver (socketProject, user, {solverName, memo}) {
         await socketProject.logging(user.username, 'solveEvaluationSolver', {solverName});
 
         const Solver = Evaluator.findSolver(solverName);
         const solver = new Solver({projectId: socketProject.projectId});
-        await solver.updateStatus({isSolved: true});
+        await solver.updateStatus({isSolved: true, memo});
 
-        this._emitUpdateEvaluation(socketProject, user, {solvers: [await solver.serialize()]})
+        this._emitUpdateEvaluation(socketProject, user, {solvers: [await solver.serialize()]});
     }
 
     static startEvaluateInterval (socketProject, user) {

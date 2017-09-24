@@ -8,6 +8,7 @@ const EvaluationModal = require('./evaluation_modal');
 const ProblemPanels = require('./problem_panels');
 const SolverPanels = require('./solver_panels');
 const SolveProblemModal = require('./solve_problem_modal');
+const SolveSolverModal = require('./solve_solver_modal');
 const flatten = require('lodash/flatten');
 const intersection = require('lodash/intersection');
 
@@ -19,6 +20,7 @@ module.exports = {
         const causes = ko.observableArray();
         const solvers = ko.observableArray();
         const selectedProblem = ko.observable();
+        const selectedSolver = ko.observable();
 
         // create evaluation modal
         const evaluationModal = new EvaluationModal();
@@ -44,6 +46,17 @@ module.exports = {
             });
         });
 
+        // create solve solver modal
+        const solveSolverModal = new SolveSolverModal({}, selectedSolver);
+        solveSolverModal.register();
+        document.body.appendChild(document.createElement(solveSolverModal.modalName));
+        solveSolverModal.on('solve', ({solver, memo}) => {
+            socket.emit('solveEvaluationSolver', {
+                solverName: solver.name,
+                memo
+            });
+        });
+
         // init socket events
 
         socket.once('evaluation', evaluation => {
@@ -58,14 +71,9 @@ module.exports = {
             });
             evaluationModal.problemComponents(problemComponents);
 
-            const solverComponents = createSolverPanels(solvers);
+            const solverComponents = createSolverPanels(solvers, selectedSolver);
             solverComponents.forEach(component => {
                 component.register();
-                component.on('solve', () => {
-                    socket.emit('solveEvaluationSolver', {
-                        solverName: component.solver.name
-                    });
-                });
             });
             evaluationModal.solverComponents(solverComponents);
         });
@@ -125,9 +133,9 @@ function createProblemPanels (problems, selectedProblem) {
     });
 }
 
-function createSolverPanels (solvers) {
+function createSolverPanels (solvers, selectedSolver) {
     return solvers().map(solver => {
         const Panel = SolverPanels[solver.name];
-        return new Panel({}, solver);
+        return new Panel({}, solver, selectedSolver);
     });
 }

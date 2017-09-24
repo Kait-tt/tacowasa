@@ -2,7 +2,7 @@
 const ko = require('knockout');
 const AbstractModalComponent = require('../../../../public/src/components/modals/abstract_modal_component');
 
-class EvaluationModal extends AbstractModalComponent {
+class SolveProblemModal extends AbstractModalComponent {
     constructor ({eventEmitterOptions} = {}, selectedProblem) {
         super(eventEmitterOptions);
         this.selectedProblem = selectedProblem;
@@ -19,4 +19,4 @@ class EvaluationModal extends AbstractModalComponent {
     }
 }
 
-module.exports = EvaluationModal;
+module.exports = SolveProblemModal;

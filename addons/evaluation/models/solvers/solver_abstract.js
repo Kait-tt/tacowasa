@@ -44,8 +44,9 @@ class SolverAbstract {
         return await this.createProjectSolver({transaction});
     }
 
-    async updateStatus ({isSolved}, {transaction} = {}) {
+    async updateStatus ({isSolved, memo}, {transaction} = {}) {
         const projectSolver = await this.findOrCreateProjectSolver({transaction});
+        const beforeIsSolved = projectSolver.isSolved;
 
         await db.EvaluationProjectSolver.update({
             isSolved
@@ -55,6 +56,14 @@ class SolverAbstract {
             },
             transaction
         });
+
+        if (beforeIsSolved !== isSolved) {
+            await db.EvaluationProjectSolverLog.create({
+                evaluationProjectSolverId: projectSolver.id,
+                isSolved,
+                memo
+            });
+        }
     }
 
     async serialize () {
