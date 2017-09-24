@@ -109,8 +109,12 @@
       width: 18px;
       border-radius: 10px;
 
+      &.weight-badge-very-low {
+        background-color: #2ecc71;
+      }
+
       &.weight-badge-low {
-        background-color: #16a085;
+        background-color: #1abc9c;
       }
 
       &.weight-badge-medium {
@@ -118,6 +122,10 @@
       }
 
       &.weight-badge-high {
+        background-color: #e67e22;
+      }
+
+      &.weight-badge-very-high {
         background-color: #c0392b;
       }
     }
