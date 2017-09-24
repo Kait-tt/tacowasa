@@ -63,18 +63,29 @@ class GitHubAPI {
         }});
         if (!githubTask) { return null; }
 
-        const state = stage ? (['archive', 'done'].includes(stage.name) ? 'closed' : 'open') : null;
-
-        return await this.api.issues.edit({
+        const params = {
             user,
             repo,
-            number: githubTask.number,
-            title,
-            body,
-            state,
-            assignees: assignee ? [assignee.username] : [],
-            labels: labels ? labels.map(x => x.name) : null
-        });
+            number: githubTask.number
+        };
+
+        if (title) {
+            params.title = title;
+        }
+        if (body) {
+            params.body = body;
+        }
+        if (stage) {
+            params.state = ['archive', 'done'].includes(stage.name) ? 'closed' : 'open';
+        }
+        if (assignee !== undefined) {
+            params.assignees = assignee ? [assignee.username] : [];
+        }
+        if (labels !== undefined) {
+            params.labels = labels ? labels.map(x => x.name) : [];
+        }
+
+        return await this.api.issues.edit(params);
     }
 
     async importProject ({user, repo, createUsername}, {transaction} = {}) {

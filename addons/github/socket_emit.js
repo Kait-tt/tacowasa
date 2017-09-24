@@ -78,7 +78,8 @@ class GitHubAddonSocketEmit {
                 task: {
                     id: task.id,
                     title: task.title,
-                    body: task.body
+                    body: task.body,
+                    cost: task.cost
                 }
             }
         });
