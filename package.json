@@ -53,7 +53,7 @@
   },
   "homepage": "https://github.com/Kait-tt/tacowasa#readme",
   "engines": {
-    "node": "~6.3.1"
+    "node": "~8.1.2"
   },
   "dependencies": {
     "babel": "^6.5.2",
@@ -75,7 +75,7 @@
     "connect-mysql": "^2.1.1",
     "cookie-parser": "^1.4.3",
     "cross-env": "^2.0.0",
-    "css-loader": "^0.28.5",
+    "css-loader": "^0.28.7",
     "debug": "^2.2.0",
     "ejs": "^2.5.1",
     "eventemitter2": "^2.1.0",
@@ -97,7 +97,7 @@
     "moment": "^2.14.1",
     "morgan": "^1.7.0",
     "mysql": "^2.11.1",
-    "node-sass": "^3.13.1",
+    "node-sass": "^4.5.3",
     "nyc": "^8.3.0",
     "passport": "^0.3.2",
     "passport-github": "^1.1.0",
