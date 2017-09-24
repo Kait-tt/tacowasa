@@ -2,6 +2,7 @@ const ProblemPanelBase = require('./problem_panel_base');
 const kebabCase = require('lodash/kebabCase');
 
 const baseProblems = [
+    'PredictionDispersion',
     'ProjectCompletionPrediction',
     'PromisedTime',
     'TaskProblem'
