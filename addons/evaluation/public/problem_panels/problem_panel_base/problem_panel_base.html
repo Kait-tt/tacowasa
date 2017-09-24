@@ -11,6 +11,10 @@
                     'glyphicon-fire': problem.isOccurred()
                 }"></i>
             <span class="problem-title" data-bind="text: problem.title"></span>
+            <span class="pull-right small">
+                最終更新日:
+                <span class="problem-updated-at" data-bind="text: problem.updatedAtMoment().format('LLL')"></span>
+            </span>
         </h3>
     </div>
 

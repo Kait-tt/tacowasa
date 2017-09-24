@@ -1,4 +1,5 @@
 const ko = require('knockout');
+const moment = require('moment');
 
 class Problem {
     constructor (params) {
@@ -8,6 +9,8 @@ class Problem {
         this.goodDescription = params.goodDescription;
         this.causes = ko.observableArray(params.causes);
         this.isOccurred = ko.observable(params.isOccurred);
+        this.updatedAt = ko.observable(params.updatedAt);
+        this.updatedAtMoment = ko.pureComputed(() => moment(this.updatedAt()));
     }
 }
 

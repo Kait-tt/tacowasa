@@ -73,14 +73,14 @@ module.exports = {
         socket.on('updateEvaluation', changes => {
             changes.problems.forEach(changedProblem => {
                 const problem = problems().find(x => x.name === changedProblem.name);
-                ['isOccurred'].forEach(key => {
+                ['isOccurred', 'updatedAt'].forEach(key => {
                     problem[key](changedProblem[key]);
                 });
             });
 
             changes.solvers.forEach(changedSolver => {
                 const solver = solvers().find(x => x.name === changedSolver.name);
-                ['isSolved'].forEach(key => {
+                ['isSolved', 'updatedAt'].forEach(key => {
                     solver[key](changedSolver[key]);
                 });
             });

@@ -11,6 +11,10 @@
                     'glyphicon-thumbs-up': !solver.isSolved()
                 }"></i>
             <span class="solver-title" data-bind="text: solver.title"></span>
+            <span class="pull-right small">
+                最終更新日:
+                <span class="problem-updated-at" data-bind="text: solver.updatedAtMoment().format('LLL')"></span>
+            </span>
         </h3>
     </div>
 
