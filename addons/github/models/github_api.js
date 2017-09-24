@@ -63,15 +63,17 @@ class GitHubAPI {
         }});
         if (!githubTask) { return null; }
 
+        const state = stage ? (['archive', 'done'].includes(stage.name) ? 'closed' : 'open') : null;
+
         return await this.api.issues.edit({
             user,
             repo,
             number: githubTask.number,
             title,
             body,
-            state: ['archive', 'done'].includes(stage.name) ? 'closed' : 'open',
+            state,
             assignees: assignee ? [assignee.username] : [],
-            labels: labels.map(x => x.name)
+            labels: labels ? labels.map(x => x.name) : null
         });
     }
 
