@@ -39,10 +39,10 @@ class PromisedTime extends ProblemAbstract {
         const its = await Iteration.findByProjectId(this.projectId);
         if (!its || !its.length) { return null; }
 
-        let res = its[its.length - 1];
+        let res = null;
         const now = new Date();
         for (let it of its) {
-            if (now <= new Date(it.endTime)) {
+            if (now <= new Date(it.startTime)) {
                 res = it;
             }
         }
