@@ -62,7 +62,7 @@
             <label for="cost" class="control-label">
               <span class="glyphicon glyphicon-scissors"></span> Cost
             </label>
-            <select id="cost" class="form-control task-cost" data-bind="options: costs, optionsText: 'name', value: cost">
+            <select id="cost" class="form-control task-cost" data-bind="options: costs, optionsText: 'displayName', value: cost">
             </select>
             <span class="text-danger" data-bind="visible: overWipLimit">WIP制限を超すためコストを変更できません。</span>
           </div>
