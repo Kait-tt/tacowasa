@@ -18,102 +18,31 @@ class GitHubAddonSocketEmit {
 
     static archiveTask ({projectId, user, params, socketProject}) {
         if (user.isGitHub) { return Promise.resolve({projectId, user, params, socketProject}); }
-        const {task} = params;
-        return GitHubAddonSocketEmit.updateTask({
-            projectId,
-            user,
-            socketProject,
-            params: {
-                task: {
-                    id: task.id,
-                    stage: task.stage,
-                    user: task.user
-                }
-            }
-        });
+        return GitHubAddonSocketEmit.updateTask({projectId, user, socketProject, params});
     }
 
     static updateTaskStatus ({projectId, user, params, socketProject}) {
         if (user.isGitHub) { return Promise.resolve({projectId, user, params, socketProject}); }
-        const {task} = params;
-        return GitHubAddonSocketEmit.updateTask({
-            projectId,
-            user,
-            socketProject,
-            params: {
-                task: {
-                    id: task.id,
-                    stage: task.stage,
-                    user: task.user
-                }
-            }
-        });
+        return GitHubAddonSocketEmit.updateTask({projectId, user, socketProject, params});
     }
 
     static updateTaskStatusAndOrder ({projectId, user, params, socketProject}) {
         if (user.isGitHub) { return Promise.resolve({projectId, user, params, socketProject}); }
-        const {task} = params;
-        return GitHubAddonSocketEmit.updateTask({
-            projectId,
-            user,
-            socketProject,
-            params: {
-                task: {
-                    id: task.id,
-                    stage: task.stage,
-                    user: task.user
-                }
-            }
-        });
+        return GitHubAddonSocketEmit.updateTask({projectId, user, socketProject, params});
     }
 
     static updateTaskContent ({projectId, user, params, socketProject}) {
         if (user.isGitHub) { return Promise.resolve({projectId, user, params, socketProject}); }
-        const {task} = params;
-        return GitHubAddonSocketEmit.updateTask({
-            projectId,
-            user,
-            socketProject,
-            params: {
-                task: {
-                    id: task.id,
-                    title: task.title,
-                    body: task.body,
-                    cost: task.cost
-                }
-            }
-        });
+        return GitHubAddonSocketEmit.updateTask({projectId, user, socketProject, params});
     }
 
     static attachLabel ({projectId, user, params, socketProject}) {
         if (user.isGitHub) { return Promise.resolve({projectId, user, params, socketProject}); }
-        const {task} = params;
-        return GitHubAddonSocketEmit.updateTask({
-            projectId,
-            user,
-            socketProject,
-            params: {
-                task: {
-                    id: task.id,
-                    labels: task.labels
-                }
-            }
-        });
+        return GitHubAddonSocketEmit.updateTask({projectId, user, socketProject, params});
     }
     static detachLabel ({projectId, user, params, socketProject}) {
         if (user.isGitHub) { return Promise.resolve({projectId, user, params, socketProject}); }
-        const {task} = params;
-        return GitHubAddonSocketEmit.updateTask({
-            projectId,
-            user,
-            socketProject,
-            params: {
-                task: {
-                    id: task.id,
-                    labels: task.labels
-                }
-            }
-        });
+        return GitHubAddonSocketEmit.updateTask({projectId, user, socketProject, params});
     }
 
     static updateTask ({projectId, user, params, socketProject}) {
