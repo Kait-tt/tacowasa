@@ -62,13 +62,13 @@ class SocketProject {
     async joinRoom (user) {
         await this.logging(user.username, 'joinRoom', {username: user.username});
         this.emits(user, 'joinRoom', {username: user.username});
-        await this.notifyText(user, 'joined room');
+        // await this.notifyText(user, 'joined room');
     }
 
     async leaveRoom (user) {
         await this.logging(user.username, 'leaveRoom', {username: user.username});
         this.emits(user, 'leaveRoom', {username: user.username});
-        await this.notifyText(user, 'left room');
+        // await this.notifyText(user, 'left room');
     }
 
     async addUser (user, {username}) {
