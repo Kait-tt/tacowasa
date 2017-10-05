@@ -2,11 +2,17 @@
 const _ = require('lodash');
 const db = require('../lib/schemes');
 
+const filterProjectNames = [];
+
 db.transaction(async transaction => {
     const projects = await db.Project.findAll({transaction});
 
     for (let project of projects) {
         console.log(`start fix project : ${project.name}`);
+
+        if (!filterProjectNames.includes(project.name)) {
+            continue;
+        }
 
         const tasks = await db.Task.findAll({where: {projectId: project.id}, include: [{model: db.Stage, as: 'stage'}], transaction});
         let logs = await db.Log.findAll({
