@@ -21,8 +21,7 @@ class ProblemAbstract {
     }
 
     static get checkDurationSeconds () {
-        // return 5 * 60; // 5 minutes
-        return 60 * 60; // 1 hour
+        return 24 * 60 * 60; // 1 day
     }
 
     static get CauseClasses () {

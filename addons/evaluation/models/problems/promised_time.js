@@ -1,6 +1,7 @@
 const ProblemAbstract = require('./problem_abstract');
 const MemberWorkTime = require('../../../stats/models/member_work_time');
 const Iteration = require('../../../stats/models/iteration');
+const db = require('../../schemas');
 
 class PromisedTime extends ProblemAbstract {
     static get CauseClasses () {
@@ -25,6 +26,10 @@ class PromisedTime extends ProblemAbstract {
     async _checkProblem () {
         const it = await this._findLastIteration();
         if (!it) { return false; }
+
+        // 既に解決されていたらskip
+        if (await this._isAlreadySolved(it)) { return false; }
+
         const times = await MemberWorkTime.findByProjectId(this.projectId);
         const isOccurred = times
             .filter(time => time.iterationId === it.id)
@@ -35,6 +40,20 @@ class PromisedTime extends ProblemAbstract {
         return isOccurred;
     }
 
+    async _isAlreadySolved (it) {
+        const projectProblem = await this.findOrCreateProjectProblem();
+        const logs = await db.EvaluationProjectProblemLog.findAll({
+            where: {
+                evaluationProjectProblemId: projectProblem.id
+            }
+        });
+        const itEndTime = new Date(it.endTime);
+        return logs
+            .filter(log => !log.isOccurred)
+            .map(log => new Date(log.createdAt))
+            .some(logTime => itEndTime <= logTime);
+    }
+
     async _findLastIteration () {
         const its = await Iteration.findByProjectId(this.projectId);
         if (!its || !its.length) { return null; }
@@ -42,7 +61,7 @@ class PromisedTime extends ProblemAbstract {
         let res = null;
         const now = new Date();
         for (let it of its) {
-            if (now <= new Date(it.startTime)) {
+            if (new Date(it.endTime) <= now) {
                 res = it;
             }
         }

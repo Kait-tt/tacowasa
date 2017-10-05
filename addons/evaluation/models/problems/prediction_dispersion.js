@@ -30,10 +30,6 @@ class PredictionDispersion extends ProblemAbstract {
         return isOccurred;
     }
 
-    static get checkDurationSeconds () {
-        return 12 * 60 * 60; // 12 hours
-    }
-
     static innerAllowableError ({low, mean, high}) {
         // minute -> hour
         ({low, mean, high} = {low: low / 60, mean: mean / 60, high: high / 60});
