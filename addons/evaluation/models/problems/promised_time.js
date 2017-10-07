@@ -31,13 +31,42 @@ class PromisedTime extends ProblemAbstract {
         if (await this._isAlreadySolved(it)) { return false; }
 
         const times = await MemberWorkTime.findByProjectId(this.projectId);
-        const isOccurred = times
-            .filter(time => time.iterationId === it.id)
-            .map(time => time.promisedMinutes - time.actualMinutes)
-            .some(diff => diff >= this.constructor.allowableErrorMinutes);
 
-        await this.updateStatus({isOccurred});
-        return isOccurred;
+        const currentIterationTimes = times.filter(time => time.iterationId === it.id);
+        currentIterationTimes.forEach(time => {
+            time.diffMinutes = time.promisedMinutes - time.actualMinutes;
+        });
+
+        const badTimes = currentIterationTimes
+            .filter(time => time.diffMinutes >= this.constructor.allowableErrorMinutes);
+
+        const isOccurred = badTimes.length > 0;
+
+        if (isOccurred) {
+            await this.updateStatus({
+                isOccurred,
+                detail: await this._createDetail(badTimes)
+            });
+            return true;
+        } else {
+            await this.updateStatus({isOccurred});
+            return false;
+        }
+    }
+
+    async _createDetail (badTimes) {
+        const res = [];
+
+        for (let time of badTimes) {
+            const user = await db.User.findById(time.userId);
+            if (!user) { return; }
+
+            time.user = user;
+
+            res.push(time);
+        }
+
+        return res;
     }
 
     async _isAlreadySolved (it) {
