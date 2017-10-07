@@ -23,6 +23,10 @@ class PromisedTime extends ProblemAbstract {
         return '約束時間が守られていません(誤差30分以上)。';
     }
 
+    static get checkDurationSeconds () {
+        return 24 * 60 * 60; // 24 hour
+    }
+
     async _checkProblem () {
         const it = await this._findLastIteration();
         if (!it) { return false; }

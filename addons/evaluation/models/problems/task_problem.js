@@ -25,6 +25,10 @@ class TaskProblem extends ProblemAbstract {
         return '問題タスクが発生しています。';
     }
 
+    static get checkDurationSeconds () {
+        return 6 * 60 * 60; // 6 hour
+    }
+
     async _checkProblem () {
         const problemTaskIds = await StagnationTask.findByProjectId(this.projectId);
         const isOccurred = !!problemTaskIds.length;
