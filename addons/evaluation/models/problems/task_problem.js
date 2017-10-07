@@ -26,7 +26,7 @@ class TaskProblem extends ProblemAbstract {
     }
 
     static get checkDurationSeconds () {
-        return 6 * 60 * 60; // 6 hour
+        return 3 * 60 * 60; // 3 hours
     }
 
     async _checkProblem () {
