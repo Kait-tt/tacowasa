@@ -11,7 +11,6 @@ class ProblemPanelBase extends EventEmitter {
     }
 
     register () {
-        console.log(this.detailHtml());
         ko.components.register(this.componentName, {
             viewModel: () => {
                 return this;
