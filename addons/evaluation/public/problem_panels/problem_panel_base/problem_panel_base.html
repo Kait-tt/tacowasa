@@ -21,6 +21,7 @@
     <div class="panel-body">
         <!-- ko if: problem.isOccurred -->
         <div class="problem-description problem-bad-description" data-bind="text: problem.badDescription"></div>
+        <div class="problem-detail" data-bind="html: $component.detailHtml"></div>
         <div class="problem-causes">
             <p class="text-warning"><i class="glyphicon glyphicon-flash"></i> 予測される原因と解決策</p>
             <div>

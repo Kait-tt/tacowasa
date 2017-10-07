@@ -71,12 +71,13 @@ class ProblemAbstract {
         return await this.createProjectProblem({transaction});
     }
 
-    async updateStatus ({isOccurred, memo}, {transaction} = {}) {
+    async updateStatus ({isOccurred, memo, detail}, {transaction} = {}) {
         const projectProblem = await this.findOrCreateProjectProblem({transaction});
         const beforeIsOccurred = projectProblem.isOccurred;
 
         await db.EvaluationProjectProblem.update({
-            isOccurred
+            isOccurred,
+            detail: JSON.stringify(detail)
         }, {
             where: {
                 id: projectProblem.id
@@ -106,9 +107,11 @@ class ProblemAbstract {
     async serialize () {
         const projectProblem = await this.findOrCreateProjectProblem();
         const logs = await this.findLogs(projectProblem.id);
+
         return {
             name: this.constructor.name,
             title: this.constructor.title,
+            detail: JSON.parse(projectProblem.detail),
             goodDescription: this.constructor.goodDescription,
             badDescription: this.constructor.badDescription,
             causes: this.causes.map(cause => cause.constructor.name),

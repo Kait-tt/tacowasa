@@ -7,9 +7,11 @@ class ProblemPanelBase extends EventEmitter {
         super(eventEmitterOptions);
         this.problem = problem;
         this.selectedEvaluation = selectedEvaluation;
+        this.detailHtml = ko.observable();
     }
 
     register () {
+        console.log(this.detailHtml());
         ko.components.register(this.componentName, {
             viewModel: () => {
                 return this;

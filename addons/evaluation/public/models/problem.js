@@ -5,6 +5,8 @@ class Problem {
     constructor (params) {
         this.name = params.name;
         this.title = params.title;
+        this.detail = ko.observable(params.detail);
+        this.badDescription = params.badDescription;
         this.badDescription = params.badDescription;
         this.goodDescription = params.goodDescription;
         this.causes = ko.observableArray(params.causes);

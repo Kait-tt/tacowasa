@@ -3,7 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
-const db = require('../../stats/schemas'); // depend on stats addon
+const statsDB = require('../../stats/schemas'); // depend on stats addon
+const githubDB = require('../../github/schemas'); // depend on github addon
+const db = Object.assign({}, statsDB, githubDB);
 
 let addonModelNames = [];
 

@@ -9,6 +9,10 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             type: DataTypes.BOOLEAN,
             default: false
+        },
+        detail: {
+            allowNull: true,
+            type: DataTypes.TEXT
         }
     }, {
         classMethods: {
