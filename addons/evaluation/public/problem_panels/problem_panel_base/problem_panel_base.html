@@ -2,6 +2,9 @@
     css: {
         'panel-success': !problem.isOccurred(),
         'panel-danger': problem.isOccurred()
+    },
+    attr: {
+        'data-problem-name': problem.name
     }">
     <div class="panel-heading">
         <h3 class="panel-title">
@@ -33,7 +36,7 @@
                         <ul data-bind="foreach: { data: cause.solvers,  as: 'solver' }">
                             <li>
                                 <input type="checkbox" data-bind="checked: solver.isSolved" disabled>
-                                <a href="#" data-bind="click: $component.goToSolverTab, text: solver.title"></a>
+                                <a href="#" data-bind="click: $component.goToSolverTab.bind(this, solver), text: solver.title"></a>
                             </li>
                         </ul>
                     </li>

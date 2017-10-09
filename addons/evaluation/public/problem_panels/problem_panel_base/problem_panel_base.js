@@ -25,8 +25,13 @@ class ProblemPanelBase extends EventEmitter {
         return require('html-loader!./problem_panel_base.html');
     }
 
-    goToSolverTab () {
+    goToSolverTab (solver) {
         $('a[href="#evaluation-solver"]').tab('show');
+        const query = `.solver-panel[data-solver-name="${solver.name}"]`;
+        const $evaluationModal = $('#evaluation-modal');
+        $evaluationModal.scrollTop(0);
+        const target = $(document.querySelector(query)).offset().top;
+        $evaluationModal.scrollTop(target);
     }
 
     solve () {

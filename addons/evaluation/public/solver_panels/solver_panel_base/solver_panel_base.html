@@ -2,6 +2,9 @@
     css: {
         'panel-success': solver.isSolved(),
         'panel-info': !solver.isSolved()
+    },
+    attr: {
+        'data-solver-name': solver.name
     }">
     <div class="panel-heading">
         <h3 class="panel-title">
@@ -23,8 +26,11 @@
         <div class="solver-related-problems">
             <p class="text-danger"><i class="glyphicon glyphicon-fire"></i> 関連する問題</p>
             <div>
-                <ul data-bind="foreach: solver.relatedProblems">
-                    <li><a href="#" data-bind="click: $component.goToProblemTab, text: title"></a></li>
+                <ul data-bind="foreach: { data: solver.relatedProblems, as: 'problem' }">
+                    <li><a href="#" data-bind="
+                        click: $component.goToProblemTab.bind(this, problem),
+                        text: problem.title">
+                    </a></li>
                 </ul>
             </div>
         </div>
