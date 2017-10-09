@@ -133,12 +133,12 @@ class ProblemAbstract {
     }
 
     async getLastSolvedTime (projectProblemId) {
-        const logs = db.EvaluationProjectProblemLog.findAll({
+        const logs = await db.EvaluationProjectProblemLog.findAll({
             where: {
                 evaluationProjectProblemId: projectProblemId,
                 isOccurred: false
             },
-            fields: ['isOccurred', 'createdAt']
+            fields: ['createdAt']
         });
         return max(logs.map(x => x.createdAt));
     }
