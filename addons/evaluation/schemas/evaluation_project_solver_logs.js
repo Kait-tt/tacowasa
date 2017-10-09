@@ -12,7 +12,7 @@ module.exports = function (sequelize, DataTypes) {
         },
         memo: {
             allowNull: true,
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT
         }
     }, {
         classMethods: {
