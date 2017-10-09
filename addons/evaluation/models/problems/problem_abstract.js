@@ -1,4 +1,5 @@
 const db = require('../../schemas');
+const max = require('lodash/max');
 
 class ProblemAbstract {
     constructor ({projectId}) {
@@ -75,9 +76,11 @@ class ProblemAbstract {
         const projectProblem = await this.findOrCreateProjectProblem({transaction});
         const beforeIsOccurred = projectProblem.isOccurred;
 
+        const detailStr = JSON.stringify(detail);
+
         await db.EvaluationProjectProblem.update({
             isOccurred,
-            detail: JSON.stringify(detail)
+            detail: detailStr
         }, {
             where: {
                 id: projectProblem.id
@@ -89,7 +92,7 @@ class ProblemAbstract {
             await db.EvaluationProjectProblemLog.create({
                 evaluationProjectProblemId: projectProblem.id,
                 isOccurred,
-                memo
+                memo: memo || detailStr || null
             });
         }
     }
@@ -127,6 +130,17 @@ class ProblemAbstract {
             where: {evaluationProjectProblemId: projectProblemId},
             fields: ['isOccurred', 'memo', 'createdAt']
         });
+    }
+
+    async getLastSolvedTime (projectProblemId) {
+        const logs = db.EvaluationProjectProblemLog.findAll({
+            where: {
+                evaluationProjectProblemId: projectProblemId,
+                isOccurred: false
+            },
+            fields: ['isOccurred', 'createdAt']
+        });
+        return max(logs.map(x => x.createdAt));
     }
 }
 

@@ -28,23 +28,35 @@ class PromisedTime extends ProblemAbstract {
     }
 
     async _checkProblem () {
-        const it = await this._findLastIteration();
-        if (!it) { return false; }
+        const now = new Date();
+        const projectProblem = await this.findOrCreateProjectProblem();
+        const _lastSolvedTime = await this.getLastSolvedTime(projectProblem.id);
+        const lastSolvedTime = _lastSolvedTime ? new Date(_lastSolvedTime) : null;
 
-        // 既に解決されていたらskip
-        if (await this._isAlreadySolved(it)) { return false; }
+        const its = await Iteration.findByProjectId(this.projectId);
+        const targetIts = its.filter(it => {
+            const endTime = new Date(it.endTime);
+            return lastSolvedTime < endTime && endTime <= now;
+        });
+        const targetItIds = targetIts.map(it => it.id);
 
-        const times = await MemberWorkTime.findByProjectId(this.projectId);
+        const times = await MemberWorkTime.findByProjectId(this.projectId, {
+            include: [{model: db.Iteration, as: 'iteration'}]
+        });
 
-        const currentIterationTimes = times.filter(time => time.iterationId === it.id);
-        currentIterationTimes.forEach(time => {
+        const targetTimes = times.filter(time => targetItIds.includes(time.iterationId));
+        targetTimes.forEach(time => {
             time.diffMinutes = time.promisedMinutes - time.actualMinutes;
         });
 
-        const badTimes = currentIterationTimes
+        const badTimes = targetTimes
             .filter(time => time.diffMinutes >= this.constructor.allowableErrorMinutes);
 
         const isOccurred = badTimes.length > 0;
+
+        badTimes.forEach(time => {
+            time.iteration = targetIts.find(it => it.id === time.iterationId);
+        });
 
         if (isOccurred) {
             await this.updateStatus({
@@ -68,35 +80,6 @@ class PromisedTime extends ProblemAbstract {
             time.user = user;
 
             res.push(time);
-        }
-
-        return res;
-    }
-
-    async _isAlreadySolved (it) {
-        const projectProblem = await this.findOrCreateProjectProblem();
-        const logs = await db.EvaluationProjectProblemLog.findAll({
-            where: {
-                evaluationProjectProblemId: projectProblem.id
-            }
-        });
-        const itEndTime = new Date(it.endTime);
-        return logs
-            .filter(log => !log.isOccurred)
-            .map(log => new Date(log.createdAt))
-            .some(logTime => itEndTime <= logTime);
-    }
-
-    async _findLastIteration () {
-        const its = await Iteration.findByProjectId(this.projectId);
-        if (!its || !its.length) { return null; }
-
-        let res = null;
-        const now = new Date();
-        for (let it of its) {
-            if (new Date(it.endTime) <= now) {
-                res = it;
-            }
         }
 
         return res;
